@@ -97,37 +97,72 @@ if (navigator.storage?.persist) {
 
 ```yaml
 # .gitlab-ci.yml
-image: node:24
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
 
 stages:
-  - build
+  - lint
+  - test
+  - deploy
 
-create-pages:
-  stage: build
+.node_base: &node_base
+  image: node:24.19.0
   before_script:
+    - npm install --global corepack@latest
     - corepack enable
     - pnpm config set store-dir .pnpm-store
     - pnpm install --frozen-lockfile
-  script:
-    - pnpm lint
-    - pnpm test:unit
-    - pnpm build
-  pages:
-    publish: dist
-  artifacts:
-    paths:
-      - dist
   cache:
     key:
       files:
         - pnpm-lock.yaml
     paths:
       - .pnpm-store
+
+lint:
+  <<: [*node_base]
+  stage: lint
+  interruptible: true
+  script:
+    - pnpm lint
+
+test:
+  <<: [*node_base]
+  stage: test
+  interruptible: true
+  script:
+    - pnpm test:unit
+
+pages:
+  <<: [*node_base]
+  stage: deploy
+  script:
+    - pnpm build
+  pages:
+    publish: dist
+  artifacts:
+    paths:
+      - dist
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
 Начиная с GitLab 17.10 значение `pages.publish` автоматически добавляется в `artifacts:paths`, но явное указание не мешает и работает на более старых версиях.
+
+Схема пайплайна повторяет соседние проекты, чтобы не держать в голове два разных набора привычек:
+
+- **`workflow` с `auto_cancel: on_new_commit: interruptible`** — пуш в ветку гасит незаконченный прогон предыдущего коммита. Правила заодно убирают дубль «ветка + merge request»: пока по ветке открыт MR, пайплайн на саму ветку не запускается.
+- **Якорь `.node_base`** — образ, corepack, стор pnpm и установка зависимостей описаны один раз.
+- **`npm install --global corepack@latest`** — в образе `node:24` лежит старый corepack, который спотыкается о проверку подписей у свежих версий pnpm.
+- **`corepack prepare` не нужен**: точная версия зафиксирована полем `packageManager` в `package.json`, и corepack берёт её оттуда. Дублировать номер в двух местах — значит однажды их разъехать.
+- **Стадии `lint → test → deploy`** — деплой не начнётся, пока не прошли проверки. `lint` и `test` помечены `interruptible`, деплой — нет: его прерывать на полпути незачем.
+- **Джоба `pages`** ограничена дефолтной веткой, поэтому MR прогоняются, но не публикуются.
 
 **SPA-fallback.** Файл `public/_redirects` (Vite скопирует его в `dist/`):
 
