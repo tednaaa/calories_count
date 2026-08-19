@@ -8,6 +8,7 @@ export {
   isFuture,
   isToday,
   lastDateKeys,
+  requestedDateKey,
   shiftDateKey,
   toDateKey,
 } from './date';

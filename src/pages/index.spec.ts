@@ -2,13 +2,25 @@ import type { Entry, Profile } from '@/shared/db';
 import { mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { EntryRow, removeEntry, restoreEntry, setEntryQty } from '@/entities/entry';
 import { useLiveQuery } from '@/shared/lib';
 import TodayView from './index.vue';
 
-vi.mock('vue-router', () => ({
-  RouterLink: { template: '<a><slot /></a>' },
-}));
+vi.mock('vue-router', async () => {
+  const { reactive } = await import('vue');
+  const route = reactive({ query: {} as Record<string, unknown> });
+
+  return {
+    RouterLink: { template: '<a><slot /></a>' },
+    useRoute: () => route,
+    useRouter: () => ({
+      replace: (to: { query?: Record<string, unknown> }) => {
+        route.query = to.query ?? {};
+      },
+    }),
+  };
+});
 
 vi.mock('shonk-ui', async importOriginal => ({
   ...await importOriginal<typeof import('shonk-ui')>(),
@@ -51,6 +63,8 @@ function entry(overrides: Partial<Entry> = {}): Entry {
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2026, 7, 19, 15, 0));
+
+  useRouter().replace({ query: {} });
 
   entries.value = [];
   profile.value = { targetKcal: 2410 } as Profile;
@@ -130,6 +144,12 @@ describe('экран «Сегодня»', () => {
 
     await forward.trigger('click');
     expect(wrapper.text()).toContain('Сегодня');
+  });
+
+  it('открывает день, указанный в адресе', () => {
+    useRouter().replace({ query: { date: '2026-08-17' } });
+
+    expect(mount(TodayView).text()).toContain('17 августа');
   });
 
   it('не пускает в будущее', () => {

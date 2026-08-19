@@ -6,7 +6,7 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { addEntries, frequentFoodIds } from '@/entities/entry';
 import { categories, foodById, searchFoods } from '@/entities/food';
-import { formatDayLabel, isDateKey, isFuture, isToday, toDateKey, useLiveQuery } from '@/shared/lib';
+import { formatDayLabel, isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
 import { cartQty, cartSummary, withCartItem } from './lib/cart';
 import CartPanel from './ui/CartPanel.vue';
 import FoodCard from './ui/FoodCard.vue';
@@ -23,11 +23,7 @@ const category = ref<ChipId>('all');
 const items = ref<CartItem[]>([]);
 const saving = ref(false);
 
-const dateKey = computed(() => {
-  const { date } = route.query;
-
-  return isDateKey(date) && !isFuture(date) ? date : toDateKey();
-});
+const dateKey = computed(() => requestedDateKey(route.query.date));
 
 const showsToday = computed(() => isToday(dateKey.value));
 

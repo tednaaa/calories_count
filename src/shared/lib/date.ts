@@ -37,6 +37,10 @@ export function isFuture(key: DateKey): boolean {
   return key > toDateKey();
 }
 
+export function requestedDateKey(value: unknown): DateKey {
+  return isDateKey(value) && !isFuture(value) ? value : toDateKey();
+}
+
 export function lastDateKeys(count: number, until: DateKey = toDateKey()): DateKey[] {
   return Array.from({ length: count }, (_, index) => shiftDateKey(until, index - count + 1));
 }

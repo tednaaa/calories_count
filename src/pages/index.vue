@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { Entry, Profile } from '@/shared/db';
+import type { DateKey } from '@/shared/lib';
 import { ChevronLeft, ChevronRight } from '@lucide/vue';
 import { Button, toast } from 'shonk-ui';
-import { computed, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { computed } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
   entriesOfDay,
   EntryRow,
@@ -13,10 +14,13 @@ import {
   totalKcal,
 } from '@/entities/entry';
 import { loadProfile } from '@/entities/profile';
-import { formatDayLabel, isToday, shiftDateKey, toDateKey, useLiveQuery } from '@/shared/lib';
+import { formatDayLabel, isToday, requestedDateKey, shiftDateKey, toDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
 
-const dateKey = ref(toDateKey());
+const route = useRoute();
+const router = useRouter();
+
+const dateKey = computed(() => requestedDateKey(route.query.date));
 
 const entries = useLiveQuery<Entry[]>(() => entriesOfDay(dateKey.value), [], [dateKey]);
 const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined);
@@ -26,8 +30,8 @@ const target = computed(() => profile.value?.targetKcal ?? 0);
 const showsToday = computed(() => isToday(dateKey.value));
 const addLink = computed(() => (showsToday.value ? '/add' : `/add?date=${dateKey.value}`));
 
-function shiftDay(days: number) {
-  dateKey.value = shiftDateKey(dateKey.value, days);
+function showDay(date: DateKey) {
+  void router.replace({ query: { date } });
 }
 
 async function remove(entry: Entry) {
@@ -57,7 +61,7 @@ async function changeQty(id: string, qty: number) {
         type="button"
         class="flex size-10 items-center justify-center rounded-full text-text-secondary"
         aria-label="Предыдущий день"
-        @click="shiftDay(-1)"
+        @click="showDay(shiftDateKey(dateKey, -1))"
       >
         <ChevronLeft class="size-5" />
       </button>
@@ -70,7 +74,7 @@ async function changeQty(id: string, qty: number) {
           v-if="!showsToday"
           type="button"
           class="text-xs text-text-brand"
-          @click="dateKey = toDateKey()"
+          @click="showDay(toDateKey())"
         >
           Вернуться к сегодня
         </button>
@@ -81,7 +85,7 @@ async function changeQty(id: string, qty: number) {
         class="flex size-10 items-center justify-center rounded-full text-text-secondary disabled:opacity-30"
         :disabled="showsToday"
         aria-label="Следующий день"
-        @click="shiftDay(1)"
+        @click="showDay(shiftDateKey(dateKey, 1))"
       >
         <ChevronRight class="size-5" />
       </button>
