@@ -5,30 +5,35 @@
 ```ts
 // vite.config.ts
 VitePWA({
-  registerType: 'autoUpdate',
-  includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
-  manifest: {
-    name: 'Calories Count',
-    short_name: 'Calories',
-    description: 'Персональный счётчик калорий',
-    lang: 'ru',
-    start_url: '/',
-    scope: '/',
-    display: 'standalone',
-    orientation: 'portrait',
-    background_color: '#0b0b0c',
-    theme_color: '#0b0b0c',
-    icons: [
-      { src: '/icons/192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icons/512.png', sizes: '512x512', type: 'image/png' },
-      { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-    ],
-  },
-  workbox: {
-    globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
-    navigateFallback: '/index.html',
-  },
-})
+	registerType: "autoUpdate",
+	includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+	manifest: {
+		name: "Calories Count",
+		short_name: "Calories",
+		description: "Персональный счётчик калорий",
+		lang: "ru",
+		start_url: "/",
+		scope: "/",
+		display: "standalone",
+		orientation: "portrait",
+		background_color: "#0b0b0c",
+		theme_color: "#0b0b0c",
+		icons: [
+			{ src: "/icons/192.png", sizes: "192x192", type: "image/png" },
+			{ src: "/icons/512.png", sizes: "512x512", type: "image/png" },
+			{
+				src: "/icons/maskable-512.png",
+				sizes: "512x512",
+				type: "image/png",
+				purpose: "maskable",
+			},
+		],
+	},
+	workbox: {
+		globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2}"],
+		navigateFallback: "/index.html",
+	},
+});
 ```
 
 `base` в Vite остаётся `'/'` — приложение живёт в корне кастомного домена. Именно ради этого домен и нужен: на служебном адресе GitLab Pages сайт лежал бы в `/<project>/`, и префикс пришлось бы протаскивать в `base`, в scope service worker'а и в роутер.
@@ -41,10 +46,16 @@ VitePWA({
 - В `index.html` нужны:
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta
+	name="viewport"
+	content="width=device-width, initial-scale=1, viewport-fit=cover"
+/>
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta
+	name="apple-mobile-web-app-status-bar-style"
+	content="black-translucent"
+/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 ```
 
@@ -55,7 +66,7 @@ VitePWA({
 
 ```ts
 if (navigator.storage?.persist) {
-  await navigator.storage.persist()   // best-effort
+	await navigator.storage.persist(); // best-effort
 }
 ```
 

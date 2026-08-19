@@ -47,14 +47,14 @@ buckwheat-chicken гречка с курицей
 ```ts
 // src/entities/food/lib/categories.ts
 export const categories = [
-  { id: 'meals',   name: 'Основное' },   // рис с мясом, супы, паста
-  { id: 'basics',  name: 'Простое' },    // яйца, творог, бутерброд
-  { id: 'drinks',  name: 'Напитки' },    // кофе, чай, сок
-  { id: 'snacks',  name: 'Перекусы' },   // шоколад, орехи, фрукты
-  { id: 'outside', name: 'Не дома' },    // покупное и общепит
-] as const
+	{ id: "meals", name: "Основное" }, // рис с мясом, супы, паста
+	{ id: "basics", name: "Простое" }, // яйца, творог, бутерброд
+	{ id: "drinks", name: "Напитки" }, // кофе, чай, сок
+	{ id: "snacks", name: "Перекусы" }, // шоколад, орехи, фрукты
+	{ id: "outside", name: "Не дома" }, // покупное и общепит
+] as const;
 
-export type CategoryId = typeof categories[number]['id']
+export type CategoryId = (typeof categories)[number]["id"];
 ```
 
 Список намеренно короткий и плоский. Категории — это фильтр-чипсы в одну строку, а не дерево.
@@ -70,25 +70,27 @@ export type CategoryId = typeof categories[number]['id']
 ```js
 // pnpm foods:optimize
 // raw-photos/*.{jpg,jpeg,png,heic} -> public/foods/<basename>.webp
-import { readdir, mkdir } from 'node:fs/promises'
-import { join, parse } from 'node:path'
-import sharp from 'sharp'
+import { readdir, mkdir } from "node:fs/promises";
+import { join, parse } from "node:path";
+import sharp from "sharp";
 
-const SRC = 'raw-photos'
-const OUT = 'public/foods'
-const SIZE = 600
+const SRC = "raw-photos";
+const OUT = "public/foods";
+const SIZE = 600;
 
-await mkdir(OUT, { recursive: true })
-const files = (await readdir(SRC)).filter((f) => /\.(jpe?g|png|heic|webp)$/i.test(f))
+await mkdir(OUT, { recursive: true });
+const files = (await readdir(SRC)).filter((f) =>
+	/\.(jpe?g|png|heic|webp)$/i.test(f),
+);
 
 for (const file of files) {
-  const { name } = parse(file)
-  await sharp(join(SRC, file))
-    .rotate()                                        // учесть EXIF-ориентацию
-    .resize(SIZE, SIZE, { fit: 'cover', position: 'centre' })
-    .webp({ quality: 80 })
-    .toFile(join(OUT, `${name}.webp`))
-  console.log(`✓ ${name}.webp`)
+	const { name } = parse(file);
+	await sharp(join(SRC, file))
+		.rotate() // учесть EXIF-ориентацию
+		.resize(SIZE, SIZE, { fit: "cover", position: "centre" })
+		.webp({ quality: 80 })
+		.toFile(join(OUT, `${name}.webp`));
+	console.log(`✓ ${name}.webp`);
 }
 ```
 

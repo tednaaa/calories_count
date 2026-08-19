@@ -6,27 +6,46 @@
 // src/entities/food/lib/ — types.ts + catalog.ts
 
 export interface Food {
-  /** Стабильный слаг. Задаётся один раз и НИКОГДА не меняется и не переиспользуется. */
-  id: string
-  /** Отображаемое название: «Рис с говядиной» */
-  name: string
-  /** Калорийность ОДНОЙ порции. Целое число. */
-  kcal: number
-  /** Имя файла в public/foods/. По соглашению — `${id}.webp` */
-  photo: string
-  /** Категория для фильтра на экране добавления */
-  category: CategoryId
-  /** Дополнительные слова для поиска: ['рис', 'говядина', 'мясо'] */
-  tags?: string[]
-  /** Блюдо больше не готовится: скрыто в выборе, но старые записи остаются валидными. */
-  archived?: boolean
+	/** Стабильный слаг. Задаётся один раз и НИКОГДА не меняется и не переиспользуется. */
+	id: string;
+	/** Отображаемое название: «Рис с говядиной» */
+	name: string;
+	/** Калорийность ОДНОЙ порции. Целое число. */
+	kcal: number;
+	/** Имя файла в public/foods/. По соглашению — `${id}.webp` */
+	photo: string;
+	/** Категория для фильтра на экране добавления */
+	category: CategoryId;
+	/** Дополнительные слова для поиска: ['рис', 'говядина', 'мясо'] */
+	tags?: string[];
+	/** Блюдо больше не готовится: скрыто в выборе, но старые записи остаются валидными. */
+	archived?: boolean;
 }
 
 export const foods: Food[] = [
-  { id: 'coffee-black',  name: 'Кофе чёрный',   kcal: 5,   photo: 'coffee-black.webp',  category: 'drinks' },
-  { id: 'egg-boiled',    name: 'Яйцо варёное',  kcal: 78,  photo: 'egg-boiled.webp',    category: 'basics' },
-  { id: 'rice-beef',     name: 'Рис с говядиной', kcal: 620, photo: 'rice-beef.webp',   category: 'meals', tags: ['рис', 'мясо'] },
-]
+	{
+		id: "coffee-black",
+		name: "Кофе чёрный",
+		kcal: 5,
+		photo: "coffee-black.webp",
+		category: "drinks",
+	},
+	{
+		id: "egg-boiled",
+		name: "Яйцо варёное",
+		kcal: 78,
+		photo: "egg-boiled.webp",
+		category: "basics",
+	},
+	{
+		id: "rice-beef",
+		name: "Рис с говядиной",
+		kcal: 620,
+		photo: "rice-beef.webp",
+		category: "meals",
+		tags: ["рис", "мясо"],
+	},
+];
 ```
 
 Правила ведения каталога — в [03-catalog.md](03-catalog.md).
@@ -37,21 +56,21 @@ export const foods: Food[] = [
 
 ```ts
 export interface Entry {
-  /** crypto.randomUUID() */
-  id: string
-  /** Локальная календарная дата, 'YYYY-MM-DD'. Ключ группировки по дням. */
-  date: string
-  /** epoch ms — момент создания, задаёт порядок внутри дня */
-  createdAt: number
-  /** Ссылка на каталог. Может указывать на удалённое блюдо. */
-  foodId: string
-  /** Количество порций. Целое >= 1. */
-  qty: number
+	/** crypto.randomUUID() */
+	id: string;
+	/** Локальная календарная дата, 'YYYY-MM-DD'. Ключ группировки по дням. */
+	date: string;
+	/** epoch ms — момент создания, задаёт порядок внутри дня */
+	createdAt: number;
+	/** Ссылка на каталог. Может указывать на удалённое блюдо. */
+	foodId: string;
+	/** Количество порций. Целое >= 1. */
+	qty: number;
 
-  /** СНАПШОТ калорийности одной порции на момент записи. */
-  kcalPerPortion: number
-  /** СНАПШОТ названия на момент записи. */
-  name: string
+	/** СНАПШОТ калорийности одной порции на момент записи. */
+	kcalPerPortion: number;
+	/** СНАПШОТ названия на момент записи. */
+	name: string;
 }
 ```
 
@@ -60,27 +79,28 @@ export interface Entry {
 ### Profile — профиль и цель
 
 ```ts
-export type Sex = 'male' | 'female'
-export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'high' | 'veryHigh'
-export type Goal = 'cut' | 'cutMild' | 'maintain' | 'bulkMild' | 'bulk'
+export type Sex = "male" | "female";
+export type ActivityLevel =
+	"sedentary" | "light" | "moderate" | "high" | "veryHigh";
+export type Goal = "cut" | "cutMild" | "maintain" | "bulkMild" | "bulk";
 
 export interface Profile {
-  /** Всегда 'me' — в таблице ровно одна запись */
-  id: 'me'
-  sex: Sex
-  age: number
-  heightCm: number
-  weightKg: number
-  activity: ActivityLevel
-  goal: Goal
+	/** Всегда 'me' — в таблице ровно одна запись */
+	id: "me";
+	sex: Sex;
+	age: number;
+	heightCm: number;
+	weightKg: number;
+	activity: ActivityLevel;
+	goal: Goal;
 
-  /** Итоговая дневная норма в ккал — то, что показывается на главной */
-  targetKcal: number
-  /** true, если пользователь переопределил норму вручную и она не пересчитывается */
-  targetOverridden: boolean
+	/** Итоговая дневная норма в ккал — то, что показывается на главной */
+	targetKcal: number;
+	/** true, если пользователь переопределил норму вручную и она не пересчитывается */
+	targetOverridden: boolean;
 
-  createdAt: number
-  updatedAt: number
+	createdAt: number;
+	updatedAt: number;
 }
 ```
 
@@ -88,10 +108,10 @@ export interface Profile {
 
 ```ts
 export interface WeightRecord {
-  id?: number          // автоинкремент
-  date: string         // 'YYYY-MM-DD'
-  kg: number
-  createdAt: number
+	id?: number; // автоинкремент
+	date: string; // 'YYYY-MM-DD'
+	kg: number;
+	createdAt: number;
 }
 ```
 
@@ -101,28 +121,29 @@ export interface WeightRecord {
 
 ```ts
 // src/shared/db/index.ts
-import type { Table } from 'dexie'
-import type { Entry, Profile, WeightRecord } from './types'
-import Dexie from 'dexie'
+import type { Table } from "dexie";
+import type { Entry, Profile, WeightRecord } from "./types";
+import Dexie from "dexie";
 
 export type AppDatabase = Dexie & {
-  entries: Table<Entry, string>
-  profile: Table<Profile, string>
-  weightLog: Table<WeightRecord, number>
-}
+	entries: Table<Entry, string>;
+	profile: Table<Profile, string>;
+	weightLog: Table<WeightRecord, number>;
+};
 
-export const db = new Dexie('calories-count') as AppDatabase
+export const db = new Dexie("calories-count") as AppDatabase;
 
 db.version(1).stores({
-  entries: 'id, date, foodId',
-  profile: 'id',
-  weightLog: '++id, &date',
-})
+	entries: "id, date, foodId",
+	profile: "id",
+	weightLog: "++id, &date",
+});
 ```
 
 **Почему пересечение типов, а не подкласс Dexie.** Привычная запись `class AppDatabase extends Dexie { entries!: Table<Entry, string> }` в этом проекте ломается молча. При `useDefineForClassFields`, который включён в целевой конфигурации, объявление поля в подклассе выполняется **после** конструктора Dexie и затирает уже присвоенную таблицу на `undefined`. Сборка и типы при этом в порядке — падает рантайм на первом же запросе к базе. Объявление таблиц типом, а не полями класса, убирает эту возможность полностью: полей, которые можно затереть, просто нет.
 
 Индексы:
+
 - `date` — выборка дня и диапазона за неделю, основная операция приложения;
 - `foodId` — подсчёт частоты использования для сортировки каталога;
 - `&date` в `weightLog` — уникальность: одна запись веса на дату.
@@ -140,7 +161,7 @@ db.version(1).stores({
 Блюдо могли удалить из каталога между записью и просмотром. Любое обращение к каталогу по `foodId` — опциональное:
 
 ```ts
-const food = foods.find((f) => f.id === entry.foodId)  // Food | undefined
+const food = foods.find((f) => f.id === entry.foodId); // Food | undefined
 // name и kcal берём из entry, фото — из food?.photo ?? заглушка
 ```
 
@@ -154,11 +175,11 @@ const food = foods.find((f) => f.id === entry.foodId)  // Food | undefined
 ```ts
 // src/shared/lib/date.ts
 export function toDateKey(d: Date = new Date()): string {
-  // 'YYYY-MM-DD' по локальному времени, БЕЗ toISOString()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+	// 'YYYY-MM-DD' по локальному времени, БЕЗ toISOString()
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, "0");
+	const day = String(d.getDate()).padStart(2, "0");
+	return `${y}-${m}-${day}`;
 }
 ```
 
@@ -172,11 +193,11 @@ export function toDateKey(d: Date = new Date()): string {
 
 ```ts
 interface Backup {
-  version: 1
-  exportedAt: string       // ISO
-  profile: Profile | null
-  entries: Entry[]
-  weightLog: WeightRecord[]
+	version: 1;
+	exportedAt: string; // ISO
+	profile: Profile | null;
+	entries: Entry[];
+	weightLog: WeightRecord[];
 }
 ```
 

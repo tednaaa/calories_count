@@ -2,17 +2,17 @@
 
 ## Стек
 
-| Слой | Выбор | Почему именно так |
-|---|---|---|
+| Слой      | Выбор                                         | Почему именно так                                                                          |
+| --------- | --------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Фреймворк | **Vue 3** (Composition API, `<script setup>`) | У проекта есть собственный UI kit на npm, написанный только под Vue. Это решающий аргумент |
-| Язык | **TypeScript** | Каталог блюд ведётся руками в коде — типы ловят опечатку в поле и дубль `id` до коммита |
-| Сборка | **Vite** | — |
-| Роутинг | **vue-router** (history mode) | 5 экранов |
-| Хранилище | **Dexie** поверх IndexedDB | Тонкая обёртка, чтобы не писать сырые транзакции. Есть `liveQuery` |
-| Стили | **Tailwind** | — |
-| PWA | **vite-plugin-pwa** (Workbox) | Манифест, service worker, прекэш |
-| UI | `shonk-ui` — собственный UI kit | — |
-| Хостинг | **GitLab Pages** + кастомный домен | См. [06-pwa-deploy.md](06-pwa-deploy.md) |
+| Язык      | **TypeScript**                                | Каталог блюд ведётся руками в коде — типы ловят опечатку в поле и дубль `id` до коммита    |
+| Сборка    | **Vite**                                      | —                                                                                          |
+| Роутинг   | **vue-router** (history mode)                 | 5 экранов                                                                                  |
+| Хранилище | **Dexie** поверх IndexedDB                    | Тонкая обёртка, чтобы не писать сырые транзакции. Есть `liveQuery`                         |
+| Стили     | **Tailwind**                                  | —                                                                                          |
+| PWA       | **vite-plugin-pwa** (Workbox)                 | Манифест, service worker, прекэш                                                           |
+| UI        | `shonk-ui` — собственный UI kit               | —                                                                                          |
+| Хостинг   | **GitLab Pages** + кастомный домен            | См. [06-pwa-deploy.md](06-pwa-deploy.md)                                                   |
 
 ## Почему Vue, а не Svelte
 
@@ -38,26 +38,30 @@ Vue 3 с Vite и tree-shaking: **~16 КБ gzip** на минимальном п�
 ```ts
 // src/shared/lib/use-live-query.ts
 export function useLiveQuery<T>(
-  querier: () => T | Promise<T>,
-  initial: T,
-  deps: WatchSource[] = [],
+	querier: () => T | Promise<T>,
+	initial: T,
+	deps: WatchSource[] = [],
 ): Ref<T> {
-  const value = ref(initial) as Ref<T>;
-  let subscription: Subscription | undefined;
+	const value = ref(initial) as Ref<T>;
+	let subscription: Subscription | undefined;
 
-  function subscribe() {
-    subscription?.unsubscribe();
-    subscription = liveQuery(querier).subscribe({
-      next: (result) => { value.value = result; },
-      error: (error) => { console.error('[useLiveQuery]', error); },
-    });
-  }
+	function subscribe() {
+		subscription?.unsubscribe();
+		subscription = liveQuery(querier).subscribe({
+			next: (result) => {
+				value.value = result;
+			},
+			error: (error) => {
+				console.error("[useLiveQuery]", error);
+			},
+		});
+	}
 
-  subscribe();
-  watch(deps, subscribe);
-  onScopeDispose(() => subscription?.unsubscribe());
+	subscribe();
+	watch(deps, subscribe);
+	onScopeDispose(() => subscription?.unsubscribe());
 
-  return value;
+	return value;
 }
 ```
 

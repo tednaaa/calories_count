@@ -19,23 +19,23 @@
 TDEE = BMR × коэффициент активности
 ```
 
-| Уровень | `ActivityLevel` | Коэф. | Описание для интерфейса |
-|---|---|---|---|
-| Сидячий | `sedentary` | 1.2 | Офис, тренировок нет |
-| Лёгкая активность | `light` | 1.375 | Тренировки 1–3 раза в неделю |
-| Умеренная | `moderate` | 1.55 | Тренировки 3–5 раз в неделю |
-| Высокая | `high` | 1.725 | Тренировки 6–7 раз в неделю |
-| Очень высокая | `veryHigh` | 1.9 | Физическая работа или две тренировки в день |
+| Уровень           | `ActivityLevel` | Коэф. | Описание для интерфейса                     |
+| ----------------- | --------------- | ----- | ------------------------------------------- |
+| Сидячий           | `sedentary`     | 1.2   | Офис, тренировок нет                        |
+| Лёгкая активность | `light`         | 1.375 | Тренировки 1–3 раза в неделю                |
+| Умеренная         | `moderate`      | 1.55  | Тренировки 3–5 раз в неделю                 |
+| Высокая           | `high`          | 1.725 | Тренировки 6–7 раз в неделю                 |
+| Очень высокая     | `veryHigh`      | 1.9   | Физическая работа или две тренировки в день |
 
 Цель:
 
-| Цель | `Goal` | Поправка | Ожидаемый темп |
-|---|---|---|---|
-| Похудение | `cut` | −20 % | ≈ −0.5 кг/нед |
-| Мягкое похудение | `cutMild` | −15 % | ≈ −0.35 кг/нед |
-| Поддержание веса | `maintain` | 0 % | — |
-| Мягкий набор | `bulkMild` | +10 % | ≈ +0.2 кг/нед |
-| Набор массы | `bulk` | +15 % | ≈ +0.3 кг/нед |
+| Цель             | `Goal`     | Поправка | Ожидаемый темп |
+| ---------------- | ---------- | -------- | -------------- |
+| Похудение        | `cut`      | −20 %    | ≈ −0.5 кг/нед  |
+| Мягкое похудение | `cutMild`  | −15 %    | ≈ −0.35 кг/нед |
+| Поддержание веса | `maintain` | 0 %      | —              |
+| Мягкий набор     | `bulkMild` | +10 %    | ≈ +0.2 кг/нед  |
+| Набор массы      | `bulk`     | +15 %    | ≈ +0.3 кг/нед  |
 
 Темп посчитан из того, что килограмм жировой ткани — примерно 7700 ккал: дефицит 500 ккал/сутки ≈ 0.45 кг в неделю.
 
@@ -45,30 +45,45 @@ TDEE = BMR × коэффициент активности
 // src/entities/profile/lib/calories.ts
 
 const ACTIVITY: Record<ActivityLevel, number> = {
-  sedentary: 1.2, light: 1.375, moderate: 1.55, high: 1.725, veryHigh: 1.9,
-}
+	sedentary: 1.2,
+	light: 1.375,
+	moderate: 1.55,
+	high: 1.725,
+	veryHigh: 1.9,
+};
 
 const GOAL: Record<Goal, number> = {
-  cut: 0.80, cutMild: 0.85, maintain: 1, bulkMild: 1.10, bulk: 1.15,
-}
+	cut: 0.8,
+	cutMild: 0.85,
+	maintain: 1,
+	bulkMild: 1.1,
+	bulk: 1.15,
+};
 
 /** Нижняя граница безопасности, ниже которой норму не опускаем */
-const FLOOR: Record<Sex, number> = { male: 1500, female: 1200 }
+const FLOOR: Record<Sex, number> = { male: 1500, female: 1200 };
 
-export function calcBmr(p: Pick<Profile, 'sex' | 'weightKg' | 'heightCm' | 'age'>): number {
-  const base = 10 * p.weightKg + 6.25 * p.heightCm - 5 * p.age
-  return base + (p.sex === 'male' ? 5 : -161)
+export function calcBmr(
+	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "age">,
+): number {
+	const base = 10 * p.weightKg + 6.25 * p.heightCm - 5 * p.age;
+	return base + (p.sex === "male" ? 5 : -161);
 }
 
-export function calcTdee(p: Pick<Profile, 'sex' | 'weightKg' | 'heightCm' | 'age' | 'activity'>): number {
-  return calcBmr(p) * ACTIVITY[p.activity]
+export function calcTdee(
+	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "age" | "activity">,
+): number {
+	return calcBmr(p) * ACTIVITY[p.activity];
 }
 
 export function calcTarget(
-  p: Pick<Profile, 'sex' | 'weightKg' | 'heightCm' | 'age' | 'activity' | 'goal'>,
+	p: Pick<
+		Profile,
+		"sex" | "weightKg" | "heightCm" | "age" | "activity" | "goal"
+	>,
 ): number {
-  const raw = calcTdee(p) * GOAL[p.goal]
-  return Math.max(FLOOR[p.sex], Math.round(raw / 10) * 10)
+	const raw = calcTdee(p) * GOAL[p.goal];
+	return Math.max(FLOOR[p.sex], Math.round(raw / 10) * 10);
 }
 ```
 
@@ -78,11 +93,11 @@ export function calcTarget(
 
 ## Валидация ввода
 
-| Поле | Диапазон |
-|---|---|
-| Возраст | 14–100 |
-| Рост | 120–230 см |
-| Вес | 30–300 кг |
+| Поле    | Диапазон   |
+| ------- | ---------- |
+| Возраст | 14–100     |
+| Рост    | 120–230 см |
+| Вес     | 30–300 кг  |
 
 Все поля обязательны. Числовые поля — с `inputmode="numeric"`, чтобы на телефоне открывалась цифровая клавиатура.
 
