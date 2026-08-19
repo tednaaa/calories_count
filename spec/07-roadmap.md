@@ -10,19 +10,19 @@ Vite + Vue 3 + TypeScript + Tailwind + vue-router. Devenv. Пустые вьюх
 
 ## Этап 1 — Данные и каталог
 
-- `src/data/foods.ts`, `src/data/categories.ts`, типы `Food`, `CategoryId`.
-- `src/db/` — Dexie, схема версии 1, типы `Entry`, `Profile`, `WeightRecord`.
-- `src/composables/useLiveQuery.ts`.
-- `src/domain/date.ts` — `toDateKey` и границы недели.
+- `src/entities/food/lib/` — `types.ts`, `categories.ts`, `catalog.ts`.
+- `src/shared/db/` — Dexie, схема версии 1, типы `Entry`, `Profile`, `WeightRecord`.
+- `src/shared/lib/use-live-query.ts`.
+- `src/shared/lib/date.ts` — `toDateKey` и окна дней.
 - `scripts/optimize-foods.mjs` + `npm run foods:optimize`.
-- `src/data/foods.spec.ts` — тест целостности каталога.
+- `src/entities/food/lib/catalog.spec.ts` — тест целостности каталога.
 - Первые 10–15 блюд с реальными фото: то, что реально ешь каждый день.
 
 **Готово, когда:** каталог отображается тестовым списком, тесты целостности проходят.
 
 ## Этап 2 — Калькулятор и онбординг
 
-- `src/domain/calories.ts` с юнит-тестами на формулу и нижнюю границу.
+- `src/entities/profile/lib/calories.ts` с юнит-тестами на формулу и нижнюю границу.
 - `OnboardingView` с живым расчётом.
 - Гард роутера по наличию профиля.
 

@@ -3,7 +3,7 @@
 ## Слой 1: каталог (статика из репозитория)
 
 ```ts
-// src/data/foods.ts
+// src/entities/food/lib/ — types.ts + catalog.ts
 
 export interface Food {
   /** Стабильный слаг. Задаётся один раз и НИКОГДА не меняется и не переиспользуется. */
@@ -18,12 +18,6 @@ export interface Food {
   category: CategoryId
   /** Дополнительные слова для поиска: ['рис', 'говядина', 'мясо'] */
   tags?: string[]
-
-  /** Зарезервировано под БЖУ. В UI сейчас не используется. См. «Расширение до БЖУ». */
-  protein?: number
-  fat?: number
-  carbs?: number
-
   /** Блюдо больше не готовится: скрыто в выборе, но старые записи остаются валидными. */
   archived?: boolean
 }
@@ -106,27 +100,27 @@ export interface WeightRecord {
 ## Схема Dexie
 
 ```ts
-// src/db/index.ts
-import Dexie, { type Table } from 'dexie'
+// src/shared/db/index.ts
+import type { Table } from 'dexie'
 import type { Entry, Profile, WeightRecord } from './types'
+import Dexie from 'dexie'
 
-export class AppDatabase extends Dexie {
-  entries!: Table<Entry, string>
-  profile!: Table<Profile, string>
-  weightLog!: Table<WeightRecord, number>
-
-  constructor() {
-    super('calories-count')
-    this.version(1).stores({
-      entries: 'id, date, foodId, [date+createdAt]',
-      profile: 'id',
-      weightLog: '++id, &date',
-    })
-  }
+export type AppDatabase = Dexie & {
+  entries: Table<Entry, string>
+  profile: Table<Profile, string>
+  weightLog: Table<WeightRecord, number>
 }
 
-export const db = new AppDatabase()
+export const db = new Dexie('calories-count') as AppDatabase
+
+db.version(1).stores({
+  entries: 'id, date, foodId, [date+createdAt]',
+  profile: 'id',
+  weightLog: '++id, &date',
+})
 ```
+
+**Почему пересечение типов, а не подкласс Dexie.** Привычная запись `class AppDatabase extends Dexie { entries!: Table<Entry, string> }` в этом проекте ломается молча. При `useDefineForClassFields`, который включён в целевой конфигурации, объявление поля в подклассе выполняется **после** конструктора Dexie и затирает уже присвоенную таблицу на `undefined`. Сборка и типы при этом в порядке — падает рантайм на первом же запросе к базе. Объявление таблиц типом, а не полями класса, убирает эту возможность полностью: полей, которые можно затереть, просто нет.
 
 Индексы:
 - `date` — выборка дня, основная операция приложения;
@@ -134,7 +128,7 @@ export const db = new AppDatabase()
 - `foodId` — подсчёт частоты использования для сортировки каталога;
 - `&date` в `weightLog` — уникальность: одна запись веса на дату.
 
-**Правило миграций.** Схема меняется только через `this.version(N).stores({...})` с `.upgrade()` при необходимости. Существующие версии не редактируются никогда — иначе у устройств, где база уже создана, схема разъедется с кодом.
+**Правило миграций.** Схема меняется только через `db.version(N).stores({...})` с `.upgrade()` при необходимости. Существующие версии не редактируются никогда — иначе у устройств, где база уже создана, схема разъедется с кодом.
 
 ## Инварианты
 
@@ -159,7 +153,7 @@ const food = foods.find((f) => f.id === entry.foodId)  // Food | undefined
 День — **локальный календарный**, граница в полночь по времени устройства. Никакого UTC, никаких смещений «день начинается в 4 утра».
 
 ```ts
-// src/domain/date.ts
+// src/shared/lib/date.ts
 export function toDateKey(d: Date = new Date()): string {
   // 'YYYY-MM-DD' по локальному времени, БЕЗ toISOString()
   const y = d.getFullYear()
@@ -193,7 +187,7 @@ interface Backup {
 
 Заложено так, чтобы включение не потребовало миграции базы:
 
-1. В `Food` поля `protein`/`fat`/`carbs` уже опциональны — заполняются постепенно, старые блюда остаются без них.
+1. В `Food` добавляются опциональные `protein`/`fat`/`carbs` — заполняются постепенно, старые блюда остаются без них.
 2. В `Entry` при добавлении БЖУ появятся такие же опциональные снапшот-поля. Старые записи останутся без них — по ним просто не будет статистики, что корректно.
 3. В `Profile` добавятся целевые граммовки, вычисляемые от `targetKcal` и цели.
 

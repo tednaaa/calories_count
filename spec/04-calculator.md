@@ -42,7 +42,7 @@ TDEE = BMR × коэффициент активности
 ## Реализация
 
 ```ts
-// src/domain/calories.ts
+// src/entities/profile/lib/calories.ts
 
 const ACTIVITY: Record<ActivityLevel, number> = {
   sedentary: 1.2, light: 1.375, moderate: 1.55, high: 1.725, veryHigh: 1.9,

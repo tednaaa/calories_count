@@ -36,7 +36,7 @@ Vue 3 с Vite и tree-shaking: **~16 КБ gzip** на минимальном п�
 Чтобы не тащить rxjs ради `useObservable` из `@vueuse/rxjs`, пишем свой композабл на 15 строк:
 
 ```ts
-// src/composables/useLiveQuery.ts
+// src/shared/lib/use-live-query.ts
 import { liveQuery } from 'dexie'
 import { ref, onScopeDispose, type Ref } from 'vue'
 
@@ -61,48 +61,58 @@ const entries = useLiveQuery(() => db.entries.where('date').equals(today()).toAr
 
 ## Структура проекта
 
+Проект следует Feature-Sliced Design, уже принятому в кодовой базе, и файловому роутингу `vue-router/auto-routes`: каждая папка в `src/pages/` становится маршрутом, а вложенные `ui/` и `lib/` из роутинга исключены настройкой плагина.
+
 ```
-spec/                       — эта спецификация
+spec/                          — эта спецификация
 scripts/
-  optimize-foods.mjs        — сжатие фотографий блюд перед коммитом
-raw-photos/                 — исходники с телефона, в сборку не идут (.gitignore)
+  optimize-foods.mjs           — сжатие фотографий блюд перед коммитом
+raw-photos/                    — исходники с телефона, в сборку не идут (.gitignore)
 public/
-  foods/                    — оптимизированные фото, <food-id>.webp
-  icons/                    — иконки PWA
-  _redirects                — SPA-fallback для GitLab Pages
+  foods/                       — оптимизированные фото, <food-id>.webp
+  icons/                       — иконки PWA
+  _redirects                   — SPA-fallback для GitLab Pages
 src/
-  data/
-    foods.ts                — КАТАЛОГ: захардкоженный список блюд
-    categories.ts           — справочник категорий
-  db/
-    index.ts                — экземпляр Dexie, схема, версии
-    types.ts                — Entry, Profile, WeightRecord
-  domain/
-    calories.ts             — Mifflin-St Jeor, TDEE, цели
-    date.ts                 — локальная календарная дата, границы дня/недели
-  composables/
-    useLiveQuery.ts
-    useProfile.ts
-    useToday.ts
-    useFrequentFoods.ts
-  components/
-  views/
-    OnboardingView.vue
-    TodayView.vue
-    AddView.vue
-    StatsView.vue
-    SettingsView.vue
-  router/index.ts
+  shared/
+    lib/
+      date.ts                  — локальная календарная дата, окна дней
+      pluralize.ts             — склонение и разрядность чисел
+      use-live-query.ts        — реактивная подписка на IndexedDB
+    db/
+      index.ts                 — экземпляр Dexie, схема, версии
+      types.ts                 — Entry, Profile, WeightRecord
+  entities/
+    food/
+      lib/                     — types, categories, catalog
+      ui/                      — FoodCard
+    entry/
+      lib/                     — запросы и агрегаты по дневнику
+    profile/
+      lib/                     — Mifflin-St Jeor, TDEE, цели
+  widgets/
+    bottom-nav/                — нижняя панель навигации
+  pages/
+    index.vue                  — Сегодня
+    add/                       — Добавить приём пищи
+    stats/                     — Статистика
+    settings/                  — Профиль и цель
+    onboarding/                — Первичный расчёт нормы
+    router.ts
+  globals/                     — окружение и сгенерированные типы маршрутов
+  assets/css/
+  App.vue
   main.ts
 .gitlab-ci.yml
 vite.config.ts
 ```
 
+Каталог блюд живёт в `entities/food/lib/catalog.ts`. Типы записей дневника вынесены в `shared/db/types.ts`, а не в сущности: схема Dexie должна знать все таблицы сразу, а слой `shared` не имеет права импортировать `entities`. Сущности держат поведение — запросы, вычисления и представление.
+
 ## Разделение ответственности
 
 Два слоя данных, которые нельзя смешивать:
 
-**Статика из репозитория** — `src/data/foods.ts` и `public/foods/*.webp`. Read-only в рантайме, обновляется только деплоем, одинакова на всех устройствах.
+**Статика из репозитория** — `src/entities/food/lib/catalog.ts` и `public/foods/*.webp`. Read-only в рантайме, обновляется только деплоем, одинакова на всех устройствах.
 
 **Личные данные устройства** — IndexedDB. Пишется только приложением, никогда не покидает телефон, у каждого устройства своя.
 
