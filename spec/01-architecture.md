@@ -11,7 +11,7 @@
 | Хранилище | **Dexie** поверх IndexedDB | Тонкая обёртка, чтобы не писать сырые транзакции. Есть `liveQuery` |
 | Стили | **Tailwind** | — |
 | PWA | **vite-plugin-pwa** (Workbox) | Манифест, service worker, прекэш |
-| UI | собственный UI kit из npm | — |
+| UI | `shonk-ui` — собственный UI kit | — |
 | Хостинг | **GitLab Pages** + кастомный домен | См. [06-pwa-deploy.md](06-pwa-deploy.md) |
 
 ## Почему Vue, а не Svelte
@@ -37,24 +37,37 @@ Vue 3 с Vite и tree-shaking: **~16 КБ gzip** на минимальном п�
 
 ```ts
 // src/shared/lib/use-live-query.ts
-import { liveQuery } from 'dexie'
-import { ref, onScopeDispose, type Ref } from 'vue'
+export function useLiveQuery<T>(
+  querier: () => T | Promise<T>,
+  initial: T,
+  deps: WatchSource[] = [],
+): Ref<T> {
+  const value = ref(initial) as Ref<T>;
+  let subscription: Subscription | undefined;
 
-export function useLiveQuery<T>(querier: () => T | Promise<T>, initial: T): Ref<T> {
-  const value = ref(initial) as Ref<T>
-  const subscription = liveQuery(querier).subscribe({
-    next: (result) => { value.value = result },
-    error: (err) => console.error('[liveQuery]', err),
-  })
-  onScopeDispose(() => subscription.unsubscribe())
-  return value
+  function subscribe() {
+    subscription?.unsubscribe();
+    subscription = liveQuery(querier).subscribe({
+      next: (result) => { value.value = result; },
+      error: (error) => { console.error('[useLiveQuery]', error); },
+    });
+  }
+
+  subscribe();
+  watch(deps, subscribe);
+  onScopeDispose(() => subscription?.unsubscribe());
+
+  return value;
 }
 ```
+
+Параметр `deps` обязателен, когда запрос зависит от реактивного значения. Dexie отслеживает изменения таблиц, но ничего не знает про рефы Vue: подписка на «записи за выбранный день» не переедет на другой день сама, её нужно пересоздать.
 
 Использование:
 
 ```ts
-const entries = useLiveQuery(() => db.entries.where('date').equals(today()).toArray(), [])
+const dateKey = ref(toDateKey());
+const entries = useLiveQuery(() => entriesOfDay(dateKey.value), [], [dateKey]);
 ```
 
 Локальное UI-состояние (содержимое корзины на экране добавления, открытые модалки) живёт в обычных `ref` внутри компонентов и в базу не попадает до подтверждения.

@@ -8,7 +8,7 @@
 2. Сфотографировал порцию — так, как реально её ешь. Тарелка целиком, сверху, при дневном свете.
 3. Скинул фото в `raw-photos/` под именем будущего `id`: `rice-beef.jpg`.
 4. Прикинул калорийность **этой порции** и записал.
-5. `npm run foods:optimize` — сжимает фото в `public/foods/rice-beef.webp`.
+5. `pnpm foods:optimize` — сжимает фото в `public/foods/rice-beef.webp`.
 6. Добавил объект в массив `foods` в `src/entities/food/lib/catalog.ts`.
 7. `git commit && git push` — GitLab CI собирает и деплоит, телефон подхватывает при следующем открытии.
 
@@ -68,7 +68,7 @@ export type CategoryId = typeof categories[number]['id']
 **Скрипт `scripts/optimize-foods.mjs`** (реализуется на этапе 1):
 
 ```js
-// npm run foods:optimize
+// pnpm foods:optimize
 // raw-photos/*.{jpg,jpeg,png,heic} -> public/foods/<basename>.webp
 import { readdir, mkdir } from 'node:fs/promises'
 import { join, parse } from 'node:path'
@@ -107,7 +107,7 @@ for (const file of files) {
 5. `kcal <= 0` или нецелом;
 6. неизвестном `category`.
 
-Запускается вместе с остальными тестами (`npm run test:unit`), в CI — перед сборкой. Стоит полчаса работы и снимает целый класс ошибок «задеплоил, а на телефоне битая картинка».
+Запускается вместе с остальными тестами (`pnpm test:unit`), в CI — перед сборкой. Стоит полчаса работы и снимает целый класс ошибок «задеплоил, а на телефоне битая картинка».
 
 ## Архивация
 

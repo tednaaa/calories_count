@@ -50,3 +50,9 @@ export function formatDayLabel(key: DateKey): string {
 export function formatWeekday(key: DateKey): string {
   return weekdayFormatter.format(fromDateKey(key));
 }
+
+const timeFormatter = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+export function formatTime(epochMs: number): string {
+  return timeFormatter.format(new Date(epochMs));
+}

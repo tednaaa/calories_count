@@ -1,6 +1,7 @@
 export type { DateKey } from './date';
 export {
   formatDayLabel,
+  formatTime,
   formatWeekday,
   fromDateKey,
   isFuture,

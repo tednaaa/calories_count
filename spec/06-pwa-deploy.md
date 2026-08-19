@@ -82,16 +82,25 @@ stages:
 
 create-pages:
   stage: build
+  before_script:
+    - corepack enable
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
   script:
-    - npm ci
-    - npm run lint
-    - npm run test:unit
-    - npm run build
+    - pnpm lint
+    - pnpm test:unit
+    - pnpm build
   pages:
     publish: dist
   artifacts:
     paths:
       - dist
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```

@@ -15,3 +15,4 @@ export {
   restoreEntry,
   setEntryQty,
 } from './lib/queries';
+export { default as EntryRow } from './ui/EntryRow.vue';

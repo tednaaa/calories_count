@@ -1,5 +1,6 @@
 import {
   formatDayLabel,
+  formatTime,
   formatWeekday,
   fromDateKey,
   isFuture,
@@ -134,5 +135,15 @@ describe('formatWeekday', () => {
   it('возвращает короткое название дня недели', () => {
     // 19 августа 2026 — среда
     expect(formatWeekday('2026-08-19').toLowerCase()).toContain('ср');
+  });
+});
+
+describe('formatTime', () => {
+  it('показывает часы и минуты локального времени', () => {
+    expect(formatTime(new Date(2026, 7, 19, 9, 5).getTime())).toBe('09:05');
+  });
+
+  it('использует 24-часовой формат', () => {
+    expect(formatTime(new Date(2026, 7, 19, 21, 30).getTime())).toBe('21:30');
   });
 });
