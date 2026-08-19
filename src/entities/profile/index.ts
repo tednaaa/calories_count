@@ -9,6 +9,8 @@ export {
   LIMITS,
   SAFE_MINIMUM_KCAL,
 } from './lib/calories';
+export type { ProfileDraft } from './lib/draft';
+export { draftFromProfile, draftsEqual, draftToInput, emptyDraft } from './lib/draft';
 export { activityOptions, goalOptions, sexOptions } from './lib/options';
 export type { ProfileInput } from './lib/profile';
 export {
@@ -20,3 +22,4 @@ export {
   withCalculatedTarget,
   withManualTarget,
 } from './lib/profile';
+export { default as ProfileFields } from './ui/ProfileFields.vue';

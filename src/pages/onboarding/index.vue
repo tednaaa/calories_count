@@ -1,49 +1,16 @@
 <script setup lang="ts">
-import type { CalcInput } from '@/entities/profile';
-import type { ActivityLevel, Goal, Sex } from '@/shared/db';
-import { Button, Input, Label, NativeSelect, NativeSelectOption } from 'shonk-ui';
+import { Button } from 'shonk-ui';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  activityOptions,
-  calcTarget,
-  goalOptions,
-  isWithinLimits,
-  saveProfile,
-  sexOptions,
-} from '@/entities/profile';
+import { calcTarget, draftToInput, emptyDraft, ProfileFields, saveProfile } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
 
 const router = useRouter();
 
-const form = reactive({
-  sex: 'male' as Sex,
-  age: '',
-  heightCm: '',
-  weightKg: '',
-  activity: 'moderate' as ActivityLevel,
-  goal: 'cutMild' as Goal,
-});
+const form = reactive(emptyDraft());
 
-const measurements = computed<CalcInput | null>(() => {
-  const candidate = {
-    sex: form.sex,
-    age: Number(form.age),
-    heightCm: Number(form.heightCm),
-    weightKg: Number(form.weightKg),
-    activity: form.activity,
-    goal: form.goal,
-  };
-
-  const filled = [candidate.age, candidate.heightCm, candidate.weightKg].every(Number.isFinite);
-
-  return filled && isWithinLimits(candidate) ? candidate : null;
-});
-
+const measurements = computed(() => draftToInput(form));
 const breakdown = computed(() => (measurements.value ? calcTarget(measurements.value) : null));
-
-const activityHint = computed(() => activityOptions.find(option => option.id === form.activity)?.hint);
-const goalHint = computed(() => goalOptions.find(option => option.id === form.goal)?.hint);
 
 const saving = ref(false);
 
@@ -68,59 +35,14 @@ async function submit() {
     </p>
 
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <div class="flex flex-col gap-2">
-        <Label>Пол</Label>
-        <div class="grid grid-cols-2 gap-2">
-          <Button
-            v-for="option in sexOptions"
-            :key="option.id"
-            type="button"
-            :variant="form.sex === option.id ? 'default' : 'outline'"
-            @click="form.sex = option.id"
-          >
-            {{ option.name }}
-          </Button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-3">
-        <div class="flex flex-col gap-2">
-          <Label for="age">Возраст</Label>
-          <Input id="age" v-model="form.age" inputmode="numeric" placeholder="30" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="height">Рост, см</Label>
-          <Input id="height" v-model="form.heightCm" inputmode="numeric" placeholder="180" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="weight">Вес, кг</Label>
-          <Input id="weight" v-model="form.weightKg" inputmode="numeric" placeholder="85" />
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <Label>Активность</Label>
-        <NativeSelect v-model="form.activity">
-          <NativeSelectOption v-for="option in activityOptions" :key="option.id" :value="option.id">
-            {{ option.name }}
-          </NativeSelectOption>
-        </NativeSelect>
-        <p class="text-xs text-text-tertiary">
-          {{ activityHint }}
-        </p>
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <Label>Цель</Label>
-        <NativeSelect v-model="form.goal">
-          <NativeSelectOption v-for="option in goalOptions" :key="option.id" :value="option.id">
-            {{ option.name }}
-          </NativeSelectOption>
-        </NativeSelect>
-        <p class="text-xs text-text-tertiary">
-          {{ goalHint }}
-        </p>
-      </div>
+      <ProfileFields
+        v-model:sex="form.sex"
+        v-model:age="form.age"
+        v-model:height-cm="form.heightCm"
+        v-model:weight-kg="form.weightKg"
+        v-model:activity="form.activity"
+        v-model:goal="form.goal"
+      />
 
       <div class="rounded-lg border border-border-default bg-bg-subtle p-4">
         <template v-if="breakdown">

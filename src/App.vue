@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core';
-import { Toaster } from 'shonk-ui';
+import { ConfirmDialog, Toaster } from 'shonk-ui';
 import { computed } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import { BottomNav } from '@/widgets/bottom-nav';
@@ -18,5 +18,6 @@ const showsNav = computed(() => route.path !== '/onboarding');
     <BottomNav v-if="showsNav" />
   </div>
 
+  <ConfirmDialog />
   <Toaster />
 </template>
