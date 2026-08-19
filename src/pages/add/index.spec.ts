@@ -1,0 +1,212 @@
+import { flushPromises, mount } from '@vue/test-utils';
+import { toast } from 'shonk-ui';
+import { ref } from 'vue';
+import { addEntries } from '@/entities/entry';
+import { activeFoods } from '@/entities/food';
+import { toDateKey, useLiveQuery } from '@/shared/lib';
+import AddView from './index.vue';
+import FoodCard from './ui/FoodCard.vue';
+
+const { push, route } = vi.hoisted(() => ({
+  push: vi.fn(),
+  route: { query: {} as Record<string, unknown> },
+}));
+
+vi.mock('vue-router', () => ({
+  useRoute: () => route,
+  useRouter: () => ({ push }),
+}));
+
+vi.mock('shonk-ui', async importOriginal => ({
+  ...await importOriginal<typeof import('shonk-ui')>(),
+  toast: vi.fn(),
+}));
+
+vi.mock('@/entities/entry', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/entry')>(),
+  addEntries: vi.fn(),
+}));
+
+vi.mock('@/shared/lib', async importOriginal => ({
+  ...await importOriginal<typeof import('@/shared/lib')>(),
+  useLiveQuery: vi.fn(),
+}));
+
+const frequentIds = ref<string[]>([]);
+
+beforeEach(() => {
+  route.query = {};
+  frequentIds.value = [];
+  vi.mocked(useLiveQuery).mockImplementation(() => frequentIds as never);
+});
+
+function cards(wrapper: ReturnType<typeof mount>) {
+  return wrapper.findAllComponents(FoodCard);
+}
+
+async function tap(wrapper: ReturnType<typeof mount>, index: number) {
+  await cards(wrapper)[index].find('button').trigger('click');
+}
+
+describe('экран «Добавить»', () => {
+  it('показывает весь каталог', () => {
+    const wrapper = mount(AddView);
+
+    expect(cards(wrapper)).toHaveLength(activeFoods.length);
+  });
+
+  it('фильтрует по названию', async () => {
+    const wrapper = mount(AddView);
+    await wrapper.find('input[type="search"]').setValue('кофе');
+
+    expect(cards(wrapper).map(card => card.text())).toEqual([
+      expect.stringContaining('Кофе чёрный'),
+      expect.stringContaining('Кофе с молоком'),
+    ]);
+  });
+
+  it('фильтрует по тегу', async () => {
+    const wrapper = mount(AddView);
+    await wrapper.find('input[type="search"]').setValue('фрукт');
+
+    expect(cards(wrapper)).toHaveLength(2);
+  });
+
+  it('фильтрует по категории', async () => {
+    const wrapper = mount(AddView);
+    await wrapper.findElementByText('button', 'Напитки').trigger('click');
+
+    expect(cards(wrapper)).toHaveLength(3);
+  });
+
+  it('сообщает, когда ничего не нашлось', async () => {
+    const wrapper = mount(AddView);
+    await wrapper.find('input[type="search"]').setValue('лобстер');
+
+    expect(wrapper.text()).toContain('Ничего не нашлось');
+  });
+
+  it('показывает блок «Часто» поверх каталога', () => {
+    frequentIds.value = ['coffee-black'];
+    const wrapper = mount(AddView);
+
+    expect(wrapper.text()).toContain('Часто');
+    expect(cards(wrapper)).toHaveLength(activeFoods.length + 1);
+  });
+
+  it('прячет блок «Часто» при поиске', async () => {
+    frequentIds.value = ['coffee-black'];
+    const wrapper = mount(AddView);
+    await wrapper.find('input[type="search"]').setValue('кофе');
+
+    expect(wrapper.text()).not.toContain('Часто');
+  });
+
+  it('до первого выбора корзины нет', () => {
+    const wrapper = mount(AddView);
+
+    expect(wrapper.text()).not.toContain('Подтвердить');
+  });
+
+  it('тап по карточке кладёт блюдо в корзину', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+
+    expect(wrapper.text()).toContain('1 позиция · 5 ккал');
+  });
+
+  it('повторный тап увеличивает количество', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await tap(wrapper, 0);
+
+    expect(wrapper.text()).toContain('1 позиция · 10 ккал');
+  });
+
+  it('разные блюда становятся разными позициями', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await tap(wrapper, 1);
+
+    expect(wrapper.text()).toContain('2 позиции · 65 ккал');
+  });
+
+  it('подтверждение сохраняет корзину за сегодня и уводит на главную', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledWith(toDateKey(), [
+      { foodId: 'coffee-black', name: 'Кофе чёрный', kcalPerPortion: 5, qty: 2 },
+    ]);
+    expect(push).toHaveBeenCalledWith('/');
+  });
+
+  it('пишет записи в дату из адреса', async () => {
+    route.query = { date: '2026-08-17' };
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledWith('2026-08-17', expect.anything());
+  });
+
+  it('предупреждает, что запись идёт задним числом', () => {
+    route.query = { date: '2026-08-17' };
+
+    expect(mount(AddView).text()).toContain('запись задним числом');
+  });
+
+  it('игнорирует несуществующую дату в адресе', async () => {
+    route.query = { date: '2026-02-30' };
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledWith(toDateKey(), expect.anything());
+  });
+
+  it('игнорирует будущую дату в адресе', async () => {
+    route.query = { date: '2999-01-01' };
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledWith(toDateKey(), expect.anything());
+  });
+
+  it('при ошибке записи оставляет корзину и даёт повторить', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(addEntries).mockRejectedValueOnce(new Error('quota'));
+
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(toast).toHaveBeenCalledWith('Не удалось сохранить, попробуй ещё раз');
+    expect(push).not.toHaveBeenCalled();
+
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledTimes(2);
+  });
+
+  it('не сохраняет корзину дважды по двойному нажатию', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+
+    const confirm = wrapper.findElementByText('button', 'Подтвердить');
+    await confirm.trigger('click');
+    await confirm.trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledTimes(1);
+  });
+});

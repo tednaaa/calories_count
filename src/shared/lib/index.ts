@@ -4,6 +4,7 @@ export {
   formatTime,
   formatWeekday,
   fromDateKey,
+  isDateKey,
   isFuture,
   isToday,
   lastDateKeys,

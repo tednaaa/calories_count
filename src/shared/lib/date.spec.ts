@@ -3,6 +3,7 @@ import {
   formatTime,
   formatWeekday,
   fromDateKey,
+  isDateKey,
   isFuture,
   isToday,
   lastDateKeys,
@@ -61,6 +62,28 @@ describe('shiftDateKey', () => {
   it('учитывает високосный год', () => {
     expect(shiftDateKey('2028-02-28', 1)).toBe('2028-02-29');
     expect(shiftDateKey('2026-02-28', 1)).toBe('2026-03-01');
+  });
+});
+
+describe('isDateKey', () => {
+  it('принимает ключ, полученный из toDateKey', () => {
+    expect(isDateKey(toDateKey(new Date(2026, 7, 19)))).toBe(true);
+  });
+
+  it('отвергает несуществующий день', () => {
+    expect(isDateKey('2026-02-30')).toBe(false);
+  });
+
+  it('отвергает чужой формат и мусор', () => {
+    expect(isDateKey('19.08.2026')).toBe(false);
+    expect(isDateKey('2026-8-19')).toBe(false);
+    expect(isDateKey('завтра')).toBe(false);
+  });
+
+  it('отвергает всё, что не строка', () => {
+    expect(isDateKey(undefined)).toBe(false);
+    expect(isDateKey(null)).toBe(false);
+    expect(isDateKey(['2026-08-19'])).toBe(false);
   });
 });
 

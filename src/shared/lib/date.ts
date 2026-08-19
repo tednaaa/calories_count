@@ -21,6 +21,14 @@ export function shiftDateKey(key: DateKey, days: number): DateKey {
   return toDateKey(date);
 }
 
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export function isDateKey(value: unknown): value is DateKey {
+  return typeof value === 'string'
+    && DATE_KEY_PATTERN.test(value)
+    && toDateKey(fromDateKey(value)) === value;
+}
+
 export function isToday(key: DateKey): boolean {
   return key === toDateKey();
 }
