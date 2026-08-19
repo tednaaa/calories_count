@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -11,7 +12,7 @@ const STROKE = 44;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const FILLED = 0.75;
 
-function logo(cornerRadius) {
+function logo(cornerRadius: number): string {
   const center = SIZE / 2;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" width="${SIZE}" height="${SIZE}">

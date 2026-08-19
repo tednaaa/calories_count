@@ -1,5 +1,6 @@
 import { mkdir, readdir } from 'node:fs/promises';
 import { join, parse } from 'node:path';
+import process from 'node:process';
 import sharp from 'sharp';
 
 const SOURCE = 'raw-photos';
@@ -9,7 +10,7 @@ const QUALITY = 80;
 
 await mkdir(OUTPUT, { recursive: true });
 
-let files = [];
+let files: string[] = [];
 
 try {
   files = (await readdir(SOURCE)).filter(file => /\.(?:jpe?g|png|heic|webp)$/i.test(file));

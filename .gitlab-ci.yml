@@ -2,6 +2,7 @@ workflow:
   auto_cancel:
     on_new_commit: interruptible
   rules:
+    - if: $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
@@ -10,7 +11,7 @@ workflow:
 stages:
   - lint
   - test
-  - deploy
+  - release
 
 .node_base: &node_base
   image: node:24.19.0
@@ -42,7 +43,9 @@ test:
 
 pages:
   <<: [*node_base]
-  stage: deploy
+  stage: release
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/'
   script:
     - pnpm build
   pages:
@@ -50,5 +53,3 @@ pages:
   artifacts:
     paths:
       - dist
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
