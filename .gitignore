@@ -1,3 +1,16 @@
 .devenv*
 devenv.local.nix
 devenv.local.yaml
+
+node_modules/
+
+dist/
+*.tsbuildinfo
+
+raw-photos/
+
+.idea/
+.DS_Store
+
+*.log
+npm-debug.log*
