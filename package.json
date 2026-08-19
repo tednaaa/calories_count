@@ -2,6 +2,7 @@
 	"name": "calories-count",
 	"type": "module",
 	"version": "0.1.0",
+	"packageManager": "pnpm@11.21.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite",
@@ -11,7 +12,8 @@
 		"lint:fix": "eslint --fix ./src",
 		"test:unit": "vitest run --project=unit",
 		"test:watch": "vitest watch --ui",
-		"foods:optimize": "node scripts/optimize-foods.mjs"
+		"foods:optimize": "node scripts/optimize-foods.mjs",
+		"icons": "node scripts/icons.mjs"
 	},
 	"dependencies": {
 		"@internationalized/date": "3.12.1",

@@ -13,4 +13,5 @@ export {
   toDateKey,
 } from './date';
 export { formatNumber, pluralize } from './pluralize';
+export { requestPersistentStorage } from './storage';
 export { useLiveQuery } from './use-live-query';
