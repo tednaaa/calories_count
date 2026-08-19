@@ -1,11 +1,11 @@
 <template>
   <main class="flex-1 px-4 pt-6 pb-4">
     <h1 class="text-xl font-semibold text-text-primary">
-      Сегодня
+      Статистика
     </h1>
 
     <p class="mt-2 text-sm text-text-secondary">
-      Кольцо прогресса и лента записей за день.
+      Неделя столбиками с линией цели.
     </p>
   </main>
 </template>

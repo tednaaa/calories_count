@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core';
 import { Toaster } from 'shonk-ui';
-import { RouterView } from 'vue-router';
+import { computed } from 'vue';
+import { RouterView, useRoute } from 'vue-router';
+import { BottomNav } from '@/widgets/bottom-nav';
 
 useColorMode();
+
+const route = useRoute();
+const showsNav = computed(() => route.path !== '/onboarding');
 </script>
 
 <template>
-  <RouterView />
+  <div class="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-bg-surface">
+    <RouterView />
+
+    <BottomNav v-if="showsNav" />
+  </div>
 
   <Toaster />
 </template>

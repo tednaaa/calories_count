@@ -38,6 +38,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/add/': RouteRecordInfo<
+      '/add/',
+      '/add',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/onboarding/': RouteRecordInfo<
+      '/onboarding/',
+      '/onboarding',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/': RouteRecordInfo<
+      '/settings/',
+      '/settings',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/stats/': RouteRecordInfo<
+      '/stats/',
+      '/stats',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -54,6 +82,30 @@ declare module 'vue-router/auto-routes' {
     'src/pages/index.vue': {
       routes:
         | '/'
+      views:
+        | never
+    }
+    'src/pages/add/index.vue': {
+      routes:
+        | '/add/'
+      views:
+        | never
+    }
+    'src/pages/onboarding/index.vue': {
+      routes:
+        | '/onboarding/'
+      views:
+        | never
+    }
+    'src/pages/settings/index.vue': {
+      routes:
+        | '/settings/'
+      views:
+        | never
+    }
+    'src/pages/stats/index.vue': {
+      routes:
+        | '/stats/'
       views:
         | never
     }
