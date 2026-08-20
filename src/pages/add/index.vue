@@ -142,12 +142,14 @@ async function confirm() {
       </p>
     </div>
 
-    <CartPanel
-      v-if="items.length"
-      :items="items"
-      :saving="saving"
-      @change-qty="changeQty"
-      @confirm="confirm"
-    />
+    <Teleport defer to="#bottom-dock">
+      <CartPanel
+        v-if="items.length"
+        :items="items"
+        :saving="saving"
+        @change-qty="changeQty"
+        @confirm="confirm"
+      />
+    </Teleport>
   </main>
 </template>

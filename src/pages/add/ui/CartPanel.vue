@@ -24,7 +24,7 @@ function changeQty(item: CartItem, qty: number) {
 </script>
 
 <template>
-  <section class="shrink-0 border-t border-border-default bg-bg-surface">
+  <section class="border-t border-border-default bg-bg-surface">
     <ul v-if="expanded" class="max-h-56 overflow-y-auto border-b border-border-default">
       <li
         v-for="item in props.items"

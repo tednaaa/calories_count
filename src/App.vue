@@ -15,7 +15,11 @@ const showsNav = computed(() => route.path !== '/onboarding');
   <div class="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-bg-surface pt-[env(safe-area-inset-top)]">
     <RouterView />
 
-    <BottomNav v-if="showsNav" />
+    <div class="sticky bottom-0">
+      <div id="bottom-dock" />
+
+      <BottomNav v-if="showsNav" />
+    </div>
   </div>
 
   <ConfirmDialog />
