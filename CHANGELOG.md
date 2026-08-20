@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.1 (2026-08-20)
+
+- foods [`91f97126`](https://github.com/tednaaa/calories_count/commit/91f97126ae0d752d85661a614aa7ac9aa03e0b0b)
+
 ## v0.1.0 (2026-08-20)
 
 - gitlab => github [`1387206d`](https://github.com/tednaaa/calories_count/commit/1387206d2899b02690602bcad604472c93f12f44)
