@@ -36,7 +36,7 @@ VitePWA({
 });
 ```
 
-`base` в Vite остаётся `'/'` — приложение живёт в корне кастомного домена. Именно ради этого домен и нужен: на служебном адресе GitLab Pages сайт лежал бы в `/<project>/`, и префикс пришлось бы протаскивать в `base`, в scope service worker'а и в роутер.
+`base` в Vite остаётся `'/'` — приложение живёт в корне кастомного домена. Именно ради этого домен и нужен: на служебном адресе GitHub Pages сайт лежал бы в `/<repo>/`, и префикс пришлось бы протаскивать в `base`, в `scope` манифеста, в service worker и в роутер.
 
 `globPatterns` включает `webp` — фотографии блюд обязаны попасть в прекэш, иначе офлайн приложение окажется без картинок. Ориентир по объёму: 300 фото × ~50 КБ ≈ 15 МБ.
 
@@ -76,7 +76,7 @@ if (navigator.storage?.persist) {
 
 ## Иконки
 
-Генерируются скриптом `pnpm icons` из одного описания в `scripts/icons.mjs` — рисунок повторяет кольцо прогресса с главного экрана. Результат коммитится: CI ничего не рисует, он только собирает.
+Генерируются скриптом `pnpm icons` из одного описания в `scripts/icons.ts` — рисунок повторяет кольцо прогресса с главного экрана. Результат коммитится: CI ничего не рисует, он только собирает.
 
 | Файл                            | Зачем                                                        |
 | ------------------------------- | ------------------------------------------------------------ |
@@ -91,89 +91,108 @@ if (navigator.storage?.persist) {
 
 Здесь важен инвариант из [02-data-model.md](02-data-model.md): записи дневника хранят снапшот калорийности, поэтому приезжающее обновление каталога **не пересчитывает историю задним числом**.
 
-## GitLab Pages
+## GitHub Pages
 
-**Ключевой нюанс.** По умолчанию GitLab Pages публикует папку с именем `public`. У Vite `public/` — это папка статических ассетов, где лежат фотографии блюд. Прямая коллизия. Решается указанием директории публикации явно:
+Публикация идёт из workflow, а не из ветки: `actions/upload-pages-artifact` забирает `dist/`, `actions/deploy-pages` выкладывает. Ветка `gh-pages` в репозитории не заводится, а коллизия с `public/` — папкой статических ассетов Vite — при таком способе не возникает вовсе: путь публикации указывается явно.
 
 ```yaml
-# .gitlab-ci.yml
-workflow:
-  auto_cancel:
-    on_new_commit: interruptible
-  rules:
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - if: $CI_COMMIT_BRANCH
+# .github/workflows/ci.yml
+name: CI
 
-stages:
-  - lint
-  - test
-  - release
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+  pull_request:
 
-.node_base: &node_base
-  image: node:24.19.0
-  before_script:
-    - npm install --global corepack@latest
-    - corepack enable
-    - pnpm config set store-dir .pnpm-store
-    - pnpm install --frozen-lockfile
-  cache:
-    key:
-      files:
-        - pnpm-lock.yaml
-    paths:
-      - .pnpm-store
+permissions:
+  contents: read
 
-lint:
-  <<: [*node_base]
-  stage: lint
-  interruptible: true
-  script:
-    - pnpm lint
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-test:
-  <<: [*node_base]
-  stage: test
-  interruptible: true
-  script:
-    - pnpm test:unit
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm lint
 
-pages:
-  <<: [*node_base]
-  stage: release
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/'
-  script:
-    - pnpm build
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm test:unit
+
   pages:
-    publish: dist
-  artifacts:
-    paths:
-      - dist
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - uses: actions/configure-pages@v6
+      - run: pnpm build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v5
 ```
 
-Начиная с GitLab 17.10 значение `pages.publish` автоматически добавляется в `artifacts:paths`, но явное указание не мешает и работает на более старых версиях.
+```yaml
+# .github/actions/setup/action.yml
+name: Setup
+description: Install pnpm, Node and project dependencies
 
-Схема пайплайна повторяет соседние проекты, чтобы не держать в голове два разных набора привычек:
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
 
-- **`workflow` с `auto_cancel: on_new_commit: interruptible`** — пуш в ветку гасит незаконченный прогон предыдущего коммита. Правила заодно убирают дубль «ветка + merge request»: пока по ветке открыт MR, пайплайн на саму ветку не запускается.
-- **Якорь `.node_base`** — образ, corepack, стор pnpm и установка зависимостей описаны один раз.
-- **`npm install --global corepack@latest`** — в образе `node:24` лежит старый corepack, который спотыкается о проверку подписей у свежих версий pnpm.
-- **`corepack prepare` не нужен**: точная версия зафиксирована полем `packageManager` в `package.json`, и corepack берёт её оттуда. Дублировать номер в двух местах — значит однажды их разъехать.
-- **Стадии `lint → test → release`** — публикация не начнётся, пока не прошли проверки. `lint` и `test` помечены `interruptible`, публикация — нет: её прерывать на полпути незачем.
-- **Публикует тег, а не ветка.** Джоба `pages` запускается только на теге вида `v1.2.3`. Пуш в `main` прогоняет линт и тесты, но ничего не выкладывает, поэтому недописанное состояние не уезжает на телефон само по себе. Правило `- if: $CI_COMMIT_TAG` в `workflow` обязательно: без него пайплайн на тег вообще не запустится, и джоба со своим правилом никогда не получит шанса.
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24.19.0
+        cache: pnpm
 
-**SPA-fallback.** Файл `public/_redirects` (Vite скопирует его в `dist/`):
-
+    - run: pnpm install --frozen-lockfile
+      shell: bash
 ```
-/* /index.html 200
-```
 
-Статус 200 — это честный rewrite, а не редирект. Без него прямой заход на `/stats` или обновление страницы вернёт 404, потому что такого файла на диске нет.
+- **Составное действие вместо YAML-якоря.** В GitHub Actions якорей нет, но есть локальные составные действия: установка описана один раз в `.github/actions/setup` и подключается из всех трёх джоб. Чтобы такое действие вообще нашлось, `actions/checkout` обязан идти первым шагом.
+- **`pnpm/action-setup` без поля `version`** берёт номер из `packageManager` в `package.json` — версия по-прежнему живёт в одном месте. Заодно отпадает `npm install --global corepack@latest` из старой конфигурации: corepack здесь не участвует вообще, pnpm ставит само действие.
+- **Кэш зависимостей** — `cache: pnpm` у `actions/setup-node`, ключ считается по `pnpm-lock.yaml`. Отдельная джоба `cache` не нужна.
+- **`concurrency` вместо `interruptible`.** На уровне workflow группа привязана к ветке и гасит незаконченный прогон предыдущего коммита. Джоба `pages` переопределяет её на `group: pages` с `cancel-in-progress: false` — ровно тот же смысл, что был у `interruptible` на `lint` и `test`, но не на публикации.
+- **Дубля «ветка + merge request» нет по построению.** `push` слушает только `main`, ветки под pull request'ом попадают в пайплайн через сам `pull_request`.
+- **Публикует тег, а не ветка.** Фильтр `v[0-9]+.[0-9]+.[0-9]+` — это не регулярное выражение, а шаблон GitHub, где `+` означает «один и более предыдущий символ». Пуш в `main` прогоняет линт и тесты и ничего не выкладывает. Условие `if` на джобе всё равно нужно: workflow запускается и на ветке тоже.
+- **Права выданы точечно.** По умолчанию `contents: read`, и только `pages` получает `pages: write` и `id-token: write` — последнее нужно `deploy-pages` для OIDC-токена, которым он подтверждает деплой.
+- **`environment: github-pages`** обязателен для `deploy-pages`, а `url` из его вывода показывается ссылкой в интерфейсе прогона.
+- **`actions/configure-pages`** читает настройки Pages и валит прогон рано и с понятной ошибкой, если публикация из Actions не включена. Сам он её не включает: у входа `enablement` по умолчанию `false`, и работает он только с отдельным токеном, а не с `GITHUB_TOKEN`. Один раз это делается руками в Settings → Pages → Source: GitHub Actions.
 
-**Кастомный домен** настраивается в Settings → Pages: добавляется домен, GitLab выдаёт TXT-запись для верификации владения и целевой адрес для A/CNAME. Сертификат Let's Encrypt выпускается автоматически. Файл `CNAME` в репозитории — это механизм GitHub Pages, на GitLab он не нужен и игнорируется.
+**SPA-fallback.** `_redirects` — механизм GitLab Pages и Netlify, GitHub Pages его не понимает. Его заменяет `404.html` в корне сайта: на любой несуществующий путь отдаётся он. Файл делается копией `index.html` — плагином `spa-fallback` в `vite.config.ts`, а не шагом в CI, чтобы локальная сборка совпадала с уезжающей.
+
+Отдаётся такая страница со статусом 404, а не 200, и это единственное отличие от честного rewrite. Для приложения оно ничего не меняет: скрипты на 404-странице выполняются, роутер читает адрес и рисует нужный экран. После установки service worker'а прямые заходы до сервера вообще не доходят — их обслуживает `navigateFallback`.
+
+`globIgnores: ['**/404.html']` в настройках workbox — чтобы копия `index.html` не легла в прекэш вторым экземпляром.
+
+**Кастомный домен** настраивается в Settings → Pages → Custom domain, дальше DNS-запись у регистратора и автоматический сертификат Let's Encrypt. При публикации из workflow файл `CNAME` в репозитории **не создаётся и не читается** — домен хранится в настройках Pages. (При публикации из ветки всё наоборот, именно оттуда растёт привычка коммитить `CNAME`.)
 
 HTTPS обязателен: без него service worker не зарегистрируется и PWA не установится.
 
@@ -183,7 +202,7 @@ HTTPS обязателен: без него service worker не зарегист
 
 1. спрашивает, какой разряд поднять, и показывает получающийся номер;
 2. поднимает `version` в `package.json` через `bumpp`;
-3. собирает `CHANGELOG.md` из коммитов после предыдущего тега — заголовок из `subject`, тело коммита абзацем под ним, ссылка на коммит в GitLab; сами релизные коммиты из списка выкидываются;
+3. собирает `CHANGELOG.md` из коммитов после предыдущего тега — заголовок из `subject`, тело коммита абзацем под ним, ссылка на коммит собирается из `remote.origin.url`, поэтому переезд между хостингами её не ломает; сами релизные коммиты из списка выкидываются;
 4. делает коммит `chore: release vX.Y.Z` и останавливается, чтобы changelog можно было вычитать и поправить — правки доклеиваются в тот же коммит;
 5. ставит аннотированный тег и пушит с `--follow-tags`.
 
@@ -195,6 +214,6 @@ HTTPS обязателен: без него service worker не зарегист
 
 1. Lighthouse → раздел PWA: installable, офлайн-режим.
 2. Режим «в самолёте» на установленном приложении: открывается, показывает фото, позволяет добавить запись.
-3. Прямой заход на `/stats` в адресной строке — не 404.
+3. Прямой заход на `/stats` в адресной строке — открывается нужный экран, а не страница ошибки.
 4. Установка на iPhone через Safari, проверка отступов вокруг выреза и домашней полосы.
 5. Деплой нового блюда → открытие приложения на телефоне → блюдо появилось, вчерашние итоги не изменились.

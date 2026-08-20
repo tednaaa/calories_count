@@ -27,7 +27,7 @@ Vite + Vue 3 + TypeScript + Tailwind + vue-router. Devenv. Пустые вьюх
 - `src/shared/db/` — Dexie, схема версии 1, типы `Entry`, `Profile`, `WeightRecord`.
 - `src/shared/lib/use-live-query.ts`.
 - `src/shared/lib/date.ts` — `toDateKey` и окна дней.
-- `scripts/optimize-foods.mjs` + `pnpm foods:optimize`.
+- `scripts/optimize-foods.ts` + `pnpm foods:optimize`.
 - `src/entities/food/lib/catalog.spec.ts` — тест целостности каталога.
 - Первые 10–15 блюд с реальными фото: то, что реально ешь каждый день.
 
@@ -68,7 +68,7 @@ Vite + Vue 3 + TypeScript + Tailwind + vue-router. Devenv. Пустые вьюх
 
 ## Этап 7 — PWA и деплой
 
-Полный манифест, иконки (192, 512, maskable, apple-touch), мета-теги iOS, прекэш с фотографиями, `navigator.storage.persist()`, `_redirects`, `.gitlab-ci.yml`, кастомный домен, чек-лист из [06-pwa-deploy.md](06-pwa-deploy.md).
+Полный манифест, иконки (192, 512, maskable, apple-touch), мета-теги iOS, прекэш с фотографиями, `navigator.storage.persist()`, `404.html`, `.github/workflows/ci.yml`, кастомный домен, чек-лист из [06-pwa-deploy.md](06-pwa-deploy.md).
 
 **Готово, когда:** приложение установлено на оба телефона и работает в офлайне.
 

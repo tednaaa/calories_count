@@ -1,5 +1,7 @@
 /// <reference types="vitest/config" />
 
+import type { Plugin } from 'vite';
+import { copyFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
@@ -9,6 +11,21 @@ import { VitePWA } from 'vite-plugin-pwa';
 import VueRouter from 'vue-router/vite';
 
 const { version } = createRequire(import.meta.url)('./package.json');
+
+function spaFallback(): Plugin {
+  let outDir = '';
+
+  return {
+    name: 'spa-fallback',
+    apply: 'build',
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      copyFileSync(path.join(outDir, 'index.html'), path.join(outDir, '404.html'));
+    },
+  };
+}
 
 export default defineConfig({
   define: {
@@ -50,9 +67,11 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        globIgnores: ['**/404.html'],
         navigateFallback: '/index.html',
       },
     }),
+    spaFallback(),
   ],
   resolve: {
     alias: {
