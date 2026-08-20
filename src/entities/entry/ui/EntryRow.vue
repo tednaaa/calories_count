@@ -88,7 +88,9 @@ const kcal = computed(() => entryKcal(props.entry));
         <span v-if="entry.qty !== 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
           ×{{ entry.qty }}
         </span>
-        <span class="text-sm tabular-nums text-text-primary">{{ formatNumber(kcal) }}</span>
+        <span class="text-sm tabular-nums text-text-primary">
+          {{ formatNumber(kcal) }}<span class="ml-1 text-xs text-text-tertiary">ккал</span>
+        </span>
       </div>
     </div>
   </li>
