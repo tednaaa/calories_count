@@ -1,7 +1,20 @@
 <script setup lang="ts">
+import type { ViewMode } from './lib/view-mode';
 import type { CartItem } from '@/entities/entry';
 import type { CategoryId, Portion } from '@/entities/food';
-import { Badge, Button, cn, Input, toast } from 'shonk-ui';
+import { Grid2x2, LayoutGrid, List } from '@lucide/vue';
+import {
+  Badge,
+  Button,
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+  Input,
+  toast,
+} from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { addEntries, frequentFoodIds } from '@/entities/entry';
@@ -14,9 +27,10 @@ import {
   useCustomFoods,
 } from '@/entities/food';
 import { formatDayLabel, isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
-import { cartQty, cartSummary, withCartItem } from './lib/cart';
+import { cartSummary, withCartItem } from './lib/cart';
+import { useViewMode, viewModeName, viewModes } from './lib/view-mode';
 import CartPanel from './ui/CartPanel.vue';
-import FoodCard from './ui/FoodCard.vue';
+import FoodSection from './ui/FoodSection.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -29,10 +43,20 @@ const chips: { id: ChipId; name: string }[] = [
   ...categories,
 ];
 
+const viewIcons = { grid: LayoutGrid, large: Grid2x2, list: List };
+
 const query = ref('');
 const category = ref<ChipId>('all');
 const items = ref<CartItem[]>([]);
 const saving = ref(false);
+
+const view = useViewMode();
+
+const viewIcon = computed(() => viewIcons[view.value] ?? LayoutGrid);
+
+function chooseView(mode: unknown) {
+  view.value = mode as ViewMode;
+}
 
 const dateKey = computed(() => requestedDateKey(route.query.date));
 
@@ -136,22 +160,45 @@ async function confirm() {
       </div>
     </header>
 
-    <div class="scrollbar-none shrink-0 overflow-x-auto pb-6">
-      <div class="flex w-max gap-2 px-4">
-        <button
-          v-for="chip in chips"
-          :key="chip.id"
-          type="button"
-          :class="cn(
-            'rounded-full border px-3 py-1.5 text-xs whitespace-nowrap',
-            category === chip.id
-              ? 'border-transparent bg-bg-brand text-text-inverse'
-              : 'border-border-default text-text-secondary',
-          )"
-          @click="category = chip.id"
-        >
-          {{ chip.name }}
-        </button>
+    <div class="flex shrink-0 items-center gap-2 pb-6 pl-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <button
+            type="button"
+            class="flex size-9 shrink-0 items-center justify-center rounded-full border border-border-default text-text-secondary"
+            :aria-label="`Вид: ${viewModeName(view)}`"
+          >
+            <component :is="viewIcon" class="size-4" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="start">
+          <DropdownMenuRadioGroup :model-value="view" @update:model-value="chooseView">
+            <DropdownMenuRadioItem v-for="mode in viewModes" :key="mode.id" :value="mode.id">
+              <component :is="viewIcons[mode.id]" class="size-4" />
+              {{ mode.name }}
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <div class="scrollbar-none min-w-0 flex-1 overflow-x-auto">
+        <div class="flex w-max gap-2 pr-4">
+          <button
+            v-for="chip in chips"
+            :key="chip.id"
+            type="button"
+            :class="cn(
+              'rounded-full border px-3 py-1.5 text-xs whitespace-nowrap',
+              category === chip.id
+                ? 'border-transparent bg-bg-brand text-text-inverse'
+                : 'border-border-default text-text-secondary',
+            )"
+            @click="category = chip.id"
+          >
+            {{ chip.name }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -161,16 +208,13 @@ async function confirm() {
           Часто
         </h2>
 
-        <ul class="mb-6 grid grid-cols-3 gap-3">
-          <FoodCard
-            v-for="food in frequent"
-            :key="food.id"
-            :food="food"
-            :photo="customPhotos.get(food.id)"
-            :qty="cartQty(items, food.id)"
-            @change-qty="changeQty"
-          />
-        </ul>
+        <FoodSection
+          :foods="frequent"
+          :photos="customPhotos"
+          :items="items"
+          :mode="view"
+          @change-qty="changeQty"
+        />
       </template>
 
       <template v-if="custom.length">
@@ -181,16 +225,13 @@ async function confirm() {
           Своё
         </h2>
 
-        <ul class="mb-6 grid grid-cols-3 gap-3">
-          <FoodCard
-            v-for="food in custom"
-            :key="food.id"
-            :food="food"
-            :photo="food.photo"
-            :qty="cartQty(items, food.id)"
-            @change-qty="changeQty"
-          />
-        </ul>
+        <FoodSection
+          :foods="custom"
+          :photos="customPhotos"
+          :items="items"
+          :mode="view"
+          @change-qty="changeQty"
+        />
       </template>
 
       <template v-if="catalog.length">
@@ -201,15 +242,13 @@ async function confirm() {
           Всё
         </h2>
 
-        <ul class="grid grid-cols-3 gap-3">
-          <FoodCard
-            v-for="food in catalog"
-            :key="food.id"
-            :food="food"
-            :qty="cartQty(items, food.id)"
-            @change-qty="changeQty"
-          />
-        </ul>
+        <FoodSection
+          :foods="catalog"
+          :photos="customPhotos"
+          :items="items"
+          :mode="view"
+          @change-qty="changeQty"
+        />
       </template>
 
       <div v-if="!custom.length && !catalog.length" class="py-8 text-center">

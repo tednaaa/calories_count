@@ -8,7 +8,9 @@ import { activeFoods } from '@/entities/food';
 import { useCustomFoods } from '@/entities/food/lib/use-custom-foods';
 import { toDateKey, useLiveQuery } from '@/shared/lib';
 import AddView from './index.vue';
+import { VIEW_MODE_KEY } from './lib/view-mode';
 import FoodCard from './ui/FoodCard.vue';
+import FoodRow from './ui/FoodRow.vue';
 
 const { push, route } = vi.hoisted(() => ({
   push: vi.fn(),
@@ -79,6 +81,7 @@ function customFood(overrides: Partial<CustomFood> = {}): CustomFood {
 }
 
 beforeEach(() => {
+  localStorage.clear();
   route.query = {};
   frequentIds.value = [];
   customFoods.value = [];
@@ -200,6 +203,50 @@ describe('экран «Добавить»', () => {
 
     expect(wrapper.text()).toContain('Часто');
     expect(cards(wrapper)).toHaveLength(activeFoods.length + 2);
+  });
+
+  it('по умолчанию показывает карточки', () => {
+    const wrapper = mount(AddView);
+
+    expect(cards(wrapper)).toHaveLength(activeFoods.length);
+    expect(wrapper.findAllComponents(FoodRow)).toHaveLength(0);
+  });
+
+  it('крупный вид оставляет карточки, но меняет сетку', () => {
+    localStorage.setItem(VIEW_MODE_KEY, 'large');
+    const wrapper = mount(AddView);
+
+    expect(wrapper.find('ul').classes()).toContain('grid-cols-2');
+    expect(cards(wrapper)).toHaveLength(activeFoods.length);
+  });
+
+  it('список показывает строки вместо карточек', () => {
+    localStorage.setItem(VIEW_MODE_KEY, 'list');
+    const wrapper = mount(AddView);
+
+    expect(wrapper.findAllComponents(FoodRow)).toHaveLength(activeFoods.length);
+    expect(cards(wrapper)).toHaveLength(0);
+  });
+
+  it('незнакомый вид из хранилища не ломает экран', () => {
+    localStorage.setItem(VIEW_MODE_KEY, 'карточки');
+    const wrapper = mount(AddView);
+
+    expect(cards(wrapper)).toHaveLength(activeFoods.length);
+  });
+
+  it('в списке блюдо кладётся в корзину тапом по строке', async () => {
+    localStorage.setItem(VIEW_MODE_KEY, 'list');
+    const wrapper = mount(AddView);
+    await wrapper.findAllComponents(FoodRow)[0].find('button').trigger('click');
+
+    expect(wrapper.text()).toContain('1 позиция · 5 ккал');
+  });
+
+  it('кнопка вида называет текущий', () => {
+    localStorage.setItem(VIEW_MODE_KEY, 'list');
+
+    expect(mount(AddView).find('button[aria-label="Вид: Список"]').exists()).toBe(true);
   });
 
   it('до первого выбора корзины нет', () => {
