@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1 (2026-08-20)
+
+- fix: pin screen headers by bounding the app shell height [`abaac6d0`](https://github.com/tednaaa/calories_count/commit/abaac6d04657e007a140648260a7fbadc287785e)
+- feat: disable pinch and double tap zoom on mobile [`feda88b9`](https://github.com/tednaaa/calories_count/commit/feda88b92741ef72eb1ca0b23e882dc4c2ad851f)
+
 ## v0.3.0 (2026-08-20)
 
 - feat: add sugar spoon photo and drop coffee with sugar [`8900de48`](https://github.com/tednaaa/calories_count/commit/8900de48d48fdeb550d8e86d61fd4089bb5844d8)
