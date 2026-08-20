@@ -1,5 +1,6 @@
-export type { CartItem } from './lib/entry';
+export type { CartItem, CustomItem } from './lib/entry';
 export {
+  buildCustomEntry,
   buildEntries,
   entryKcal,
   rankFoodIdsByFrequency,
@@ -7,6 +8,7 @@ export {
   totalsByDate,
 } from './lib/entry';
 export {
+  addCustomEntry,
   addEntries,
   entriesFrom,
   entriesOfDay,

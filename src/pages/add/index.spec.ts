@@ -165,7 +165,7 @@ describe('экран «Добавить»', () => {
     expect(addEntries).toHaveBeenCalledWith(toDateKey(), [
       { foodId: 'coffee-black', name: 'Кофе чёрный', kcalPerPortion: 5, qty: 2 },
     ]);
-    expect(push).toHaveBeenCalledWith('/');
+    expect(push).toHaveBeenCalledWith({ path: '/', query: {} });
   });
 
   it('пишет записи в дату из адреса', async () => {
@@ -176,6 +176,7 @@ describe('экран «Добавить»', () => {
     await flushPromises();
 
     expect(addEntries).toHaveBeenCalledWith('2026-08-17', expect.anything());
+    expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-17' } });
   });
 
   it('предупреждает, что запись идёт задним числом', () => {

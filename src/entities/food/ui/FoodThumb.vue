@@ -5,7 +5,8 @@ import { computed, ref } from 'vue';
 import { foodById, photoUrl } from '../lib/catalog';
 
 const props = defineProps<{
-  foodId: string;
+  foodId?: string;
+  photo?: string;
   name: string;
   class?: HTMLAttributes['class'];
 }>();
@@ -13,7 +14,11 @@ const props = defineProps<{
 const failed = ref(false);
 
 const source = computed(() => {
-  const food = foodById(props.foodId);
+  if (props.photo) {
+    return props.photo;
+  }
+
+  const food = props.foodId ? foodById(props.foodId) : undefined;
 
   return food ? photoUrl(food) : undefined;
 });

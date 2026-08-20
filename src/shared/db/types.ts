@@ -8,7 +8,8 @@ export interface Entry {
   id: string;
   date: DateKey;
   createdAt: number;
-  foodId: string;
+  foodId?: string;
+  photo?: string;
   qty: number;
   kcalPerPortion: number;
   name: string;

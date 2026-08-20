@@ -24,7 +24,8 @@ function isEntry(value: unknown): value is Entry {
   return typeof entry?.id === 'string'
     && typeof entry.date === 'string'
     && typeof entry.createdAt === 'number'
-    && typeof entry.foodId === 'string'
+    && (entry.foodId === undefined || typeof entry.foodId === 'string')
+    && (entry.photo === undefined || typeof entry.photo === 'string')
     && typeof entry.qty === 'number'
     && typeof entry.kcalPerPortion === 'number'
     && typeof entry.name === 'string';

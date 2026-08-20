@@ -45,6 +45,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/add/custom': RouteRecordInfo<
+      '/add/custom',
+      '/add/custom',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/onboarding/': RouteRecordInfo<
       '/onboarding/',
       '/onboarding',
@@ -88,6 +95,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/add/index.vue': {
       routes:
         | '/add/'
+      views:
+        | never
+    }
+    'src/pages/add/custom.vue': {
+      routes:
+        | '/add/custom'
       views:
         | never
     }

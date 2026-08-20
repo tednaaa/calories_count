@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/entry';
 import type { CategoryId, Food } from '@/entities/food';
-import { Badge, cn, Input, toast } from 'shonk-ui';
+import { Badge, Button, cn, Input, toast } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { addEntries, frequentFoodIds } from '@/entities/entry';
@@ -26,6 +26,12 @@ const saving = ref(false);
 const dateKey = computed(() => requestedDateKey(route.query.date));
 
 const showsToday = computed(() => isToday(dateKey.value));
+
+const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }));
+
+function openCustom() {
+  void router.push({ path: '/add/custom', query: dayQuery.value });
+}
 
 const filtered = computed(() => searchFoods(
   query.value,
@@ -65,7 +71,7 @@ async function confirm() {
   }
 
   toast(`Добавлено: ${cartSummary(items.value)}`);
-  await router.push('/');
+  await router.push({ path: '/', query: dayQuery.value });
 }
 </script>
 
@@ -79,12 +85,19 @@ async function confirm() {
         <span class="text-xs text-text-tertiary">запись задним числом</span>
       </div>
 
-      <Input
-        v-model="query"
-        type="search"
-        enterkeyhint="search"
-        placeholder="Поиск блюда"
-      />
+      <div class="flex items-center gap-2">
+        <Input
+          v-model="query"
+          type="search"
+          enterkeyhint="search"
+          placeholder="Поиск блюда"
+          class="flex-1"
+        />
+
+        <Button variant="outline" @click="openCustom">
+          Своё
+        </Button>
+      </div>
     </header>
 
     <div class="scrollbar-none shrink-0 overflow-x-auto pb-6">
@@ -137,9 +150,15 @@ async function confirm() {
         />
       </ul>
 
-      <p v-else class="py-8 text-center text-sm text-text-secondary">
-        Ничего не нашлось
-      </p>
+      <div v-else class="py-8 text-center">
+        <p class="text-sm text-text-secondary">
+          Ничего не нашлось
+        </p>
+
+        <Button variant="outline" class="mt-3" @click="openCustom">
+          Добавить своё
+        </Button>
+      </div>
     </div>
 
     <Teleport defer to="#bottom-dock">

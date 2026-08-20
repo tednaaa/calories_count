@@ -1,6 +1,7 @@
 import type { CartItem } from './entry';
 import type { Entry } from '@/shared/db';
 import {
+  buildCustomEntry,
   buildEntries,
   entryKcal,
   rankFoodIdsByFrequency,
@@ -64,6 +65,28 @@ describe('buildEntries', () => {
   });
 });
 
+describe('buildCustomEntry', () => {
+  it('создаёт одну запись без блюда из каталога', () => {
+    const custom = buildCustomEntry('2026-08-19', { name: 'Пирог', kcalPerPortion: 350 }, NOW);
+
+    expect(custom.foodId).toBeUndefined();
+    expect(custom.qty).toBe(1);
+    expect(custom.name).toBe('Пирог');
+    expect(custom.kcalPerPortion).toBe(350);
+    expect(custom.date).toBe('2026-08-19');
+  });
+
+  it('хранит фото рядом с записью', () => {
+    const custom = buildCustomEntry(
+      '2026-08-19',
+      { name: 'Пирог', kcalPerPortion: 350, photo: 'data:image/jpeg;base64,zzz' },
+      NOW,
+    );
+
+    expect(custom.photo).toBe('data:image/jpeg;base64,zzz');
+  });
+});
+
 describe('entryKcal', () => {
   it('умножает порцию на количество', () => {
     expect(entryKcal(entry({ qty: 2, kcalPerPortion: 78 }))).toBe(156);
@@ -109,6 +132,16 @@ describe('rankFoodIdsByFrequency', () => {
     ], 8);
 
     expect(ranked[0]).toBe('coffee-black');
+  });
+
+  it('не считает разовые записи, у которых нет блюда', () => {
+    const ranked = rankFoodIdsByFrequency([
+      entry({ foodId: undefined }),
+      entry({ foodId: undefined }),
+      entry({ foodId: 'apple' }),
+    ], 8);
+
+    expect(ranked).toEqual(['apple']);
   });
 
   it('при равном счёте выше то, что ели позже', () => {

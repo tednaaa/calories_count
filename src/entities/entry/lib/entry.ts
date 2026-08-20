@@ -20,6 +20,24 @@ export function buildEntries(date: DateKey, items: CartItem[], now: number): Ent
   }));
 }
 
+export interface CustomItem {
+  name: string;
+  kcalPerPortion: number;
+  photo?: string;
+}
+
+export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): Entry {
+  return {
+    id: crypto.randomUUID(),
+    date,
+    createdAt: now,
+    photo: item.photo,
+    qty: 1,
+    kcalPerPortion: item.kcalPerPortion,
+    name: item.name,
+  };
+}
+
 export function entryKcal(entry: Entry): number {
   return entry.qty * entry.kcalPerPortion;
 }
@@ -42,6 +60,10 @@ export function rankFoodIdsByFrequency(entries: Entry[], limit: number): string[
   const stats = new Map<string, { count: number; lastAt: number }>();
 
   for (const entry of entries) {
+    if (!entry.foodId) {
+      continue;
+    }
+
     const current = stats.get(entry.foodId);
 
     if (current) {

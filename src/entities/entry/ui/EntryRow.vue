@@ -50,7 +50,7 @@ const kcal = computed(() => entryKcal(props.entry));
       :style="{ transform: `translateX(${offset}px)` }"
       @click="expanded = !expanded"
     >
-      <FoodThumb :food-id="entry.foodId" :name="entry.name" class="size-11" />
+      <FoodThumb :food-id="entry.foodId" :photo="entry.photo" :name="entry.name" class="size-11" />
 
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm text-text-primary">
