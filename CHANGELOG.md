@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.0 (2026-08-20)
+
+- feat: add coffee with sugar and a photoless candy [`dcfa6976`](https://github.com/tednaaa/calories_count/commit/dcfa6976d9293f57e4e35ae14523387bf3a6f336)
+- feat: allow half portions and add gorilla energy drink [`d24d981e`](https://github.com/tednaaa/calories_count/commit/d24d981e1d24f612f6a0ff36a37feb0a791708f6)
+- add pepsi zero [`1047c4d6`](https://github.com/tednaaa/calories_count/commit/1047c4d63b3dcf9d9f916b5803125777f00a56aa)
+- docs: describe calibrating the target against real weight change [`fda4a981`](https://github.com/tednaaa/calories_count/commit/fda4a981caa466e0d5f04ee066fc0e1db26424b6)
+- feat: add a form for one-off dishes with an optional photo [`648dcd67`](https://github.com/tednaaa/calories_count/commit/648dcd67f5118c2493bd292f432a93df24c4c71f)
+- fix: pin the cart above the bottom nav via a shared sticky dock [`03fc1aab`](https://github.com/tednaaa/calories_count/commit/03fc1aab1f49cdb63bc46dcedfb7179ea3846faf)
+- fix: respect the top safe area and hide the category scrollbar [`d7380572`](https://github.com/tednaaa/calories_count/commit/d7380572bdd722c8d53a6708aab478ab58c4ecfa)
+
 ## v0.1.1 (2026-08-20)
 
 - foods [`91f97126`](https://github.com/tednaaa/calories_count/commit/91f97126ae0d752d85661a614aa7ac9aa03e0b0b)
