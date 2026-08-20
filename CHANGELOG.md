@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2 (2026-08-20)
+
+- fix: label entry calories with the unit [`270efc2d`](https://github.com/tednaaa/calories_count/commit/270efc2d192010de5d00c1bf751b7acaf8d00824)
+- feat: collapse day header ring on scroll [`322ab597`](https://github.com/tednaaa/calories_count/commit/322ab597b7c5221060329e5248c95c2ef469e7f7)
+
 ## v0.3.1 (2026-08-20)
 
 - fix: pin screen headers by bounding the app shell height [`abaac6d0`](https://github.com/tednaaa/calories_count/commit/abaac6d04657e007a140648260a7fbadc287785e)
