@@ -87,7 +87,7 @@ async function confirm() {
       />
     </header>
 
-    <div class="shrink-0 overflow-x-auto pb-3">
+    <div class="scrollbar-none shrink-0 overflow-x-auto pb-6">
       <div class="flex w-max gap-2 px-4">
         <button
           v-for="chip in chips"
