@@ -48,7 +48,7 @@ describe('целостность каталога', () => {
   });
 
   it('имя файла фотографии совпадает с идентификатором', () => {
-    const invalid = foods.filter(food => food.photo !== `${food.id}.webp`);
+    const invalid = foods.filter(food => food.photo !== undefined && food.photo !== `${food.id}.webp`);
 
     expect(invalid.map(food => food.id)).toEqual([]);
   });

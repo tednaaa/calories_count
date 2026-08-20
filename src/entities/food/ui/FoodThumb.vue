@@ -20,7 +20,7 @@ const source = computed(() => {
 
   const food = props.foodId ? foodById(props.foodId) : undefined;
 
-  return food ? photoUrl(food) : undefined;
+  return food?.photo ? photoUrl(food) : undefined;
 });
 
 const initial = computed(() => props.name.trim().charAt(0).toUpperCase());

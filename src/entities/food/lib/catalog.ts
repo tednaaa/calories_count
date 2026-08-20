@@ -1,6 +1,8 @@
 import type { Food } from './types';
 
 export const foods: Food[] = [
+  { id: 'coffee-sugar', name: 'Кофе с сахаром', kcal: 22, photo: 'coffee-sugar.webp', category: 'drinks', tags: ['кофе'] },
+  { id: 'candy', name: 'Конфета', kcal: 50, category: 'snacks', tags: ['сладкое'] },
   { id: 'mac-coffee', name: 'Мак кофе', kcal: 90, photo: 'mac-coffee.webp', category: 'drinks' },
   { id: 'pepsi-zero-sugar', name: 'Pepsi Zero 1 л.', kcal: 4, photo: 'pepsi-zero-sugar.webp', category: 'drinks', tags: ['пепси', 'кола'] },
   { id: 'gorilla-energy-drink', name: 'Gorilla 450 мл', kcal: 230, photo: 'gorilla-energy-drink.webp', category: 'drinks', tags: ['энергетик'] },

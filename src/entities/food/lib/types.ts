@@ -4,7 +4,7 @@ export interface Food {
   id: string;
   name: string;
   kcal: number;
-  photo: string;
+  photo?: string;
   category: CategoryId;
   tags?: string[];
   archived?: boolean;
