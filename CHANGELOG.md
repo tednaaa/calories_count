@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.0 (2026-08-20)
+
+- feat: add sugar spoon photo and drop coffee with sugar [`8900de48`](https://github.com/tednaaa/calories_count/commit/8900de48d48fdeb550d8e86d61fd4089bb5844d8)
+- feat: switch the add grid between cards, large cards and a list [`79122f38`](https://github.com/tednaaa/calories_count/commit/79122f38d8025943a01edb7ce52758da25a02cc1)
+- feat: keep custom foods in the grid and manage them in settings [`76f04e37`](https://github.com/tednaaa/calories_count/commit/76f04e378f7034e8d0707e35628f4192fcee7f8b)
+
 ## v0.2.0 (2026-08-20)
 
 - feat: add coffee with sugar and a photoless candy [`dcfa6976`](https://github.com/tednaaa/calories_count/commit/dcfa6976d9293f57e4e35ae14523387bf3a6f336)
