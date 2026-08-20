@@ -6,7 +6,7 @@ import { cn } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
 import { FoodThumb } from '@/entities/food';
 import { formatNumber, formatTime } from '@/shared/lib';
-import { entryKcal } from '../lib/entry';
+import { decreaseQty, entryKcal, HALF_PORTION, increaseQty } from '../lib/entry';
 
 const props = defineProps<{ entry: Entry }>();
 
@@ -65,27 +65,27 @@ const kcal = computed(() => entryKcal(props.entry));
         <button
           type="button"
           class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary disabled:opacity-40"
-          :disabled="entry.qty <= 1"
+          :disabled="entry.qty <= HALF_PORTION"
           aria-label="Меньше"
-          @click="emit('changeQty', entry.id, entry.qty - 1)"
+          @click="emit('changeQty', entry.id, decreaseQty(entry.qty))"
         >
           <Minus class="size-4" />
         </button>
 
-        <span class="w-6 text-center text-sm tabular-nums text-text-primary">{{ entry.qty }}</span>
+        <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ entry.qty }}</span>
 
         <button
           type="button"
           class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
           aria-label="Больше"
-          @click="emit('changeQty', entry.id, entry.qty + 1)"
+          @click="emit('changeQty', entry.id, increaseQty(entry.qty))"
         >
           <Plus class="size-4" />
         </button>
       </div>
 
       <div v-else class="flex items-center gap-2">
-        <span v-if="entry.qty > 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
+        <span v-if="entry.qty !== 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
           ×{{ entry.qty }}
         </span>
         <span class="text-sm tabular-nums text-text-primary">{{ formatNumber(kcal) }}</span>

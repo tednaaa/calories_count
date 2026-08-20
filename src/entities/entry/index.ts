@@ -2,7 +2,10 @@ export type { CartItem, CustomItem } from './lib/entry';
 export {
   buildCustomEntry,
   buildEntries,
+  decreaseQty,
   entryKcal,
+  HALF_PORTION,
+  increaseQty,
   rankFoodIdsByFrequency,
   totalKcal,
   totalsByDate,

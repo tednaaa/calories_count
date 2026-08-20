@@ -38,6 +38,16 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
   };
 }
 
+export const HALF_PORTION = 0.5;
+
+export function increaseQty(qty: number): number {
+  return qty < 1 ? 1 : qty + 1;
+}
+
+export function decreaseQty(qty: number): number {
+  return qty > 1 ? qty - 1 : qty - HALF_PORTION;
+}
+
 export function entryKcal(entry: Entry): number {
   return entry.qty * entry.kcalPerPortion;
 }

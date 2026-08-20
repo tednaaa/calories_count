@@ -3,7 +3,9 @@ import type { Entry } from '@/shared/db';
 import {
   buildCustomEntry,
   buildEntries,
+  decreaseQty,
   entryKcal,
+  increaseQty,
   rankFoodIdsByFrequency,
   totalKcal,
   totalsByDate,
@@ -87,9 +89,55 @@ describe('buildCustomEntry', () => {
   });
 });
 
+describe('increaseQty', () => {
+  it('с половины поднимает до целой порции', () => {
+    expect(increaseQty(0.5)).toBe(1);
+  });
+
+  it('дальше считает целыми', () => {
+    expect(increaseQty(1)).toBe(2);
+    expect(increaseQty(2)).toBe(3);
+  });
+
+  it('первое нажатие даёт целую порцию', () => {
+    expect(increaseQty(0)).toBe(1);
+  });
+});
+
+describe('decreaseQty', () => {
+  it('с целой порции опускает до половины', () => {
+    expect(decreaseQty(1)).toBe(0.5);
+  });
+
+  it('с половины уводит в ноль', () => {
+    expect(decreaseQty(0.5)).toBe(0);
+  });
+
+  it('выше целой считает целыми', () => {
+    expect(decreaseQty(3)).toBe(2);
+    expect(decreaseQty(2)).toBe(1);
+  });
+
+  it('половина появляется только между нулём и единицей', () => {
+    const steps = [];
+    let qty = 3;
+
+    while (qty > 0) {
+      qty = decreaseQty(qty);
+      steps.push(qty);
+    }
+
+    expect(steps).toEqual([2, 1, 0.5, 0]);
+  });
+});
+
 describe('entryKcal', () => {
   it('умножает порцию на количество', () => {
     expect(entryKcal(entry({ qty: 2, kcalPerPortion: 78 }))).toBe(156);
+  });
+
+  it('половина порции считается половиной калорий', () => {
+    expect(entryKcal(entry({ qty: 0.5, kcalPerPortion: 230 }))).toBe(115);
   });
 });
 

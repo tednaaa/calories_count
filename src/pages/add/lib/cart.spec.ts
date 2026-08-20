@@ -46,6 +46,12 @@ describe('withCartItem', () => {
     expect(withCartItem([original], renamed)[0]).toEqual({ ...original, qty: 2 });
   });
 
+  it('половину порции оставляет в корзине', () => {
+    const egg = toCartItem(food(), 1);
+
+    expect(withCartItem([egg], { ...egg, qty: 0.5 })[0].qty).toBe(0.5);
+  });
+
   it('убирает позицию, когда количество опускается до нуля', () => {
     const egg = toCartItem(food(), 1);
 

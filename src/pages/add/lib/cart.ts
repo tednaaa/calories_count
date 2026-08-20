@@ -1,5 +1,6 @@
 import type { CartItem } from '@/entities/entry';
 import type { Food } from '@/entities/food';
+import { HALF_PORTION } from '@/entities/entry';
 import { formatNumber, pluralize } from '@/shared/lib';
 
 export function toCartItem(food: Food, qty: number): CartItem {
@@ -11,7 +12,7 @@ export function cartQty(items: CartItem[], foodId: string): number {
 }
 
 export function withCartItem(items: CartItem[], item: CartItem): CartItem[] {
-  if (item.qty < 1) {
+  if (item.qty < HALF_PORTION) {
     return items.filter(existing => existing.foodId !== item.foodId);
   }
 

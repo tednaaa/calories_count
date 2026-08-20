@@ -3,6 +3,7 @@ import type { CartItem } from '@/entities/entry';
 import { ChevronUp, Minus, Plus, X } from '@lucide/vue';
 import { Button, cn } from 'shonk-ui';
 import { ref } from 'vue';
+import { decreaseQty, increaseQty } from '@/entities/entry';
 import { FoodThumb } from '@/entities/food';
 import { cartSummary } from '../lib/cart';
 
@@ -41,18 +42,18 @@ function changeQty(item: CartItem, qty: number) {
           type="button"
           class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
           :aria-label="`Меньше ${item.name}`"
-          @click="changeQty(item, item.qty - 1)"
+          @click="changeQty(item, decreaseQty(item.qty))"
         >
           <Minus class="size-4" />
         </button>
 
-        <span class="w-5 text-center text-sm tabular-nums text-text-primary">{{ item.qty }}</span>
+        <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ item.qty }}</span>
 
         <button
           type="button"
           class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
           :aria-label="`Больше ${item.name}`"
-          @click="changeQty(item, item.qty + 1)"
+          @click="changeQty(item, increaseQty(item.qty))"
         >
           <Plus class="size-4" />
         </button>

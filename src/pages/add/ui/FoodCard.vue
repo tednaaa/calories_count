@@ -3,6 +3,7 @@ import type { CartItem } from '@/entities/entry';
 import type { Food } from '@/entities/food';
 import { Minus, Plus } from '@lucide/vue';
 import { cn } from 'shonk-ui';
+import { decreaseQty, increaseQty } from '@/entities/entry';
 import { FoodThumb } from '@/entities/food';
 import { formatNumber } from '@/shared/lib';
 import { toCartItem } from '../lib/cart';
@@ -26,7 +27,7 @@ function changeQty(qty: number) {
     <button
       type="button"
       class="flex w-full flex-col gap-1.5 text-left"
-      @click="changeQty(props.qty + 1)"
+      @click="changeQty(increaseQty(props.qty))"
     >
       <FoodThumb
         :food-id="food.id"
@@ -51,18 +52,18 @@ function changeQty(qty: number) {
         type="button"
         class="flex h-full flex-1 items-center justify-center text-text-secondary"
         :aria-label="`Убрать ${food.name}`"
-        @click="changeQty(props.qty - 1)"
+        @click="changeQty(decreaseQty(props.qty))"
       >
         <Minus class="size-4" />
       </button>
 
-      <span class="w-6 text-center text-sm font-medium tabular-nums text-text-primary">{{ props.qty }}</span>
+      <span class="w-9 text-center text-sm font-medium tabular-nums text-text-primary">{{ props.qty }}</span>
 
       <button
         type="button"
         class="flex h-full flex-1 items-center justify-center text-text-secondary"
         :aria-label="`Добавить ${food.name}`"
-        @click="changeQty(props.qty + 1)"
+        @click="changeQty(increaseQty(props.qty))"
       >
         <Plus class="size-4" />
       </button>
