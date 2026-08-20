@@ -26,7 +26,7 @@ async function submit() {
 </script>
 
 <template>
-  <main class="flex-1 px-4 pt-8 pb-8">
+  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-8">
     <h1 class="text-2xl font-semibold text-text-primary">
       Норма калорий
     </h1>

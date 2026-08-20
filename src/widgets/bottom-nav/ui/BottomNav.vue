@@ -20,7 +20,7 @@ const items: NavItem[] = [
 </script>
 
 <template>
-  <nav class="sticky bottom-0 border-t border-border-default bg-bg-surface pb-[env(safe-area-inset-bottom)]">
+  <nav class="border-t border-border-default bg-bg-surface pb-[env(safe-area-inset-bottom)]">
     <ul class="grid grid-cols-4">
       <li v-for="item in items" :key="item.to">
         <RouterLink #default="{ href, navigate, isExactActive }" :to="item.to" custom>

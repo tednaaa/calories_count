@@ -59,8 +59,8 @@ async function changeQty(id: string, qty: number) {
 </script>
 
 <template>
-  <main class="flex-1 pb-6">
-    <header class="flex items-center justify-between px-2 pt-6">
+  <main class="flex min-h-0 flex-1 flex-col">
+    <header class="flex shrink-0 items-center justify-between px-2 pt-6">
       <button
         type="button"
         class="flex size-10 items-center justify-center rounded-full text-text-secondary"
@@ -95,29 +95,31 @@ async function changeQty(id: string, qty: number) {
       </button>
     </header>
 
-    <div class="px-4 py-6">
+    <div class="shrink-0 border-b border-border-default px-4 py-6">
       <DayProgress :eaten="eaten" :target="target" />
     </div>
 
-    <ul v-if="entries.length" class="border-t border-border-default">
-      <EntryRow
-        v-for="entry in entries"
-        :key="entry.id"
-        :entry="entry"
-        :photo="customPhotos.get(entry.foodId ?? '')"
-        @remove="remove"
-        @change-qty="changeQty"
-      />
-    </ul>
+    <div class="min-h-0 flex-1 overflow-y-auto pb-6">
+      <ul v-if="entries.length">
+        <EntryRow
+          v-for="entry in entries"
+          :key="entry.id"
+          :entry="entry"
+          :photo="customPhotos.get(entry.foodId ?? '')"
+          @remove="remove"
+          @change-qty="changeQty"
+        />
+      </ul>
 
-    <p v-else class="px-4 py-8 text-center text-sm text-text-secondary">
-      {{ showsToday ? 'Сегодня пока пусто' : 'В этот день записей нет' }}
-    </p>
+      <p v-else class="px-4 py-8 text-center text-sm text-text-secondary">
+        {{ showsToday ? 'Сегодня пока пусто' : 'В этот день записей нет' }}
+      </p>
 
-    <div v-if="!showsToday || !entries.length" class="px-4 pt-4">
-      <Button :as="RouterLink" :to="addLink" class="w-full">
-        Добавить
-      </Button>
+      <div v-if="!showsToday || !entries.length" class="px-4 pt-4">
+        <Button :as="RouterLink" :to="addLink" class="w-full">
+          Добавить
+        </Button>
+      </div>
     </div>
   </main>
 </template>

@@ -160,7 +160,7 @@ async function confirm() {
       </div>
     </header>
 
-    <div class="flex shrink-0 items-center gap-2 pb-6 pl-4">
+    <div class="flex shrink-0 items-center gap-2 border-b border-border-default pb-3 pl-4">
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <button
@@ -202,7 +202,7 @@ async function confirm() {
       </div>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+    <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-6">
       <template v-if="showsFrequent">
         <h2 class="pb-2 text-xs font-medium tracking-wide text-text-tertiary uppercase">
           Часто

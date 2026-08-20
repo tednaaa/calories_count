@@ -12,7 +12,7 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
 </script>
 
 <template>
-  <main class="flex-1 px-4 pt-6 pb-8">
+  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
     <h1 class="text-xl font-semibold text-text-primary">
       Настройки
     </h1>
