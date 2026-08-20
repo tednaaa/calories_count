@@ -1,3 +1,4 @@
+import type { Food } from '@/entities/food';
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
@@ -31,6 +32,29 @@ vi.mock('@/shared/lib', async importOriginal => ({
   ...await importOriginal<typeof import('@/shared/lib')>(),
   useLiveQuery: vi.fn(),
 }));
+
+vi.mock('@/entities/food/lib/catalog', async (importOriginal) => {
+  const { matchesQuery } = await importOriginal<typeof import('@/entities/food/lib/catalog')>();
+
+  const foods: Food[] = [
+    { id: 'coffee-black', name: 'Кофе чёрный', kcal: 5, photo: 'coffee-black.webp', category: 'drinks' },
+    { id: 'coffee-milk', name: 'Кофе с молоком', kcal: 60, photo: 'coffee-milk.webp', category: 'drinks' },
+    { id: 'tea-black', name: 'Чай чёрный', kcal: 2, photo: 'tea-black.webp', category: 'drinks' },
+    { id: 'apple', name: 'Яблоко', kcal: 80, photo: 'apple.webp', category: 'snacks', tags: ['фрукт'] },
+    { id: 'banana', name: 'Банан', kcal: 100, photo: 'banana.webp', category: 'snacks', tags: ['фрукт'] },
+  ];
+
+  const byId = new Map(foods.map(food => [food.id, food]));
+
+  return {
+    matchesQuery,
+    foods,
+    activeFoods: foods,
+    foodById: (id: string) => byId.get(id),
+    photoUrl: (food: Food) => `/foods/${food.photo}`,
+    searchFoods: (query: string, category?: string) => foods.filter(food => matchesQuery(food, query, category)),
+  };
+});
 
 const frequentIds = ref<string[]>([]);
 
