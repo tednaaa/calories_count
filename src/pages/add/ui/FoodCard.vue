@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/entry';
-import type { Food } from '@/entities/food';
+import type { Portion } from '@/entities/food';
 import { Minus, Plus } from '@lucide/vue';
 import { cn } from 'shonk-ui';
 import { decreaseQty, increaseQty } from '@/entities/entry';
@@ -9,7 +9,8 @@ import { formatNumber } from '@/shared/lib';
 import { toCartItem } from '../lib/cart';
 
 const props = defineProps<{
-  food: Food;
+  food: Portion;
+  photo?: string;
   qty: number;
 }>();
 
@@ -31,6 +32,7 @@ function changeQty(qty: number) {
     >
       <FoodThumb
         :food-id="food.id"
+        :photo="props.photo"
         :name="food.name"
         :class="cn('aspect-square w-full rounded-xl', props.qty && 'ring-2 ring-border-brand')"
       />

@@ -1,9 +1,9 @@
 import type { CartItem } from '@/entities/entry';
-import type { Food } from '@/entities/food';
+import type { Portion } from '@/entities/food';
 import { HALF_PORTION } from '@/entities/entry';
 import { formatNumber, pluralize } from '@/shared/lib';
 
-export function toCartItem(food: Food, qty: number): CartItem {
+export function toCartItem(food: Portion, qty: number): CartItem {
   return { foodId: food.id, name: food.name, kcalPerPortion: food.kcal, qty };
 }
 

@@ -13,6 +13,7 @@ import {
   setEntryQty,
   totalKcal,
 } from '@/entities/entry';
+import { photosById, useCustomFoods } from '@/entities/food';
 import { loadProfile } from '@/entities/profile';
 import { formatDayLabel, isToday, requestedDateKey, shiftDateKey, toDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
@@ -24,6 +25,9 @@ const dateKey = computed(() => requestedDateKey(route.query.date));
 
 const entries = useLiveQuery<Entry[]>(() => entriesOfDay(dateKey.value), [], [dateKey]);
 const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined);
+const customFoods = useCustomFoods();
+
+const customPhotos = computed(() => photosById(customFoods.value));
 
 const eaten = computed(() => totalKcal(entries.value));
 const target = computed(() => profile.value?.targetKcal ?? 0);
@@ -100,6 +104,7 @@ async function changeQty(id: string, qty: number) {
         v-for="entry in entries"
         :key="entry.id"
         :entry="entry"
+        :photo="customPhotos.get(entry.foodId ?? '')"
         @remove="remove"
         @change-qty="changeQty"
       />

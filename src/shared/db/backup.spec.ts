@@ -7,6 +7,7 @@ function backup(overrides: Partial<Backup> = {}): Backup {
     exportedAt: '2026-08-19T12:00:00.000Z',
     profile: null,
     entries: [],
+    customFoods: [],
     weightLog: [],
     ...overrides,
   };
@@ -20,6 +21,14 @@ const entry = {
   qty: 1,
   kcalPerPortion: 5,
   name: 'Кофе чёрный',
+};
+
+const customFood = {
+  id: 'b8c1',
+  name: 'Пирог у бабушки',
+  kcal: 350,
+  createdAt: 1_755_600_000_000,
+  updatedAt: 1_755_600_000_000,
 };
 
 const profile = {
@@ -46,7 +55,11 @@ describe('describeBackup', () => {
   it('перечисляет, что лежит внутри копии', () => {
     const described = describeBackup(backup({ entries: [entry], profile: profile as never }));
 
-    expect(described).toBe('записей: 1, профиль: есть, замеров веса: 0');
+    expect(described).toBe('записей: 1, своих блюд: 0, профиль: есть, замеров веса: 0');
+  });
+
+  it('считает свои блюда', () => {
+    expect(describeBackup(backup({ customFoods: [customFood] }))).toContain('своих блюд: 1');
   });
 
   it('честно говорит, что профиля нет', () => {
@@ -76,6 +89,19 @@ describe('readBackup', () => {
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
   });
 
+  it('отвергает битые свои блюда', () => {
+    const broken = JSON.stringify(backup({ customFoods: [{ ...customFood, kcal: 'много' }] as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Свои блюда в файле повреждены' });
+  });
+
+  it('читает копию, выгруженную до появления своих блюд', () => {
+    const { customFoods, ...older } = backup({ entries: [entry] });
+    const result = readBackup(JSON.stringify(older));
+
+    expect(result.ok && result.backup.customFoods).toEqual([]);
+  });
+
   it('отвергает битую историю веса', () => {
     const broken = JSON.stringify(backup({ weightLog: [{ date: '2026-08-19' }] as never }));
 
@@ -96,6 +122,7 @@ describe('readBackup', () => {
     const result = readBackup(JSON.stringify({ ...backup(), сюрприз: true }));
 
     expect(result.ok && Object.keys(result.backup).sort()).toEqual([
+      'customFoods',
       'entries',
       'exportedAt',
       'profile',

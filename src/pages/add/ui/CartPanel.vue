@@ -9,6 +9,7 @@ import { cartSummary } from '../lib/cart';
 
 const props = defineProps<{
   items: CartItem[];
+  photos: Map<string, string | undefined>;
   saving: boolean;
 }>();
 
@@ -32,7 +33,7 @@ function changeQty(item: CartItem, qty: number) {
         :key="item.foodId"
         class="flex items-center gap-3 px-4 py-2"
       >
-        <FoodThumb :food-id="item.foodId" :name="item.name" class="size-9" />
+        <FoodThumb :food-id="item.foodId" :photo="props.photos.get(item.foodId)" :name="item.name" class="size-9" />
 
         <p class="min-w-0 flex-1 truncate text-sm text-text-primary">
           {{ item.name }}

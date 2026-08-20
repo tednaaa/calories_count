@@ -102,19 +102,15 @@ describe('matchesQuery', () => {
   it('не находит постороннее', () => {
     expect(matchesQuery(apple, 'лобстер')).toBe(false);
   });
-
-  it('отсекает чужую категорию', () => {
-    expect(matchesQuery(apple, '', 'drinks')).toBe(false);
-  });
-
-  it('совмещает запрос и категорию', () => {
-    expect(matchesQuery(coffee, 'кофе', 'snacks')).toBe(false);
-  });
 });
 
 describe('searchFoods', () => {
   it('без запроса возвращает весь активный каталог', () => {
     expect(searchFoods('')).toEqual(activeFoods);
+  });
+
+  it('оставляет только выбранную категорию', () => {
+    expect(searchFoods('', 'drinks')).toEqual(activeFoods.filter(food => food.category === 'drinks'));
   });
 });
 

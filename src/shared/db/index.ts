@@ -10,4 +10,4 @@ export {
 } from './backup';
 export type { AppDatabase } from './database';
 export { db, PROFILE_ID } from './database';
-export type { ActivityLevel, Entry, Goal, Profile, Sex, WeightRecord } from './types';
+export type { ActivityLevel, CustomFood, Entry, Goal, Profile, Sex, WeightRecord } from './types';

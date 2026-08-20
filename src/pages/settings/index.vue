@@ -3,6 +3,7 @@ import type { Profile } from '@/shared/db';
 import { loadProfile } from '@/entities/profile';
 import { useLiveQuery } from '@/shared/lib';
 import AboutSection from './ui/AboutSection.vue';
+import CustomFoodsSection from './ui/CustomFoodsSection.vue';
 import DataSection from './ui/DataSection.vue';
 import ProfileSection from './ui/ProfileSection.vue';
 import TargetSection from './ui/TargetSection.vue';
@@ -31,6 +32,13 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
         <ProfileSection :profile="profile" />
       </section>
     </template>
+
+    <section class="pt-8">
+      <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+        Свои блюда
+      </h2>
+      <CustomFoodsSection />
+    </section>
 
     <section class="pt-8">
       <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">

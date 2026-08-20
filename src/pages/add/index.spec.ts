@@ -1,9 +1,11 @@
 import type { Food } from '@/entities/food';
+import type { CustomFood } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { addEntries } from '@/entities/entry';
 import { activeFoods } from '@/entities/food';
+import { useCustomFoods } from '@/entities/food/lib/use-custom-foods';
 import { toDateKey, useLiveQuery } from '@/shared/lib';
 import AddView from './index.vue';
 import FoodCard from './ui/FoodCard.vue';
@@ -52,15 +54,35 @@ vi.mock('@/entities/food/lib/catalog', async (importOriginal) => {
     activeFoods: foods,
     foodById: (id: string) => byId.get(id),
     photoUrl: (food: Food) => `/foods/${food.photo}`,
-    searchFoods: (query: string, category?: string) => foods.filter(food => matchesQuery(food, query, category)),
+    searchFoods: (query: string, category?: string) => foods.filter(food => (
+      (!category || food.category === category) && matchesQuery(food, query)
+    )),
   };
 });
 
+vi.mock('@/entities/food/lib/use-custom-foods', () => ({
+  useCustomFoods: vi.fn(),
+}));
+
 const frequentIds = ref<string[]>([]);
+const customFoods = ref<CustomFood[]>([]);
+
+function customFood(overrides: Partial<CustomFood> = {}): CustomFood {
+  return {
+    id: 'pie',
+    name: 'Пирог у бабушки',
+    kcal: 350,
+    createdAt: 1_770_000_000_000,
+    updatedAt: 1_770_000_000_000,
+    ...overrides,
+  };
+}
 
 beforeEach(() => {
   route.query = {};
   frequentIds.value = [];
+  customFoods.value = [];
+  vi.mocked(useCustomFoods).mockReturnValue(customFoods);
   vi.mocked(useLiveQuery).mockImplementation(() => frequentIds as never);
 });
 
@@ -124,6 +146,60 @@ describe('экран «Добавить»', () => {
     await wrapper.find('input[type="search"]').setValue('кофе');
 
     expect(wrapper.text()).not.toContain('Часто');
+  });
+
+  it('показывает свои блюда отдельным блоком', () => {
+    customFoods.value = [customFood()];
+    const wrapper = mount(AddView);
+
+    expect(wrapper.text()).toContain('Своё');
+    expect(cards(wrapper)).toHaveLength(activeFoods.length + 1);
+  });
+
+  it('чипс «Своё» оставляет только свои блюда', async () => {
+    customFoods.value = [customFood()];
+    const wrapper = mount(AddView);
+    await wrapper.findElementByText('button', 'Своё').trigger('click');
+
+    expect(cards(wrapper).map(card => card.text())).toEqual([
+      expect.stringContaining('Пирог у бабушки'),
+    ]);
+  });
+
+  it('ищет и по своим блюдам', async () => {
+    customFoods.value = [customFood()];
+    const wrapper = mount(AddView);
+    await wrapper.find('input[type="search"]').setValue('пирог');
+
+    expect(cards(wrapper)).toHaveLength(1);
+  });
+
+  it('говорит, что своих блюд ещё нет', async () => {
+    const wrapper = mount(AddView);
+    await wrapper.findElementByText('button', 'Своё').trigger('click');
+
+    expect(wrapper.text()).toContain('Своих блюд пока нет');
+  });
+
+  it('своё блюдо кладётся в корзину как обычное', async () => {
+    customFoods.value = [customFood()];
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
+    await flushPromises();
+
+    expect(addEntries).toHaveBeenCalledWith(toDateKey(), [
+      { foodId: 'pie', name: 'Пирог у бабушки', kcalPerPortion: 350, qty: 1 },
+    ]);
+  });
+
+  it('своё блюдо попадает в «Часто»', () => {
+    customFoods.value = [customFood()];
+    frequentIds.value = ['pie'];
+    const wrapper = mount(AddView);
+
+    expect(wrapper.text()).toContain('Часто');
+    expect(cards(wrapper)).toHaveLength(activeFoods.length + 2);
   });
 
   it('до первого выбора корзины нет', () => {

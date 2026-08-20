@@ -9,3 +9,5 @@ export interface Food {
   tags?: string[];
   archived?: boolean;
 }
+
+export type Portion = Pick<Food, 'id' | 'name' | 'kcal'>;

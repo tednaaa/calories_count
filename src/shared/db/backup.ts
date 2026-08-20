@@ -1,4 +1,4 @@
-import type { Entry, Profile, WeightRecord } from './types';
+import type { CustomFood, Entry, Profile, WeightRecord } from './types';
 import { toDateKey } from '@/shared/lib';
 import { db, PROFILE_ID } from './database';
 
@@ -9,6 +9,7 @@ export interface Backup {
   exportedAt: string;
   profile: Profile | null;
   entries: Entry[];
+  customFoods: CustomFood[];
   weightLog: WeightRecord[];
 }
 
@@ -29,6 +30,17 @@ function isEntry(value: unknown): value is Entry {
     && typeof entry.qty === 'number'
     && typeof entry.kcalPerPortion === 'number'
     && typeof entry.name === 'string';
+}
+
+function isCustomFood(value: unknown): value is CustomFood {
+  const food = value as CustomFood | null;
+
+  return typeof food?.id === 'string'
+    && typeof food.name === 'string'
+    && typeof food.kcal === 'number'
+    && (food.photo === undefined || typeof food.photo === 'string')
+    && typeof food.createdAt === 'number'
+    && typeof food.updatedAt === 'number';
 }
 
 function isWeightRecord(value: unknown): value is WeightRecord {
@@ -56,6 +68,7 @@ export function backupFileName(date: Date = new Date()): string {
 export function describeBackup(backup: Backup): string {
   return [
     `записей: ${backup.entries.length}`,
+    `своих блюд: ${backup.customFoods.length}`,
     `профиль: ${backup.profile ? 'есть' : 'нет'}`,
     `замеров веса: ${backup.weightLog.length}`,
   ].join(', ');
@@ -79,6 +92,12 @@ export function readBackup(raw: string): BackupCheck {
   if (!Array.isArray(candidate.entries) || !candidate.entries.every(isEntry)) {
     return { ok: false, reason: 'Записи дневника в файле повреждены' };
   }
+
+  const customFoods = candidate.customFoods ?? [];
+
+  if (!Array.isArray(customFoods) || !customFoods.every(isCustomFood)) {
+    return { ok: false, reason: 'Свои блюда в файле повреждены' };
+  }
   if (!Array.isArray(candidate.weightLog) || !candidate.weightLog.every(isWeightRecord)) {
     return { ok: false, reason: 'История веса в файле повреждена' };
   }
@@ -93,15 +112,17 @@ export function readBackup(raw: string): BackupCheck {
       exportedAt: typeof candidate.exportedAt === 'string' ? candidate.exportedAt : '',
       profile: candidate.profile ?? null,
       entries: candidate.entries,
+      customFoods,
       weightLog: candidate.weightLog,
     },
   };
 }
 
 export async function collectBackup(): Promise<Backup> {
-  const [profile, entries, weightLog] = await Promise.all([
+  const [profile, entries, customFoods, weightLog] = await Promise.all([
     db.profile.get(PROFILE_ID),
     db.entries.toArray(),
+    db.customFoods.toArray(),
     db.weightLog.toArray(),
   ]);
 
@@ -110,17 +131,24 @@ export async function collectBackup(): Promise<Backup> {
     exportedAt: new Date().toISOString(),
     profile: profile ?? null,
     entries,
+    customFoods,
     weightLog,
   };
 }
 
 export async function applyBackup(backup: Backup, mode: BackupMode): Promise<void> {
-  await db.transaction('rw', db.entries, db.profile, db.weightLog, async () => {
+  await db.transaction('rw', db.entries, db.customFoods, db.profile, db.weightLog, async () => {
     if (mode === 'replace') {
-      await Promise.all([db.entries.clear(), db.profile.clear(), db.weightLog.clear()]);
+      await Promise.all([
+        db.entries.clear(),
+        db.customFoods.clear(),
+        db.profile.clear(),
+        db.weightLog.clear(),
+      ]);
     }
 
     await db.entries.bulkPut(backup.entries);
+    await db.customFoods.bulkPut(backup.customFoods);
 
     const keepsCurrentProfile = mode === 'merge' && await db.profile.get(PROFILE_ID) !== undefined;
 
@@ -137,7 +165,12 @@ export async function applyBackup(backup: Backup, mode: BackupMode): Promise<voi
 }
 
 export async function wipeAllData(): Promise<void> {
-  await db.transaction('rw', db.entries, db.profile, db.weightLog, async () => {
-    await Promise.all([db.entries.clear(), db.profile.clear(), db.weightLog.clear()]);
+  await db.transaction('rw', db.entries, db.customFoods, db.profile, db.weightLog, async () => {
+    await Promise.all([
+      db.entries.clear(),
+      db.customFoods.clear(),
+      db.profile.clear(),
+      db.weightLog.clear(),
+    ]);
   });
 }

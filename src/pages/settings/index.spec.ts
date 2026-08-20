@@ -1,7 +1,8 @@
-import type { Profile } from '@/shared/db';
+import type { CustomFood, Profile } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
 import { downloadFile, toast } from 'shonk-ui';
 import { ref } from 'vue';
+import { useCustomFoods } from '@/entities/food';
 import { resetTargetToCalculated, saveProfile, setManualTarget } from '@/entities/profile';
 import { applyBackup, BACKUP_VERSION, collectBackup, wipeAllData } from '@/shared/db';
 import { useLiveQuery } from '@/shared/lib';
@@ -9,7 +10,10 @@ import SettingsView from './index.vue';
 
 const { push, requireConfirm } = vi.hoisted(() => ({ push: vi.fn(), requireConfirm: vi.fn() }));
 
-vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }));
+vi.mock('vue-router', () => ({
+  RouterLink: { template: '<a><slot /></a>' },
+  useRouter: () => ({ push }),
+}));
 
 vi.mock('shonk-ui', async importOriginal => ({
   ...await importOriginal<typeof import('shonk-ui')>(),
@@ -33,12 +37,18 @@ vi.mock('@/shared/db', async importOriginal => ({
   wipeAllData: vi.fn(),
 }));
 
+vi.mock('@/entities/food', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/food')>(),
+  useCustomFoods: vi.fn(),
+}));
+
 vi.mock('@/shared/lib', async importOriginal => ({
   ...await importOriginal<typeof import('@/shared/lib')>(),
   useLiveQuery: vi.fn(),
 }));
 
 const profile = ref<Profile | undefined>(undefined);
+const customFoods = ref<CustomFood[]>([]);
 
 function saved(overrides: Partial<Profile> = {}): Profile {
   return {
@@ -63,6 +73,7 @@ function backupJson(entries: unknown[] = []) {
     exportedAt: '2026-08-19T12:00:00.000Z',
     profile: null,
     entries,
+    customFoods: [],
     weightLog: [],
   });
 }
@@ -78,6 +89,8 @@ async function chooseFile(wrapper: ReturnType<typeof mount>, contents: string) {
 
 beforeEach(() => {
   profile.value = saved();
+  customFoods.value = [];
+  vi.mocked(useCustomFoods).mockReturnValue(customFoods);
   vi.mocked(useLiveQuery).mockImplementation(() => profile as never);
 });
 
@@ -144,6 +157,7 @@ describe('экран настроек', () => {
       exportedAt: '',
       profile: null,
       entries: [],
+      customFoods: [],
       weightLog: [],
     });
 
@@ -174,7 +188,7 @@ describe('экран настроек', () => {
       name: 'Яблоко',
     }]));
 
-    expect(wrapper.text()).toContain('записей: 1, профиль: нет, замеров веса: 0');
+    expect(wrapper.text()).toContain('записей: 1, своих блюд: 0, профиль: нет, замеров веса: 0');
   });
 
   it('загружает копию выбранным способом', async () => {

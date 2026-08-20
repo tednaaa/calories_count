@@ -1,52 +1,39 @@
 <script setup lang="ts">
-import { Camera, ChevronLeft } from '@lucide/vue';
-import { Badge, Button, buttonVariants, Input, Label, toast } from 'shonk-ui';
+import { ChevronLeft } from '@lucide/vue';
+import { Badge, Button, Switch, toast } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
-import { addCustomEntry } from '@/entities/entry';
-import { FoodThumb } from '@/entities/food';
-import { formatDayLabel, isToday, readPhoto, requestedDateKey } from '@/shared/lib';
-import { draftToCustomItem, emptyCustomDraft } from './lib/custom';
+import { CustomFoodFields, draftToCustomFood, emptyCustomDraft } from '@/entities/food';
+import { formatDayLabel, isToday, requestedDateKey } from '@/shared/lib';
+import { addCustomFoodToDay, addCustomOnceToDay } from './lib/custom';
 
 const route = useRoute();
 const router = useRouter();
 
 const draft = ref(emptyCustomDraft());
+const saves = ref(false);
 const saving = ref(false);
 
 const dateKey = computed(() => requestedDateKey(route.query.date));
 const showsToday = computed(() => isToday(dateKey.value));
 const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }));
-const item = computed(() => draftToCustomItem(draft.value));
+const input = computed(() => draftToCustomFood(draft.value));
 
-async function pickPhoto(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-
-  input.value = '';
-
-  if (!file) {
-    return;
-  }
-
-  try {
-    draft.value.photo = await readPhoto(file);
-  }
-  catch (error) {
-    console.error('[pickPhoto]', error);
-    toast('Не удалось прочитать фото');
-  }
-}
+const savesHint = computed(() => (saves.value
+  ? 'Появится в сетке «Добавить» — в следующий раз хватит тапа по карточке.'
+  : 'Разовая запись: попадёт в день и нигде больше не останется.'));
 
 async function submit() {
-  if (!item.value || saving.value) {
+  const food = input.value;
+
+  if (!food || saving.value) {
     return;
   }
 
   saving.value = true;
 
   try {
-    await addCustomEntry(dateKey.value, item.value);
+    await (saves.value ? addCustomFoodToDay : addCustomOnceToDay)(dateKey.value, food);
   }
   catch (error) {
     console.error('[submit]', error);
@@ -55,7 +42,7 @@ async function submit() {
     return;
   }
 
-  toast(`Добавлено: ${item.value.name}`);
+  toast(`Добавлено: ${food.name}`);
   await router.push({ path: '/', query: dayQuery.value });
 }
 </script>
@@ -76,10 +63,6 @@ async function submit() {
       </h1>
     </header>
 
-    <p class="mt-1 text-sm text-text-secondary">
-      Разовая запись — попадёт в день, но не в каталог.
-    </p>
-
     <div v-if="!showsToday" class="mt-3 flex items-center gap-2">
       <Badge variant="secondary">
         {{ formatDayLabel(dateKey) }}
@@ -88,46 +71,22 @@ async function submit() {
     </div>
 
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <div class="flex flex-col gap-2">
-        <Label for="custom-name">Название</Label>
-        <Input id="custom-name" v-model="draft.name" placeholder="Пирог у бабушки" />
+      <CustomFoodFields
+        v-model:name="draft.name"
+        v-model:kcal="draft.kcal"
+        v-model:photo="draft.photo"
+      />
+
+      <div class="flex items-center gap-3 rounded-lg border border-border-default p-3">
+        <button type="button" class="min-w-0 flex-1 text-left" @click="saves = !saves">
+          <span class="text-sm text-text-primary">Оставить в «Своём»</span>
+          <span class="mt-1 block text-xs text-text-tertiary">{{ savesHint }}</span>
+        </button>
+
+        <Switch id="custom-saves" v-model="saves" />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <Label for="custom-kcal">Калорийность, ккал</Label>
-        <Input id="custom-kcal" v-model="draft.kcal" inputmode="numeric" placeholder="350" />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <Label>Фото</Label>
-
-        <div class="flex items-center gap-3">
-          <FoodThumb :photo="draft.photo" :name="draft.name" class="size-16" />
-
-          <div class="flex flex-col items-start gap-2">
-            <label :class="buttonVariants({ variant: 'outline', size: 'sm' })">
-              <Camera class="size-4" />
-              {{ draft.photo ? 'Заменить' : 'Снять или выбрать' }}
-              <input type="file" accept="image/*" class="sr-only" @change="pickPhoto">
-            </label>
-
-            <button
-              v-if="draft.photo"
-              type="button"
-              class="text-xs text-text-secondary"
-              @click="draft.photo = ''"
-            >
-              Убрать фото
-            </button>
-          </div>
-        </div>
-
-        <p class="text-xs text-text-tertiary">
-          Необязательно. Снимок уменьшается до 400 px и хранится вместе с записью.
-        </p>
-      </div>
-
-      <Button type="submit" size="lg" :disabled="!item" :loading="saving">
+      <Button type="submit" size="lg" :disabled="!input" :loading="saving">
         Добавить в день
       </Button>
     </form>

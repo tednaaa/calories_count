@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/entry';
-import type { CategoryId, Food } from '@/entities/food';
+import type { CategoryId, Portion } from '@/entities/food';
 import { Badge, Button, cn, Input, toast } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { addEntries, frequentFoodIds } from '@/entities/entry';
-import { categories, foodById, searchFoods } from '@/entities/food';
+import {
+  categories,
+  foodById,
+  matchesQuery,
+  photosById,
+  searchFoods,
+  useCustomFoods,
+} from '@/entities/food';
 import { formatDayLabel, isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
 import { cartQty, cartSummary, withCartItem } from './lib/cart';
 import CartPanel from './ui/CartPanel.vue';
@@ -14,9 +21,13 @@ import FoodCard from './ui/FoodCard.vue';
 const route = useRoute();
 const router = useRouter();
 
-type ChipId = CategoryId | 'all';
+type ChipId = CategoryId | 'all' | 'custom';
 
-const chips: { id: ChipId; name: string }[] = [{ id: 'all', name: 'Все' }, ...categories];
+const chips: { id: ChipId; name: string }[] = [
+  { id: 'all', name: 'Все' },
+  { id: 'custom', name: 'Своё' },
+  ...categories,
+];
 
 const query = ref('');
 const category = ref<ChipId>('all');
@@ -33,19 +44,44 @@ function openCustom() {
   void router.push({ path: '/add/custom', query: dayQuery.value });
 }
 
-const filtered = computed(() => searchFoods(
-  query.value,
-  category.value === 'all' ? undefined : category.value,
+const customFoods = useCustomFoods();
+
+const customPhotos = computed(() => photosById(customFoods.value));
+
+const showsCustom = computed(() => category.value === 'all' || category.value === 'custom');
+
+const custom = computed(() => (
+  showsCustom.value ? customFoods.value.filter(food => matchesQuery(food, query.value)) : []
+));
+
+const catalog = computed(() => (
+  category.value === 'custom'
+    ? []
+    : searchFoods(query.value, category.value === 'all' ? undefined : category.value)
 ));
 
 const frequentIds = useLiveQuery<string[]>(() => frequentFoodIds(), []);
 
+function portionById(id: string): Portion | undefined {
+  const fromCatalog = foodById(id);
+
+  if (fromCatalog) {
+    return fromCatalog.archived ? undefined : fromCatalog;
+  }
+
+  return customFoods.value.find(food => food.id === id);
+}
+
 const frequent = computed(() => frequentIds.value
-  .map(id => foodById(id))
-  .filter((food): food is Food => food !== undefined && !food.archived));
+  .map(portionById)
+  .filter((food): food is Portion => food !== undefined));
 
 const showsFrequent = computed(() => (
   !query.value.trim() && category.value === 'all' && frequent.value.length > 0
+));
+
+const emptyText = computed(() => (
+  category.value === 'custom' && !query.value.trim() ? 'Своих блюд пока нет' : 'Ничего не нашлось'
 ));
 
 function changeQty(item: CartItem) {
@@ -95,7 +131,7 @@ async function confirm() {
         />
 
         <Button variant="outline" @click="openCustom">
-          Своё
+          Новое
         </Button>
       </div>
     </header>
@@ -130,29 +166,55 @@ async function confirm() {
             v-for="food in frequent"
             :key="food.id"
             :food="food"
+            :photo="customPhotos.get(food.id)"
             :qty="cartQty(items, food.id)"
             @change-qty="changeQty"
           />
         </ul>
-
-        <h2 class="pb-2 text-xs font-medium tracking-wide text-text-tertiary uppercase">
-          Всё
-        </h2>
       </template>
 
-      <ul v-if="filtered.length" class="grid grid-cols-3 gap-3">
-        <FoodCard
-          v-for="food in filtered"
-          :key="food.id"
-          :food="food"
-          :qty="cartQty(items, food.id)"
-          @change-qty="changeQty"
-        />
-      </ul>
+      <template v-if="custom.length">
+        <h2
+          v-if="showsFrequent || catalog.length"
+          class="pb-2 text-xs font-medium tracking-wide text-text-tertiary uppercase"
+        >
+          Своё
+        </h2>
 
-      <div v-else class="py-8 text-center">
+        <ul class="mb-6 grid grid-cols-3 gap-3">
+          <FoodCard
+            v-for="food in custom"
+            :key="food.id"
+            :food="food"
+            :photo="food.photo"
+            :qty="cartQty(items, food.id)"
+            @change-qty="changeQty"
+          />
+        </ul>
+      </template>
+
+      <template v-if="catalog.length">
+        <h2
+          v-if="showsFrequent || custom.length"
+          class="pb-2 text-xs font-medium tracking-wide text-text-tertiary uppercase"
+        >
+          Всё
+        </h2>
+
+        <ul class="grid grid-cols-3 gap-3">
+          <FoodCard
+            v-for="food in catalog"
+            :key="food.id"
+            :food="food"
+            :qty="cartQty(items, food.id)"
+            @change-qty="changeQty"
+          />
+        </ul>
+      </template>
+
+      <div v-if="!custom.length && !catalog.length" class="py-8 text-center">
         <p class="text-sm text-text-secondary">
-          Ничего не нашлось
+          {{ emptyText }}
         </p>
 
         <Button variant="outline" class="mt-3" @click="openCustom">
@@ -165,6 +227,7 @@ async function confirm() {
       <CartPanel
         v-if="items.length"
         :items="items"
+        :photos="customPhotos"
         :saving="saving"
         @change-qty="changeQty"
         @confirm="confirm"

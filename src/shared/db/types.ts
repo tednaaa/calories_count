@@ -15,6 +15,15 @@ export interface Entry {
   name: string;
 }
 
+export interface CustomFood {
+  id: string;
+  name: string;
+  kcal: number;
+  photo?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Profile {
   id: 'me';
   sex: Sex;

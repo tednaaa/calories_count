@@ -1,9 +1,10 @@
-import type { Entry, Profile } from '@/shared/db';
+import type { CustomFood, Entry, Profile } from '@/shared/db';
 import { mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { EntryRow, removeEntry, restoreEntry, setEntryQty } from '@/entities/entry';
+import { useCustomFoods } from '@/entities/food';
 import { useLiveQuery } from '@/shared/lib';
 import TodayView from './index.vue';
 
@@ -34,6 +35,11 @@ vi.mock('@/entities/entry', async importOriginal => ({
   setEntryQty: vi.fn(),
 }));
 
+vi.mock('@/entities/food', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/food')>(),
+  useCustomFoods: vi.fn(),
+}));
+
 vi.mock('@/entities/profile', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/profile')>(),
   loadProfile: vi.fn(),
@@ -45,6 +51,7 @@ vi.mock('@/shared/lib', async importOriginal => ({
 }));
 
 const entries = ref<Entry[]>([]);
+const customFoods = ref<CustomFood[]>([]);
 const profile = ref<Profile | undefined>(undefined);
 
 function entry(overrides: Partial<Entry> = {}): Entry {
@@ -67,6 +74,8 @@ beforeEach(() => {
   useRouter().replace({ query: {} });
 
   entries.value = [];
+  customFoods.value = [];
+  vi.mocked(useCustomFoods).mockReturnValue(customFoods);
   profile.value = { targetKcal: 2410 } as Profile;
 
   vi.mocked(useLiveQuery).mockImplementation(

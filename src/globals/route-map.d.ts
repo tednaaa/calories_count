@@ -66,6 +66,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/foods/': RouteRecordInfo<
+      '/settings/foods/',
+      '/settings/foods',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/foods/[id]': RouteRecordInfo<
+      '/settings/foods/[id]',
+      '/settings/foods/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/settings/foods/new': RouteRecordInfo<
+      '/settings/foods/new',
+      '/settings/foods/new',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/stats/': RouteRecordInfo<
       '/stats/',
       '/stats',
@@ -113,6 +134,24 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings/index.vue': {
       routes:
         | '/settings/'
+      views:
+        | never
+    }
+    'src/pages/settings/foods/index.vue': {
+      routes:
+        | '/settings/foods/'
+      views:
+        | never
+    }
+    'src/pages/settings/foods/[id].vue': {
+      routes:
+        | '/settings/foods/[id]'
+      views:
+        | never
+    }
+    'src/pages/settings/foods/new.vue': {
+      routes:
+        | '/settings/foods/new'
       views:
         | never
     }

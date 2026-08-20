@@ -8,7 +8,7 @@ import { FoodThumb } from '@/entities/food';
 import { formatNumber, formatTime } from '@/shared/lib';
 import { decreaseQty, entryKcal, HALF_PORTION, increaseQty } from '../lib/entry';
 
-const props = defineProps<{ entry: Entry }>();
+const props = defineProps<{ entry: Entry; photo?: string }>();
 
 const emit = defineEmits<{
   remove: [entry: Entry];
@@ -50,7 +50,7 @@ const kcal = computed(() => entryKcal(props.entry));
       :style="{ transform: `translateX(${offset}px)` }"
       @click="expanded = !expanded"
     >
-      <FoodThumb :food-id="entry.foodId" :photo="entry.photo" :name="entry.name" class="size-11" />
+      <FoodThumb :food-id="entry.foodId" :photo="props.photo ?? entry.photo" :name="entry.name" class="size-11" />
 
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm text-text-primary">

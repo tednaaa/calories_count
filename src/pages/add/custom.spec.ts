@@ -1,8 +1,8 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
-import { addCustomEntry } from '@/entities/entry';
 import { readPhoto, toDateKey } from '@/shared/lib';
 import CustomView from './custom.vue';
+import { addCustomFoodToDay, addCustomOnceToDay } from './lib/custom';
 
 const { push, route } = vi.hoisted(() => ({
   push: vi.fn(),
@@ -20,9 +20,9 @@ vi.mock('shonk-ui', async importOriginal => ({
   toast: vi.fn(),
 }));
 
-vi.mock('@/entities/entry', async importOriginal => ({
-  ...await importOriginal<typeof import('@/entities/entry')>(),
-  addCustomEntry: vi.fn(),
+vi.mock('./lib/custom', () => ({
+  addCustomFoodToDay: vi.fn(),
+  addCustomOnceToDay: vi.fn(),
 }));
 
 vi.mock('@/shared/lib', async importOriginal => ({
@@ -58,18 +58,46 @@ describe('экран «Своё блюдо»', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('сохраняет разовую запись за сегодня и уводит на главную', async () => {
+  it('по умолчанию пишет разовую запись и блюдо не заводит', async () => {
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог у бабушки', '350');
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledWith(toDateKey(), {
+    expect(addCustomOnceToDay).toHaveBeenCalledWith(toDateKey(), {
       name: 'Пирог у бабушки',
-      kcalPerPortion: 350,
+      kcal: 350,
       photo: undefined,
     });
+    expect(addCustomFoodToDay).not.toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith({ path: '/', query: {} });
+  });
+
+  it('с поднятым флагом заводит блюдо и пишет его в день', async () => {
+    const wrapper = mount(CustomView);
+    await fill(wrapper, 'Пирог у бабушки', '350');
+    await wrapper.find('#custom-saves').trigger('click');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(addCustomFoodToDay).toHaveBeenCalledWith(toDateKey(), {
+      name: 'Пирог у бабушки',
+      kcal: 350,
+      photo: undefined,
+    });
+    expect(addCustomOnceToDay).not.toHaveBeenCalled();
+  });
+
+  it('флаг возвращается обратно', async () => {
+    const wrapper = mount(CustomView);
+    await fill(wrapper, 'Пирог', '350');
+    await wrapper.find('#custom-saves').trigger('click');
+    await wrapper.find('#custom-saves').trigger('click');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(addCustomOnceToDay).toHaveBeenCalled();
+    expect(addCustomFoodToDay).not.toHaveBeenCalled();
   });
 
   it('пишет запись в дату из адреса и возвращает на тот же день', async () => {
@@ -80,7 +108,7 @@ describe('экран «Своё блюдо»', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledWith('2026-08-17', expect.anything());
+    expect(addCustomOnceToDay).toHaveBeenCalledWith('2026-08-17', expect.anything());
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-17' } });
   });
 
@@ -93,7 +121,7 @@ describe('экран «Своё блюдо»', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledWith(toDateKey(), expect.objectContaining({
+    expect(addCustomOnceToDay).toHaveBeenCalledWith(toDateKey(), expect.objectContaining({
       photo: 'data:image/jpeg;base64,zzz',
     }));
   });
@@ -111,14 +139,14 @@ describe('экран «Своё блюдо»', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledWith(toDateKey(), expect.objectContaining({
+    expect(addCustomOnceToDay).toHaveBeenCalledWith(toDateKey(), expect.objectContaining({
       photo: undefined,
     }));
   });
 
   it('при ошибке записи оставляет форму и даёт повторить', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.mocked(addCustomEntry).mockRejectedValueOnce(new Error('quota'));
+    vi.mocked(addCustomOnceToDay).mockRejectedValueOnce(new Error('quota'));
 
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог', '350');
@@ -131,7 +159,7 @@ describe('экран «Своё блюдо»', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledTimes(2);
+    expect(addCustomOnceToDay).toHaveBeenCalledTimes(2);
   });
 
   it('не сохраняет дважды по двойной отправке', async () => {
@@ -143,6 +171,6 @@ describe('экран «Своё блюдо»', () => {
     await form.trigger('submit');
     await flushPromises();
 
-    expect(addCustomEntry).toHaveBeenCalledTimes(1);
+    expect(addCustomOnceToDay).toHaveBeenCalledTimes(1);
   });
 });
