@@ -16,3 +16,4 @@ export { readPhoto } from './image';
 export { formatNumber, pluralize } from './pluralize';
 export { requestPersistentStorage } from './storage';
 export { useLiveQuery } from './use-live-query';
+export { blockPinchZoom } from './zoom';
