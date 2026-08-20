@@ -2,8 +2,8 @@
 import type { Entry, Profile } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { ChevronLeft, ChevronRight } from '@lucide/vue';
-import { Button, toast } from 'shonk-ui';
-import { computed } from 'vue';
+import { Button, cn, toast } from 'shonk-ui';
+import { computed, ref, useTemplateRef } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
   entriesOfDay,
@@ -17,6 +17,7 @@ import { photosById, useCustomFoods } from '@/entities/food';
 import { loadProfile } from '@/entities/profile';
 import { formatDayLabel, isToday, requestedDateKey, shiftDateKey, toDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
+import { nextCompact } from './compact';
 
 const route = useRoute();
 const router = useRouter();
@@ -33,6 +34,19 @@ const eaten = computed(() => totalKcal(entries.value));
 const target = computed(() => profile.value?.targetKcal ?? 0);
 const showsToday = computed(() => isToday(dateKey.value));
 const addLink = computed(() => (showsToday.value ? '/add' : `/add?date=${dateKey.value}`));
+
+const summary = useTemplateRef<HTMLElement>('summary');
+const compact = ref(false);
+
+function trackScroll(event: Event) {
+  const list = event.target as HTMLElement;
+
+  compact.value = nextCompact(compact.value, {
+    scrollTop: list.scrollTop,
+    scrollable: list.scrollHeight - list.clientHeight,
+    headerHeight: summary.value?.offsetHeight ?? 0,
+  });
+}
 
 function showDay(date: DateKey) {
   void router.replace({ query: { date } });
@@ -95,11 +109,14 @@ async function changeQty(id: string, qty: number) {
       </button>
     </header>
 
-    <div class="shrink-0 border-b border-border-default px-4 py-6">
-      <DayProgress :eaten="eaten" :target="target" />
+    <div
+      ref="summary"
+      :class="cn('shrink-0 border-b border-border-default px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
+    >
+      <DayProgress :eaten="eaten" :target="target" :compact="compact" />
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto pb-6">
+    <div class="min-h-0 flex-1 overflow-y-auto pb-6" @scroll="trackScroll">
       <ul v-if="entries.length">
         <EntryRow
           v-for="entry in entries"
