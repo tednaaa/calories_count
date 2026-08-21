@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Entry } from '@/shared/db';
+import type { CustomFood, Entry } from '@/shared/db';
 import { ChevronLeft, Minus, Plus } from '@lucide/vue';
 import { Badge, Button, Switch, toast, useConfirm } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
@@ -15,7 +15,7 @@ import {
   restoreEntry,
   saveEntry,
 } from '@/entities/entry';
-import { CustomFoodFields, emptyCustomDraft } from '@/entities/food';
+import { CustomFoodFields, emptyCustomDraft, loadCustomFood } from '@/entities/food';
 import { formatDayLabel, formatNumber, isToday } from '@/shared/lib';
 import { keepEntryAsFood } from './lib/keep';
 
@@ -24,6 +24,7 @@ const router = useRouter();
 const confirmation = useConfirm();
 
 const entry = ref<Entry>();
+const ownFood = ref<CustomFood>();
 const draft = ref(emptyCustomDraft());
 const qty = ref(1);
 const keeps = ref(false);
@@ -48,6 +49,7 @@ onMounted(async () => {
   entry.value = stored;
   draft.value = draftFromEntry(stored);
   qty.value = stored.qty;
+  ownFood.value = stored.foodId ? await loadCustomFood(stored.foodId) : undefined;
 });
 
 async function submit() {
@@ -170,7 +172,16 @@ function askToRemove() {
         </div>
       </div>
 
-      <div v-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border-default p-3">
+      <RouterLink
+        v-if="ownFood"
+        :to="`/settings/foods/${ownFood.id}`"
+        class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3"
+      >
+        <span class="text-sm text-text-primary">Блюдо уже в «Своём»</span>
+        <span class="text-xs text-text-brand">Открыть</span>
+      </RouterLink>
+
+      <div v-else-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border-default p-3">
         <button type="button" class="min-w-0 flex-1 text-left" @click="keeps = !keeps">
           <span class="text-sm text-text-primary">Оставить в «Своём»</span>
           <span class="mt-1 block text-xs text-text-tertiary">{{ keepsHint }}</span>

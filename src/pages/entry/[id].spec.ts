@@ -2,6 +2,7 @@ import type { Entry } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { loadEntry, removeEntry, restoreEntry, saveEntry } from '@/entities/entry';
+import { loadCustomFood } from '@/entities/food';
 import EntryView from './[id].vue';
 import { keepEntryAsFood } from './lib/keep';
 
@@ -29,6 +30,11 @@ vi.mock('@/entities/entry', async importOriginal => ({
   saveEntry: vi.fn(),
   removeEntry: vi.fn(),
   restoreEntry: vi.fn(),
+}));
+
+vi.mock('@/entities/food', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/food')>(),
+  loadCustomFood: vi.fn(),
 }));
 
 vi.mock('./lib/keep', () => ({ keepEntryAsFood: vi.fn() }));
@@ -64,6 +70,7 @@ async function open() {
 
 beforeEach(() => {
   vi.mocked(loadEntry).mockResolvedValue(stored);
+  vi.mocked(loadCustomFood).mockResolvedValue(undefined);
 });
 
 describe('правка записи', () => {
@@ -130,10 +137,27 @@ describe('правка записи', () => {
     expect(restoreEntry).toHaveBeenCalledWith(stored);
   });
 
-  it('у записи от блюда флага «Оставить в «Своём»» нет', async () => {
+  it('у каталожной записи флага «Оставить в «Своём»» нет', async () => {
     const wrapper = await open();
 
     expect(wrapper.find('#entry-keeps').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Блюдо уже в «Своём»');
+  });
+
+  it('у записи от своего блюда вместо флага ссылка на него', async () => {
+    vi.mocked(loadEntry).mockResolvedValue({ ...stored, foodId: 'pie' });
+    vi.mocked(loadCustomFood).mockResolvedValue({
+      id: 'pie',
+      name: 'Пирог у бабушки',
+      kcal: 350,
+      createdAt: 0,
+      updatedAt: 0,
+    });
+
+    const wrapper = await open();
+
+    expect(wrapper.find('#entry-keeps').exists()).toBe(false);
+    expect(wrapper.text()).toContain('Блюдо уже в «Своём»');
   });
 
   it('с поднятым флагом заводит блюдо из разовой записи', async () => {
