@@ -19,10 +19,6 @@ const showsToday = computed(() => isToday(dateKey.value));
 const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }));
 const input = computed(() => draftToCustomFood(draft.value));
 
-const savesHint = computed(() => (saves.value
-  ? 'Появится в сетке «Добавить» — в следующий раз хватит тапа по карточке.'
-  : 'Разовая запись: попадёт в день и нигде больше не останется.'));
-
 async function submit() {
   const food = input.value;
 
@@ -78,9 +74,8 @@ async function submit() {
       />
 
       <div class="flex items-center gap-3 rounded-lg border border-border-default p-3">
-        <button type="button" class="min-w-0 flex-1 text-left" @click="saves = !saves">
-          <span class="text-sm text-text-primary">Оставить в «Своём»</span>
-          <span class="mt-1 block text-xs text-text-tertiary">{{ savesHint }}</span>
+        <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="saves = !saves">
+          Сохранить в избранное
         </button>
 
         <Switch id="custom-saves" v-model="saves" />

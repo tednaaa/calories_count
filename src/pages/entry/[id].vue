@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CustomFood, Entry } from '@/shared/db';
 import { ChevronLeft, Minus, Plus } from '@lucide/vue';
-import { Badge, Button, Switch, toast, useConfirm } from 'shonk-ui';
+import { Badge, Button, Switch, toast } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
@@ -11,8 +11,6 @@ import {
   HALF_PORTION,
   increaseQty,
   loadEntry,
-  removeEntry,
-  restoreEntry,
   saveEntry,
 } from '@/entities/entry';
 import { CustomFoodFields, emptyCustomDraft, loadCustomFood } from '@/entities/food';
@@ -21,7 +19,6 @@ import { keepEntryAsFood } from './lib/keep';
 
 const route = useRoute('/entry/[id]');
 const router = useRouter();
-const confirmation = useConfirm();
 
 const entry = ref<Entry>();
 const ownFood = ref<CustomFood>();
@@ -31,9 +28,6 @@ const keeps = ref(false);
 const saving = ref(false);
 
 const item = computed(() => draftToEntry(draft.value));
-const keepsHint = computed(() => (keeps.value
-  ? 'Появится в сетке «Добавить» — в следующий раз хватит тапа по карточке.'
-  : 'Пока это разовая запись: она есть только в этом дне.'));
 const showsToday = computed(() => !entry.value || isToday(entry.value.date));
 const dayQuery = computed(() => (showsToday.value || !entry.value ? {} : { date: entry.value.date }));
 const total = computed(() => (item.value ? item.value.kcalPerPortion * qty.value : 0));
@@ -72,39 +66,8 @@ async function submit() {
     return;
   }
 
-  toast(keeps.value ? `«${next.name}» теперь и в «Своём»` : 'Запись сохранена');
+  toast(keeps.value ? `«${next.name}» теперь в избранном` : 'Запись сохранена');
   await router.push({ path: '/', query: dayQuery.value });
-}
-
-async function remove(current: Entry) {
-  await removeEntry(current.id);
-
-  toast('Запись удалена', {
-    action: {
-      label: 'Вернуть',
-      onClick: () => {
-        void restoreEntry(current);
-      },
-    },
-  });
-
-  await router.push({ path: '/', query: dayQuery.value });
-}
-
-function askToRemove() {
-  const current = entry.value;
-
-  if (!current) {
-    return;
-  }
-
-  confirmation.require({
-    message: `«${current.name}» пропадёт из дневника за этот день.`,
-    acceptLabel: 'Удалить',
-    accept: () => {
-      void remove(current);
-    },
-  });
 }
 </script>
 
@@ -131,7 +94,7 @@ function askToRemove() {
     </div>
 
     <p class="mt-1 text-sm text-text-secondary">
-      Правка меняет только эту запись: блюдо в каталоге и в «Своём» останется прежним.
+      Правка меняет только эту запись: блюдо в каталоге и в избранном останется прежним.
     </p>
 
     <form v-if="entry" class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
@@ -177,14 +140,13 @@ function askToRemove() {
         :to="`/settings/foods/${ownFood.id}`"
         class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3"
       >
-        <span class="text-sm text-text-primary">Блюдо уже в «Своём»</span>
+        <span class="text-sm text-text-primary">Блюдо уже в избранном</span>
         <span class="text-xs text-text-brand">Открыть</span>
       </RouterLink>
 
       <div v-else-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border-default p-3">
-        <button type="button" class="min-w-0 flex-1 text-left" @click="keeps = !keeps">
-          <span class="text-sm text-text-primary">Оставить в «Своём»</span>
-          <span class="mt-1 block text-xs text-text-tertiary">{{ keepsHint }}</span>
+        <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="keeps = !keeps">
+          Сохранить в избранное
         </button>
 
         <Switch id="entry-keeps" v-model="keeps" />
@@ -192,10 +154,6 @@ function askToRemove() {
 
       <Button type="submit" size="lg" :disabled="!item" :loading="saving">
         Сохранить
-      </Button>
-
-      <Button type="button" variant="destructive" @click="askToRemove">
-        Удалить запись
       </Button>
     </form>
   </main>

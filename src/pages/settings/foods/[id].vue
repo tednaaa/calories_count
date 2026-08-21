@@ -115,7 +115,7 @@ function askToRemove() {
       </Button>
 
       <Button type="button" variant="destructive" @click="askToRemove">
-        Удалить блюдо
+        Удалить блюдо из избранных
       </Button>
     </form>
   </main>

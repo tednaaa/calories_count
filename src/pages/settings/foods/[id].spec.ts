@@ -90,7 +90,7 @@ describe('правка своего блюда', () => {
 
   it('удаляет только после подтверждения', async () => {
     const wrapper = await open();
-    await wrapper.findElementByText('button', 'Удалить блюдо').trigger('click');
+    await wrapper.findElementByText('button', 'Удалить блюдо из избранных').trigger('click');
 
     expect(removeCustomFood).not.toHaveBeenCalled();
 

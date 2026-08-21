@@ -1,16 +1,12 @@
 import type { Entry } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
-import { loadEntry, removeEntry, restoreEntry, saveEntry } from '@/entities/entry';
+import { loadEntry, saveEntry } from '@/entities/entry';
 import { loadCustomFood } from '@/entities/food';
 import EntryView from './[id].vue';
 import { keepEntryAsFood } from './lib/keep';
 
-const { push, replace, requireConfirm } = vi.hoisted(() => ({
-  push: vi.fn(),
-  replace: vi.fn(),
-  requireConfirm: vi.fn(),
-}));
+const { push, replace } = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
 
 vi.mock('vue-router', () => ({
   RouterLink: { template: '<a><slot /></a>' },
@@ -21,15 +17,12 @@ vi.mock('vue-router', () => ({
 vi.mock('shonk-ui', async importOriginal => ({
   ...await importOriginal<typeof import('shonk-ui')>(),
   toast: vi.fn(),
-  useConfirm: () => ({ require: requireConfirm }),
 }));
 
 vi.mock('@/entities/entry', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/entry')>(),
   loadEntry: vi.fn(),
   saveEntry: vi.fn(),
-  removeEntry: vi.fn(),
-  restoreEntry: vi.fn(),
 }));
 
 vi.mock('@/entities/food', async importOriginal => ({
@@ -116,32 +109,17 @@ describe('правка записи', () => {
     expect(less.attributes('disabled')).toBeDefined();
   });
 
-  it('удаляет только после подтверждения и предлагает вернуть', async () => {
+  it('удалять запись отсюда нельзя — только свайпом в ленте', async () => {
     const wrapper = await open();
-    await wrapper.findElementByText('button', 'Удалить запись').trigger('click');
 
-    expect(removeEntry).not.toHaveBeenCalled();
-
-    const options = requireConfirm.mock.calls[0][0] as { message: string; accept: () => void };
-    expect(options.message).toContain('Кофе чёрный');
-
-    options.accept();
-    await flushPromises();
-
-    expect(removeEntry).toHaveBeenCalledWith('entry-1');
-    expect(push).toHaveBeenCalledWith(day);
-
-    const undo = vi.mocked(toast).mock.calls[0][1] as { action: { onClick: () => void } };
-    undo.action.onClick();
-
-    expect(restoreEntry).toHaveBeenCalledWith(stored);
+    expect(wrapper.findAll('button').some(button => button.text().includes('Удалить'))).toBe(false);
   });
 
-  it('у каталожной записи флага «Оставить в «Своём»» нет', async () => {
+  it('у каталожной записи переключателя «Сохранить в избранное» нет', async () => {
     const wrapper = await open();
 
     expect(wrapper.find('#entry-keeps').exists()).toBe(false);
-    expect(wrapper.text()).not.toContain('Блюдо уже в «Своём»');
+    expect(wrapper.text()).not.toContain('Блюдо уже в избранном');
   });
 
   it('у записи от своего блюда вместо флага ссылка на него', async () => {
@@ -157,7 +135,7 @@ describe('правка записи', () => {
     const wrapper = await open();
 
     expect(wrapper.find('#entry-keeps').exists()).toBe(false);
-    expect(wrapper.text()).toContain('Блюдо уже в «Своём»');
+    expect(wrapper.text()).toContain('Блюдо уже в избранном');
   });
 
   it('с поднятым флагом заводит блюдо из разовой записи', async () => {
@@ -174,7 +152,7 @@ describe('правка записи', () => {
       photo: 'data:image/jpeg;base64,zzz',
     }, 1);
     expect(saveEntry).not.toHaveBeenCalled();
-    expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь и в «Своём»');
+    expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь в избранном');
   });
 
   it('без флага разовая запись остаётся разовой', async () => {
