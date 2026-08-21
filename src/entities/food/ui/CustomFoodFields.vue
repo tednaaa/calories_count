@@ -4,6 +4,8 @@ import { buttonVariants, Input, Label, toast } from 'shonk-ui';
 import { readPhoto } from '@/shared/lib';
 import FoodThumb from './FoodThumb.vue';
 
+const props = defineProps<{ foodId?: string }>();
+
 const name = defineModel<string>('name', { required: true });
 const kcal = defineModel<string>('kcal', { required: true });
 const photo = defineModel<string>('photo', { required: true });
@@ -44,7 +46,7 @@ async function pickPhoto(event: Event) {
       <Label>Фото</Label>
 
       <div class="flex items-center gap-3">
-        <FoodThumb :photo="photo" :name="name" class="size-16" />
+        <FoodThumb :food-id="props.foodId" :photo="photo" :name="name" class="size-16" />
 
         <div class="flex flex-col items-start gap-2">
           <label :class="buttonVariants({ variant: 'outline', size: 'sm' })">
@@ -65,7 +67,7 @@ async function pickPhoto(event: Event) {
       </div>
 
       <p class="text-xs text-text-tertiary">
-        Необязательно. Снимок уменьшается до 400 px и хранится вместе с блюдом.
+        Необязательно. Снимок уменьшается до 400 px и хранится прямо в базе.
       </p>
     </div>
   </div>

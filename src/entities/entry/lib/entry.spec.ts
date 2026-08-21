@@ -4,8 +4,11 @@ import {
   buildCustomEntry,
   buildEntries,
   decreaseQty,
+  draftFromEntry,
+  draftToEntry,
   entryKcal,
   increaseQty,
+  nextEntry,
   rankFoodIdsByFrequency,
   totalKcal,
   totalsByDate,
@@ -223,5 +226,51 @@ describe('rankFoodIdsByFrequency', () => {
 
   it('на пустом дневнике возвращает пустой список', () => {
     expect(rankFoodIdsByFrequency([], 8)).toEqual([]);
+  });
+});
+
+describe('draftFromEntry', () => {
+  it('раскладывает запись по полям формы', () => {
+    expect(draftFromEntry(entry({ photo: 'data:image/jpeg;base64,zzz' }))).toEqual({
+      name: 'Кофе чёрный',
+      kcal: '5',
+      photo: 'data:image/jpeg;base64,zzz',
+    });
+  });
+
+  it('без своего снимка отдаёт пустую строку', () => {
+    expect(draftFromEntry(entry()).photo).toBe('');
+  });
+});
+
+describe('draftToEntry', () => {
+  it('собирает правку записи', () => {
+    expect(draftToEntry({ name: '  Пирог  ', kcal: '350', photo: '' })).toEqual({
+      name: 'Пирог',
+      kcalPerPortion: 350,
+      photo: undefined,
+    });
+  });
+
+  it('проверяет поля так же, как форма своего блюда', () => {
+    expect(draftToEntry({ name: '', kcal: '350', photo: '' })).toBeNull();
+    expect(draftToEntry({ name: 'Пирог', kcal: '90.5', photo: '' })).toBeNull();
+  });
+});
+
+describe('nextEntry', () => {
+  it('меняет только правленые поля и количество', () => {
+    const current = entry();
+
+    expect(nextEntry(current, { name: 'Кофе с молоком', kcalPerPortion: 40 }, 2)).toEqual({
+      ...current,
+      name: 'Кофе с молоком',
+      kcalPerPortion: 40,
+      qty: 2,
+    });
+  });
+
+  it('оставляет запись при своём блюде', () => {
+    expect(nextEntry(entry(), { name: 'Кофе', kcalPerPortion: 5 }, 1).foodId).toBe('coffee-black');
   });
 });

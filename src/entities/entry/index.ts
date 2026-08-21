@@ -3,9 +3,12 @@ export {
   buildCustomEntry,
   buildEntries,
   decreaseQty,
+  draftFromEntry,
+  draftToEntry,
   entryKcal,
   HALF_PORTION,
   increaseQty,
+  nextEntry,
   rankFoodIdsByFrequency,
   totalKcal,
   totalsByDate,
@@ -16,8 +19,9 @@ export {
   entriesFrom,
   entriesOfDay,
   frequentFoodIds,
+  loadEntry,
   removeEntry,
   restoreEntry,
-  setEntryQty,
+  saveEntry,
 } from './lib/queries';
 export { default as EntryRow } from './ui/EntryRow.vue';

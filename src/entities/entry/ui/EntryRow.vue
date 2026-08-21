@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { Entry } from '@/shared/db';
-import { Minus, Plus, Trash2 } from '@lucide/vue';
+import { Trash2 } from '@lucide/vue';
 import { useSwipe } from '@vueuse/core';
 import { cn } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
 import { FoodThumb } from '@/entities/food';
 import { formatNumber, formatTime } from '@/shared/lib';
-import { decreaseQty, entryKcal, HALF_PORTION, increaseQty } from '../lib/entry';
+import { entryKcal } from '../lib/entry';
 
 const props = defineProps<{ entry: Entry; photo?: string }>();
 
 const emit = defineEmits<{
   remove: [entry: Entry];
-  changeQty: [id: string, qty: number];
+  edit: [entry: Entry];
 }>();
 
 const SWIPE_START = 24;
@@ -20,7 +20,6 @@ const REMOVE_THRESHOLD = 96;
 
 const row = useTemplateRef<HTMLElement>('row');
 const offset = ref(0);
-const expanded = ref(false);
 
 let sideways: boolean | undefined;
 
@@ -58,9 +57,9 @@ const kcal = computed(() => entryKcal(props.entry));
       ref="row"
       :class="cn('relative flex items-center gap-3 bg-bg-surface px-4 py-3', !isSwiping && 'transition-transform')"
       :style="{ transform: `translateX(${offset}px)` }"
-      @click="expanded = !expanded"
+      @click="emit('edit', props.entry)"
     >
-      <FoodThumb :food-id="entry.foodId" :photo="props.photo ?? entry.photo" :name="entry.name" class="size-11" />
+      <FoodThumb :food-id="entry.foodId" :photo="entry.photo ?? props.photo" :name="entry.name" class="size-11" />
 
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm text-text-primary">
@@ -71,30 +70,7 @@ const kcal = computed(() => entryKcal(props.entry));
         </p>
       </div>
 
-      <div v-if="expanded" class="flex items-center gap-2" @click.stop>
-        <button
-          type="button"
-          class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary disabled:opacity-40"
-          :disabled="entry.qty <= HALF_PORTION"
-          aria-label="Меньше"
-          @click="emit('changeQty', entry.id, decreaseQty(entry.qty))"
-        >
-          <Minus class="size-4" />
-        </button>
-
-        <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ entry.qty }}</span>
-
-        <button
-          type="button"
-          class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
-          aria-label="Больше"
-          @click="emit('changeQty', entry.id, increaseQty(entry.qty))"
-        >
-          <Plus class="size-4" />
-        </button>
-      </div>
-
-      <div v-else class="flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <span v-if="entry.qty !== 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
           ×{{ entry.qty }}
         </span>

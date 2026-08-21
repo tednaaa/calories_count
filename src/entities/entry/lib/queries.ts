@@ -3,7 +3,7 @@ import type { Entry } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { db } from '@/shared/db';
 import { shiftDateKey, toDateKey } from '@/shared/lib';
-import { buildCustomEntry, buildEntries, rankFoodIdsByFrequency } from './entry';
+import { buildCustomEntry, buildEntries, nextEntry, rankFoodIdsByFrequency } from './entry';
 
 export function entriesOfDay(date: DateKey): Promise<Entry[]> {
   return db.entries.where({ date }).sortBy('createdAt');
@@ -29,8 +29,12 @@ export async function restoreEntry(entry: Entry): Promise<void> {
   await db.entries.put(entry);
 }
 
-export async function setEntryQty(id: string, qty: number): Promise<void> {
-  await db.entries.update(id, { qty });
+export function loadEntry(id: string): Promise<Entry | undefined> {
+  return db.entries.get(id);
+}
+
+export async function saveEntry(current: Entry, item: CustomItem, qty: number): Promise<void> {
+  await db.entries.put(nextEntry(current, item, qty));
 }
 
 export async function frequentFoodIds(days = 30, limit = 8): Promise<string[]> {

@@ -3,12 +3,12 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { EntryRow, removeEntry, restoreEntry, setEntryQty } from '@/entities/entry';
+import { EntryRow, removeEntry, restoreEntry } from '@/entities/entry';
 import { useCustomFoods } from '@/entities/food';
 import { useLiveQuery } from '@/shared/lib';
 import TodayView from './index.vue';
 
-const { requireConfirm } = vi.hoisted(() => ({ requireConfirm: vi.fn() }));
+const { push, requireConfirm } = vi.hoisted(() => ({ push: vi.fn(), requireConfirm: vi.fn() }));
 
 vi.mock('vue-router', async () => {
   const { reactive } = await import('vue');
@@ -18,6 +18,7 @@ vi.mock('vue-router', async () => {
     RouterLink: { template: '<a><slot /></a>' },
     useRoute: () => route,
     useRouter: () => ({
+      push,
       replace: (to: { query?: Record<string, unknown> }) => {
         route.query = to.query ?? {};
       },
@@ -35,7 +36,6 @@ vi.mock('@/entities/entry', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/entry')>(),
   removeEntry: vi.fn(),
   restoreEntry: vi.fn(),
-  setEntryQty: vi.fn(),
 }));
 
 vi.mock('@/entities/food', async importOriginal => ({
@@ -152,22 +152,14 @@ describe('экран «Сегодня»', () => {
     expect(restoreEntry).toHaveBeenCalledWith(removed);
   });
 
-  it('меняет количество порций', async () => {
-    entries.value = [entry()];
+  it('открывает запись по тапу', async () => {
+    const edited = entry();
+    entries.value = [edited];
     const wrapper = mount(TodayView);
 
-    await wrapper.findComponent(EntryRow).vm.$emit('changeQty', 'entry-1', 3);
+    await wrapper.findComponent(EntryRow).vm.$emit('edit', edited);
 
-    expect(setEntryQty).toHaveBeenCalledWith('entry-1', 3);
-  });
-
-  it('не даёт опустить количество ниже одной порции', async () => {
-    entries.value = [entry()];
-    const wrapper = mount(TodayView);
-
-    await wrapper.findComponent(EntryRow).vm.$emit('changeQty', 'entry-1', 0);
-
-    expect(setEntryQty).not.toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith('/entry/entry-1');
   });
 
   it('листает на предыдущий день и обратно', async () => {

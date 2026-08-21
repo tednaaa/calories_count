@@ -1,5 +1,7 @@
+import type { CustomDraft } from '@/entities/food';
 import type { Entry } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
+import { draftToCustomFood } from '@/entities/food';
 
 export interface CartItem {
   foodId: string;
@@ -35,6 +37,26 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
     qty: 1,
     kcalPerPortion: item.kcalPerPortion,
     name: item.name,
+  };
+}
+
+export function draftFromEntry(entry: Entry): CustomDraft {
+  return { name: entry.name, kcal: String(entry.kcalPerPortion), photo: entry.photo ?? '' };
+}
+
+export function draftToEntry(draft: CustomDraft): CustomItem | null {
+  const food = draftToCustomFood(draft);
+
+  return food && { name: food.name, kcalPerPortion: food.kcal, photo: food.photo };
+}
+
+export function nextEntry(current: Entry, item: CustomItem, qty: number): Entry {
+  return {
+    ...current,
+    name: item.name,
+    kcalPerPortion: item.kcalPerPortion,
+    photo: item.photo,
+    qty,
   };
 }
 

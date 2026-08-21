@@ -10,7 +10,6 @@ import {
   EntryRow,
   removeEntry,
   restoreEntry,
-  setEntryQty,
   totalKcal,
 } from '@/entities/entry';
 import { photosById, useCustomFoods } from '@/entities/food';
@@ -77,10 +76,8 @@ function askToRemove(entry: Entry) {
   });
 }
 
-async function changeQty(id: string, qty: number) {
-  if (qty >= 1) {
-    await setEntryQty(id, qty);
-  }
+function editEntry(entry: Entry) {
+  void router.push(`/entry/${entry.id}`);
 }
 </script>
 
@@ -136,7 +133,7 @@ async function changeQty(id: string, qty: number) {
           :entry="entry"
           :photo="customPhotos.get(entry.foodId ?? '')"
           @remove="askToRemove"
-          @change-qty="changeQty"
+          @edit="editEntry"
         />
       </ul>
 

@@ -52,6 +52,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/entry/[id]': RouteRecordInfo<
+      '/entry/[id]',
+      '/entry/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
     '/onboarding/': RouteRecordInfo<
       '/onboarding/',
       '/onboarding',
@@ -122,6 +129,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/add/custom.vue': {
       routes:
         | '/add/custom'
+      views:
+        | never
+    }
+    'src/pages/entry/[id].vue': {
+      routes:
+        | '/entry/[id]'
       views:
         | never
     }
