@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Entry } from '@/shared/db';
 import { ChevronLeft, Minus, Plus } from '@lucide/vue';
-import { Badge, Button, toast, useConfirm } from 'shonk-ui';
+import { Badge, Button, Switch, toast, useConfirm } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/entities/entry';
 import { CustomFoodFields, emptyCustomDraft } from '@/entities/food';
 import { formatDayLabel, formatNumber, isToday } from '@/shared/lib';
+import { keepEntryAsFood } from './lib/keep';
 
 const route = useRoute('/entry/[id]');
 const router = useRouter();
@@ -25,9 +26,13 @@ const confirmation = useConfirm();
 const entry = ref<Entry>();
 const draft = ref(emptyCustomDraft());
 const qty = ref(1);
+const keeps = ref(false);
 const saving = ref(false);
 
 const item = computed(() => draftToEntry(draft.value));
+const keepsHint = computed(() => (keeps.value
+  ? 'Появится в сетке «Добавить» — в следующий раз хватит тапа по карточке.'
+  : 'Пока это разовая запись: она есть только в этом дне.'));
 const showsToday = computed(() => !entry.value || isToday(entry.value.date));
 const dayQuery = computed(() => (showsToday.value || !entry.value ? {} : { date: entry.value.date }));
 const total = computed(() => (item.value ? item.value.kcalPerPortion * qty.value : 0));
@@ -56,7 +61,7 @@ async function submit() {
   saving.value = true;
 
   try {
-    await saveEntry(current, next, qty.value);
+    await (keeps.value ? keepEntryAsFood : saveEntry)(current, next, qty.value);
   }
   catch (error) {
     console.error('[submit]', error);
@@ -65,7 +70,7 @@ async function submit() {
     return;
   }
 
-  toast('Запись сохранена');
+  toast(keeps.value ? `«${next.name}» теперь и в «Своём»` : 'Запись сохранена');
   await router.push({ path: '/', query: dayQuery.value });
 }
 
@@ -163,6 +168,15 @@ function askToRemove() {
             <Plus class="size-4" />
           </button>
         </div>
+      </div>
+
+      <div v-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border-default p-3">
+        <button type="button" class="min-w-0 flex-1 text-left" @click="keeps = !keeps">
+          <span class="text-sm text-text-primary">Оставить в «Своём»</span>
+          <span class="mt-1 block text-xs text-text-tertiary">{{ keepsHint }}</span>
+        </button>
+
+        <Switch id="entry-keeps" v-model="keeps" />
       </div>
 
       <Button type="submit" size="lg" :disabled="!item" :loading="saving">

@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { loadEntry, removeEntry, restoreEntry, saveEntry } from '@/entities/entry';
 import EntryView from './[id].vue';
+import { keepEntryAsFood } from './lib/keep';
 
 const { push, replace, requireConfirm } = vi.hoisted(() => ({
   push: vi.fn(),
@@ -30,6 +31,8 @@ vi.mock('@/entities/entry', async importOriginal => ({
   restoreEntry: vi.fn(),
 }));
 
+vi.mock('./lib/keep', () => ({ keepEntryAsFood: vi.fn() }));
+
 const stored: Entry = {
   id: 'entry-1',
   date: '2026-08-19',
@@ -38,6 +41,15 @@ const stored: Entry = {
   qty: 1,
   kcalPerPortion: 5,
   name: 'Кофе чёрный',
+};
+
+const once: Entry = {
+  ...stored,
+  id: 'entry-2',
+  foodId: undefined,
+  photo: 'data:image/jpeg;base64,zzz',
+  name: 'Пирог у бабушки',
+  kcalPerPortion: 350,
 };
 
 const day = { path: '/', query: { date: '2026-08-19' } };
@@ -116,6 +128,40 @@ describe('правка записи', () => {
     undo.action.onClick();
 
     expect(restoreEntry).toHaveBeenCalledWith(stored);
+  });
+
+  it('у записи от блюда флага «Оставить в «Своём»» нет', async () => {
+    const wrapper = await open();
+
+    expect(wrapper.find('#entry-keeps').exists()).toBe(false);
+  });
+
+  it('с поднятым флагом заводит блюдо из разовой записи', async () => {
+    vi.mocked(loadEntry).mockResolvedValue(once);
+    const wrapper = await open();
+
+    await wrapper.find('#entry-keeps').trigger('click');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(keepEntryAsFood).toHaveBeenCalledWith(once, {
+      name: 'Пирог у бабушки',
+      kcalPerPortion: 350,
+      photo: 'data:image/jpeg;base64,zzz',
+    }, 1);
+    expect(saveEntry).not.toHaveBeenCalled();
+    expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь и в «Своём»');
+  });
+
+  it('без флага разовая запись остаётся разовой', async () => {
+    vi.mocked(loadEntry).mockResolvedValue(once);
+    const wrapper = await open();
+
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(saveEntry).toHaveBeenCalled();
+    expect(keepEntryAsFood).not.toHaveBeenCalled();
   });
 
   it('пропавшую запись возвращает в сегодня', async () => {
