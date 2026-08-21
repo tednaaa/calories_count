@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.1 (2026-08-21)
+
+- upgrade shonk-ui to 0.3.0 and set the Russian locale [`14265a3a`](https://github.com/tednaaa/calories_count/commit/14265a3acb740c342096ddddbcb502a5ebfa7257)
+
 ## v0.4.0 (2026-08-21)
 
 - refactor: say «избранное» in labels and drop the duplicate delete button [`d1eabe6d`](https://github.com/tednaaa/calories_count/commit/d1eabe6d90f51a47fed60d33ecd1704cd7f02b23)
@@ -59,4 +63,3 @@
 - init vite [`b8bb6197`](https://github.com/tednaaa/calories_count/commit/b8bb619735ba4db086880cdb2352ce4a64a4dd98)
 - init devenv [`2a7c6a69`](https://github.com/tednaaa/calories_count/commit/2a7c6a69f64c5b73d40d51c367e1879a10470d9d)
 - add license [`f34e5616`](https://github.com/tednaaa/calories_count/commit/f34e56167336312ab22de85ecffb3255783cf6c9)
-
