@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0 (2026-08-21)
+
+- refactor: say «избранное» in labels and drop the duplicate delete button [`d1eabe6d`](https://github.com/tednaaa/calories_count/commit/d1eabe6d90f51a47fed60d33ecd1704cd7f02b23)
+- fix: offer keeping a catalog entry as a custom food [`87094511`](https://github.com/tednaaa/calories_count/commit/870945114d55fdd23b2059ec886f33b32dfac6cf)
+- feat: keep an edited entry as a custom food [`7ebbf42b`](https://github.com/tednaaa/calories_count/commit/7ebbf42baae501bdd818754551f1243e686566da)
+- feat: edit a diary entry on its own screen [`49adc842`](https://github.com/tednaaa/calories_count/commit/49adc842544324c16f239dc77540764a9ab4782c)
+- fix: ask before removing an entry and lock the swipe axis [`7a99145a`](https://github.com/tednaaa/calories_count/commit/7a99145ad02b2eac87e2c5d1a1711119f46687a6)
+- feat: collapse the day header on any scroll [`e6a1a42f`](https://github.com/tednaaa/calories_count/commit/e6a1a42f73923c0ad40f128fa3fef077d00aead4)
+- fix: scope touch-action to controls so iOS keeps input focus [`e3005a2d`](https://github.com/tednaaa/calories_count/commit/e3005a2de98cdd8291e5387de520ec8d443ea37e)
+
 ## v0.3.2 (2026-08-20)
 
 - fix: label entry calories with the unit [`270efc2d`](https://github.com/tednaaa/calories_count/commit/270efc2d192010de5d00c1bf751b7acaf8d00824)
