@@ -207,8 +207,8 @@ describe('экран настроек', () => {
 
     expect(wipeAllData).not.toHaveBeenCalled();
 
-    const options = requireConfirm.mock.calls[0][0] as { acceptLabel: string; accept: () => void };
-    expect(options.acceptLabel).toBe('Стереть');
+    const options = requireConfirm.mock.calls[0][0] as { acceptButtonText: string; accept: () => void };
+    expect(options.acceptButtonText).toBe('Стереть');
 
     options.accept();
     await flushPromises();

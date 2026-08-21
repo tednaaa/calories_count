@@ -72,7 +72,7 @@ async function wipe() {
 function askToWipe() {
   confirmation.require({
     message: 'Профиль, дневник, свои блюда и история веса будут стёрты с этого телефона. Данные хранятся только здесь, восстановить их будет неоткуда — если копия ещё не выгружена, сначала сделай её.',
-    acceptLabel: 'Стереть',
+    acceptButtonText: 'Стереть',
     accept: () => {
       void wipe();
     },

@@ -69,7 +69,7 @@ async function remove(entry: Entry) {
 function askToRemove(entry: Entry) {
   confirmation.require({
     message: `«${entry.name}» пропадёт из дневника за этот день.`,
-    acceptLabel: 'Удалить',
+    acceptButtonText: 'Удалить',
     accept: () => {
       void remove(entry);
     },

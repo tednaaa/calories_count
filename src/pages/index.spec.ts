@@ -121,8 +121,8 @@ describe('экран «Сегодня»', () => {
 
     expect(removeEntry).not.toHaveBeenCalled();
 
-    const options = requireConfirm.mock.calls[0][0] as { message: string; acceptLabel: string };
-    expect(options.acceptLabel).toBe('Удалить');
+    const options = requireConfirm.mock.calls[0][0] as { message: string; acceptButtonText: string };
+    expect(options.acceptButtonText).toBe('Удалить');
     expect(options.message).toContain('Кофе чёрный');
   });
 
