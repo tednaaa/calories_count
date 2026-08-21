@@ -2,7 +2,7 @@
 import type { Entry, Profile } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { ChevronLeft, ChevronRight } from '@lucide/vue';
-import { Button, cn, toast } from 'shonk-ui';
+import { Button, cn, toast, useConfirm } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
@@ -21,6 +21,7 @@ import { scrollReserve } from './compact';
 
 const route = useRoute();
 const router = useRouter();
+const confirmation = useConfirm();
 
 const dateKey = computed(() => requestedDateKey(route.query.date));
 
@@ -62,6 +63,16 @@ async function remove(entry: Entry) {
       onClick: () => {
         void restoreEntry(entry);
       },
+    },
+  });
+}
+
+function askToRemove(entry: Entry) {
+  confirmation.require({
+    message: `«${entry.name}» пропадёт из дневника за этот день.`,
+    acceptLabel: 'Удалить',
+    accept: () => {
+      void remove(entry);
     },
   });
 }
@@ -124,7 +135,7 @@ async function changeQty(id: string, qty: number) {
           :key="entry.id"
           :entry="entry"
           :photo="customPhotos.get(entry.foodId ?? '')"
-          @remove="remove"
+          @remove="askToRemove"
           @change-qty="changeQty"
         />
       </ul>

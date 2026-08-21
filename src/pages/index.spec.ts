@@ -1,5 +1,5 @@
 import type { CustomFood, Entry, Profile } from '@/shared/db';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -7,6 +7,8 @@ import { EntryRow, removeEntry, restoreEntry, setEntryQty } from '@/entities/ent
 import { useCustomFoods } from '@/entities/food';
 import { useLiveQuery } from '@/shared/lib';
 import TodayView from './index.vue';
+
+const { requireConfirm } = vi.hoisted(() => ({ requireConfirm: vi.fn() }));
 
 vi.mock('vue-router', async () => {
   const { reactive } = await import('vue');
@@ -26,6 +28,7 @@ vi.mock('vue-router', async () => {
 vi.mock('shonk-ui', async importOriginal => ({
   ...await importOriginal<typeof import('shonk-ui')>(),
   toast: vi.fn(),
+  useConfirm: () => ({ require: requireConfirm }),
 }));
 
 vi.mock('@/entities/entry', async importOriginal => ({
@@ -67,6 +70,13 @@ function entry(overrides: Partial<Entry> = {}): Entry {
   };
 }
 
+function acceptRemoval() {
+  const options = requireConfirm.mock.calls[0][0] as { accept: () => void };
+  options.accept();
+
+  return flushPromises();
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2026, 7, 19, 15, 0));
@@ -102,12 +112,27 @@ describe('экран «Сегодня»', () => {
     expect(wrapper.text()).toContain('161');
   });
 
+  it('спрашивает подтверждение и без него ничего не удаляет', async () => {
+    const removed = entry();
+    entries.value = [removed];
+    const wrapper = mount(TodayView);
+
+    await wrapper.findComponent(EntryRow).vm.$emit('remove', removed);
+
+    expect(removeEntry).not.toHaveBeenCalled();
+
+    const options = requireConfirm.mock.calls[0][0] as { message: string; acceptLabel: string };
+    expect(options.acceptLabel).toBe('Удалить');
+    expect(options.message).toContain('Кофе чёрный');
+  });
+
   it('удаление предлагает вернуть запись', async () => {
     const removed = entry();
     entries.value = [removed];
     const wrapper = mount(TodayView);
 
     await wrapper.findComponent(EntryRow).vm.$emit('remove', removed);
+    await acceptRemoval();
 
     expect(removeEntry).toHaveBeenCalledWith('entry-1');
     expect(toast).toHaveBeenCalledWith('Запись удалена', expect.anything());
@@ -119,6 +144,7 @@ describe('экран «Сегодня»', () => {
     const wrapper = mount(TodayView);
 
     await wrapper.findComponent(EntryRow).vm.$emit('remove', removed);
+    await acceptRemoval();
 
     const options = vi.mocked(toast).mock.calls[0][1] as { action: { onClick: () => void } };
     options.action.onClick();

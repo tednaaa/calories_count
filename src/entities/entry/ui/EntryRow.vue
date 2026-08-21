@@ -15,16 +15,26 @@ const emit = defineEmits<{
   changeQty: [id: string, qty: number];
 }>();
 
+const SWIPE_START = 24;
 const REMOVE_THRESHOLD = 96;
 
 const row = useTemplateRef<HTMLElement>('row');
 const offset = ref(0);
 const expanded = ref(false);
 
-const { lengthX, isSwiping } = useSwipe(row, {
-  threshold: 12,
+let sideways: boolean | undefined;
+
+const { lengthX, direction, isSwiping } = useSwipe(row, {
+  threshold: SWIPE_START,
+  onSwipeStart() {
+    sideways = undefined;
+  },
   onSwipe() {
-    offset.value = Math.min(0, -lengthX.value);
+    sideways ??= direction.value === 'left';
+
+    if (sideways) {
+      offset.value = Math.min(0, SWIPE_START - lengthX.value);
+    }
   },
   onSwipeEnd() {
     if (offset.value <= -REMOVE_THRESHOLD) {
