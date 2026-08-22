@@ -12,7 +12,7 @@ const showsNav = computed(() => route.path !== '/onboarding');
 </script>
 
 <template>
-  <div class="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-bg-surface pt-[env(safe-area-inset-top)]">
+  <div class="mx-auto flex h-full w-full max-w-md flex-col overflow-hidden bg-bg-surface pt-[env(safe-area-inset-top)]">
     <RouterView />
 
     <div class="shrink-0">

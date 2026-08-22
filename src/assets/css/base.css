@@ -1,4 +1,10 @@
 @layer base {
+	html,
+	body,
+	#app {
+		height: 100%;
+	}
+
 	body {
 		@apply bg-bg-subtle;
 	}
