@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.2 (2026-08-22)
+
+- require scroll room before collapsing the day header [`0b588912`](https://github.com/tednaaa/calories_count/commit/0b58891215806173d5e0c34c52b91832a7d38ee2)
+- fix bottom gap on cold start by sizing the shell with percentage height [`ebe4fc05`](https://github.com/tednaaa/calories_count/commit/ebe4fc05e2a60b2801513ee56cf68780aa678871)
+- toggle food in cart on tap instead of stacking quantity [`aac4b3fb`](https://github.com/tednaaa/calories_count/commit/aac4b3fb9d7b5e393568ce9482752ac99d0f777e)
+
 ## v0.4.1 (2026-08-21)
 
 - upgrade shonk-ui to 0.3.0 and set the Russian locale [`14265a3a`](https://github.com/tednaaa/calories_count/commit/14265a3acb740c342096ddddbcb502a5ebfa7257)
