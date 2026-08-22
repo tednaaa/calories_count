@@ -10,6 +10,7 @@ import {
   increaseQty,
   nextEntry,
   rankFoodIdsByFrequency,
+  toggleQty,
   totalKcal,
   totalsByDate,
 } from './entry';
@@ -131,6 +132,21 @@ describe('decreaseQty', () => {
     }
 
     expect(steps).toEqual([2, 1, 0.5, 0]);
+  });
+});
+
+describe('toggleQty', () => {
+  it('из пустого кладёт целую порцию', () => {
+    expect(toggleQty(0)).toBe(1);
+  });
+
+  it('выбранное убирает целиком', () => {
+    expect(toggleQty(1)).toBe(0);
+    expect(toggleQty(3)).toBe(0);
+  });
+
+  it('половину тоже убирает целиком', () => {
+    expect(toggleQty(0.5)).toBe(0);
   });
 });
 

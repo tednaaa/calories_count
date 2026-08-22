@@ -70,6 +70,10 @@ export function decreaseQty(qty: number): number {
   return qty > 1 ? qty - 1 : qty - HALF_PORTION;
 }
 
+export function toggleQty(qty: number): number {
+  return qty > 0 ? 0 : 1;
+}
+
 export function entryKcal(entry: Entry): number {
   return entry.qty * entry.kcalPerPortion;
 }

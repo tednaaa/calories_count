@@ -10,6 +10,7 @@ export {
   increaseQty,
   nextEntry,
   rankFoodIdsByFrequency,
+  toggleQty,
   totalKcal,
   totalsByDate,
 } from './lib/entry';

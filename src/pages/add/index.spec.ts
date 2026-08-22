@@ -97,6 +97,10 @@ async function tap(wrapper: ReturnType<typeof mount>, index: number) {
   await cards(wrapper)[index].find('button').trigger('click');
 }
 
+async function plus(wrapper: ReturnType<typeof mount>, index: number) {
+  await cards(wrapper)[index].find('button[aria-label^="Добавить"]').trigger('click');
+}
+
 describe('экран «Добавить»', () => {
   it('показывает весь каталог', () => {
     const wrapper = mount(AddView);
@@ -262,10 +266,18 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).toContain('1 позиция · 5 ккал');
   });
 
-  it('повторный тап увеличивает количество', async () => {
+  it('повторный тап убирает блюдо из корзины', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
     await tap(wrapper, 0);
+
+    expect(wrapper.text()).not.toContain('Подтвердить');
+  });
+
+  it('плюс увеличивает количество', async () => {
+    const wrapper = mount(AddView);
+    await tap(wrapper, 0);
+    await plus(wrapper, 0);
 
     expect(wrapper.text()).toContain('1 позиция · 10 ккал');
   });
@@ -281,7 +293,7 @@ describe('экран «Добавить»', () => {
   it('подтверждение сохраняет корзину за сегодня и уводит на главную', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
-    await tap(wrapper, 0);
+    await plus(wrapper, 0);
     await wrapper.findElementByText('button', 'Подтвердить').trigger('click');
     await flushPromises();
 

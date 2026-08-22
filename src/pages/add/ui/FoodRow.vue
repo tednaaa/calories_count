@@ -3,7 +3,7 @@ import type { CartItem } from '@/entities/entry';
 import type { Portion } from '@/entities/food';
 import { Minus, Plus } from '@lucide/vue';
 import { cn } from 'shonk-ui';
-import { decreaseQty, increaseQty } from '@/entities/entry';
+import { decreaseQty, increaseQty, toggleQty } from '@/entities/entry';
 import { FoodThumb } from '@/entities/food';
 import { formatNumber } from '@/shared/lib';
 import { toCartItem } from '../lib/cart';
@@ -28,7 +28,7 @@ function changeQty(qty: number) {
     <button
       type="button"
       class="flex min-w-0 flex-1 items-center gap-3 py-2 text-left"
-      @click="changeQty(increaseQty(props.qty))"
+      @click="changeQty(toggleQty(props.qty))"
     >
       <FoodThumb
         :food-id="food.id"
