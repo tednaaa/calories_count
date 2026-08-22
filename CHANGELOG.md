@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.3 (2026-08-22)
+
+- use the large viewport height for the app shell in standalone mode [`fc7066aa`](https://github.com/tednaaa/calories_count/commit/fc7066aae3a6902c8c49df3cafe9db2fae9ce804)
+
 ## v0.4.2 (2026-08-22)
 
 - require scroll room before collapsing the day header [`0b588912`](https://github.com/tednaaa/calories_count/commit/0b58891215806173d5e0c34c52b91832a7d38ee2)
