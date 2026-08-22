@@ -1,12 +1,16 @@
 @layer base {
-	html,
-	body,
-	#app {
-		height: 100%;
+	body {
+		@apply overflow-hidden bg-bg-subtle;
 	}
 
-	body {
-		@apply bg-bg-subtle;
+	#app {
+		height: 100dvh;
+	}
+
+	@media (display-mode: standalone) {
+		#app {
+			height: 100lvh;
+		}
 	}
 
 	a,
