@@ -16,7 +16,7 @@ import { photosById, useCustomFoods } from '@/entities/food';
 import { loadProfile } from '@/entities/profile';
 import { formatDayLabel, isToday, requestedDateKey, shiftDateKey, toDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
-import { scrollReserve } from './compact';
+import { nextCompact } from './compact';
 
 const route = useRoute();
 const router = useRouter();
@@ -37,16 +37,15 @@ const addLink = computed(() => (showsToday.value ? '/add' : `/add?date=${dateKey
 
 const summary = useTemplateRef<HTMLElement>('summary');
 const compact = ref(false);
-const reserve = ref(0);
 
 function trackScroll(event: Event) {
   const list = event.target as HTMLElement;
 
-  if (!compact.value) {
-    reserve.value = scrollReserve(summary.value?.offsetHeight ?? 0, list.scrollHeight - list.clientHeight);
-  }
-
-  compact.value = list.scrollTop > 0;
+  compact.value = nextCompact(compact.value, {
+    scrollTop: list.scrollTop,
+    scrollable: list.scrollHeight - list.clientHeight,
+    headerHeight: summary.value?.offsetHeight ?? 0,
+  });
 }
 
 function showDay(date: DateKey) {
@@ -146,8 +145,6 @@ function editEntry(entry: Entry) {
           Добавить
         </Button>
       </div>
-
-      <div v-if="compact" aria-hidden="true" :style="{ height: `${reserve}px` }" />
     </div>
   </main>
 </template>

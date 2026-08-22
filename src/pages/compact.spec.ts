@@ -1,15 +1,23 @@
-import { scrollReserve } from './compact';
+import { nextCompact } from './compact';
 
-const HEADER = 280;
+const longList = { scrollTop: 1, scrollable: 900, headerHeight: 280 };
+const shortList = { scrollTop: 1, scrollable: 40, headerHeight: 280 };
 
-describe('scrollReserve', () => {
-  it('ничего не резервирует, когда ленте и так есть куда прокручиваться', () => {
-    expect(scrollReserve(HEADER, 900)).toBe(0);
-    expect(scrollReserve(HEADER, HEADER)).toBe(0);
+describe('nextCompact', () => {
+  it('сворачивает от любой прокрутки', () => {
+    expect(nextCompact(false, longList)).toBe(true);
   });
 
-  it('добирает запас до высоты шапки, когда лента едва вылезает за экран', () => {
-    expect(scrollReserve(HEADER, 40)).toBe(240);
-    expect(scrollReserve(HEADER, 1)).toBe(279);
+  it('разворачивает только у самого верха', () => {
+    expect(nextCompact(true, { ...longList, scrollTop: 1 })).toBe(true);
+    expect(nextCompact(true, { ...longList, scrollTop: 0 })).toBe(false);
+  });
+
+  it('не сворачивается, когда после этого прокручивать станет нечего', () => {
+    expect(nextCompact(false, shortList)).toBe(false);
+  });
+
+  it('свёрнутую не разворачивает от осевшей прокрутки', () => {
+    expect(nextCompact(true, shortList)).toBe(true);
   });
 });
