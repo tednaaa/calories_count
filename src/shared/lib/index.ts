@@ -1,6 +1,8 @@
 export type { DateKey } from './date';
 export {
+  dayNumber,
   formatDayLabel,
+  formatFullDate,
   formatTime,
   formatWeekday,
   fromDateKey,
@@ -10,7 +12,9 @@ export {
   lastDateKeys,
   requestedDateKey,
   shiftDateKey,
+  startOfWeek,
   toDateKey,
+  weekDateKeys,
 } from './date';
 export { readPhoto } from './image';
 export { formatNumber, pluralize } from './pluralize';

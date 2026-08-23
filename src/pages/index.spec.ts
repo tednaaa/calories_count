@@ -1,3 +1,4 @@
+import type { VueWrapper } from '@vue/test-utils';
 import type { CustomFood, Entry, Profile } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
 import { toast } from 'shonk-ui';
@@ -68,6 +69,12 @@ function entry(overrides: Partial<Entry> = {}): Entry {
     name: 'Кофе чёрный',
     ...overrides,
   };
+}
+
+function currentWeekButtons(wrapper: VueWrapper) {
+  const weeks = wrapper.findAll('[role="group"] > div');
+
+  return weeks[weeks.length - 1].findAll('button');
 }
 
 function acceptRemoval() {
@@ -162,27 +169,28 @@ describe('экран «Сегодня»', () => {
     expect(push).toHaveBeenCalledWith('/entry/entry-1');
   });
 
-  it('листает на предыдущий день и обратно', async () => {
+  it('открывает день, выбранный в ленте, и возвращается к сегодня', async () => {
     const wrapper = mount(TodayView);
-    const [back, forward] = wrapper.findAll('header button');
 
-    await back.trigger('click');
-    expect(wrapper.text()).toContain('Вчера');
+    await currentWeekButtons(wrapper)[1].trigger('click');
+    expect(wrapper.text()).toContain('В этот день записей нет');
+    expect(wrapper.find('[aria-current="date"]').attributes('aria-label')).toContain('18 август');
 
-    await forward.trigger('click');
-    expect(wrapper.text()).toContain('Сегодня');
+    await currentWeekButtons(wrapper)[2].trigger('click');
+    expect(wrapper.text()).toContain('Сегодня пока пусто');
   });
 
   it('открывает день, указанный в адресе', () => {
     useRouter().replace({ query: { date: '2026-08-17' } });
 
-    expect(mount(TodayView).text()).toContain('17 августа');
+    const wrapper = mount(TodayView);
+
+    expect(wrapper.find('[aria-current="date"]').attributes('aria-label')).toContain('17 август');
   });
 
   it('не пускает в будущее', () => {
     const wrapper = mount(TodayView);
-    const forward = wrapper.findAll('header button')[1];
 
-    expect(forward.attributes('disabled')).toBeDefined();
+    expect(currentWeekButtons(wrapper)[3].attributes('disabled')).toBeDefined();
   });
 });

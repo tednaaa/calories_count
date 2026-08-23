@@ -41,6 +41,22 @@ export function requestedDateKey(value: unknown): DateKey {
   return isDateKey(value) && !isFuture(value) ? value : toDateKey();
 }
 
+export function startOfWeek(key: DateKey): DateKey {
+  const weekday = (fromDateKey(key).getDay() + 6) % 7;
+
+  return shiftDateKey(key, -weekday);
+}
+
+export function weekDateKeys(key: DateKey): DateKey[] {
+  const monday = startOfWeek(key);
+
+  return Array.from({ length: 7 }, (_, index) => shiftDateKey(monday, index));
+}
+
+export function dayNumber(key: DateKey): number {
+  return fromDateKey(key).getDate();
+}
+
 export function lastDateKeys(count: number, until: DateKey = toDateKey()): DateKey[] {
   return Array.from({ length: count }, (_, index) => shiftDateKey(until, index - count + 1));
 }
@@ -61,6 +77,12 @@ export function formatDayLabel(key: DateKey): string {
 
 export function formatWeekday(key: DateKey): string {
   return weekdayFormatter.format(fromDateKey(key));
+}
+
+const fullDateFormatter = new Intl.DateTimeFormat('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+export function formatFullDate(key: DateKey): string {
+  return fullDateFormatter.format(fromDateKey(key));
 }
 
 const timeFormatter = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' });

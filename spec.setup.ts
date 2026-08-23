@@ -15,3 +15,5 @@ export function extraFindMethods(wrapper: VueWrapper) {
 config.plugins.VueWrapper.install(extraFindMethods);
 
 config.global.stubs = { teleport: true };
+
+Element.prototype.scrollTo = () => {};

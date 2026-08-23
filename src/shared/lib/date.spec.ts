@@ -1,5 +1,7 @@
 import {
+  dayNumber,
   formatDayLabel,
+  formatFullDate,
   formatTime,
   formatWeekday,
   fromDateKey,
@@ -8,7 +10,9 @@ import {
   isToday,
   lastDateKeys,
   shiftDateKey,
+  startOfWeek,
   toDateKey,
+  weekDateKeys,
 } from './date';
 
 describe('toDateKey', () => {
@@ -109,6 +113,57 @@ describe('isToday / isFuture', () => {
   });
 });
 
+describe('startOfWeek', () => {
+  it('отматывает к понедельнику этой недели', () => {
+    expect(startOfWeek('2026-08-19')).toBe('2026-08-17');
+  });
+
+  it('оставляет понедельник на месте', () => {
+    expect(startOfWeek('2026-08-17')).toBe('2026-08-17');
+  });
+
+  it('воскресенье относит к уходящей неделе', () => {
+    expect(startOfWeek('2026-08-23')).toBe('2026-08-17');
+  });
+});
+
+describe('weekDateKeys', () => {
+  it('возвращает неделю с понедельника по воскресенье', () => {
+    expect(weekDateKeys('2026-08-19')).toEqual([
+      '2026-08-17',
+      '2026-08-18',
+      '2026-08-19',
+      '2026-08-20',
+      '2026-08-21',
+      '2026-08-22',
+      '2026-08-23',
+    ]);
+  });
+
+  it('одинакова для любого дня одной недели', () => {
+    expect(weekDateKeys('2026-08-17')).toEqual(weekDateKeys('2026-08-23'));
+  });
+
+  it('переходит через границу месяца', () => {
+    expect(weekDateKeys('2026-09-01')).toEqual([
+      '2026-08-31',
+      '2026-09-01',
+      '2026-09-02',
+      '2026-09-03',
+      '2026-09-04',
+      '2026-09-05',
+      '2026-09-06',
+    ]);
+  });
+});
+
+describe('dayNumber', () => {
+  it('возвращает число месяца без ведущего нуля', () => {
+    expect(dayNumber('2026-08-05')).toBe(5);
+    expect(dayNumber('2026-08-19')).toBe(19);
+  });
+});
+
 describe('lastDateKeys', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -158,6 +213,16 @@ describe('formatWeekday', () => {
   it('возвращает короткое название дня недели', () => {
     // 19 августа 2026 — среда
     expect(formatWeekday('2026-08-19').toLowerCase()).toContain('ср');
+  });
+});
+
+describe('formatFullDate', () => {
+  it('называет день недели, число и месяц', () => {
+    const label = formatFullDate('2026-08-19');
+
+    expect(label).toContain('среда');
+    expect(label).toContain('19');
+    expect(label).toContain('август');
   });
 });
 
