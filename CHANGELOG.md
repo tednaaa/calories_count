@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.4 (2026-08-23)
+
+- replace day header with a swipeable week strip calendar [`edb131a5`](https://github.com/tednaaa/calories_count/commit/edb131a5c9bd4f0bc93f5de45223c0784a1d767b)
+
 ## v0.4.3 (2026-08-22)
 
 - use the large viewport height for the app shell in standalone mode [`fc7066aa`](https://github.com/tednaaa/calories_count/commit/fc7066aae3a6902c8c49df3cafe9db2fae9ce804)
