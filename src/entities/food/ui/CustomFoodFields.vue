@@ -46,7 +46,7 @@ async function pickPhoto(event: Event) {
       <Label>Фото</Label>
 
       <div class="flex items-center gap-3">
-        <FoodThumb :food-id="props.foodId" :photo="photo" :name="name" class="size-16" />
+        <FoodThumb :food-id="props.foodId" :photo="photo" :name="name" zoomable class="size-16" />
 
         <div class="flex flex-col items-start gap-2">
           <label :class="buttonVariants({ variant: 'outline', size: 'sm' })">

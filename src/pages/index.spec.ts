@@ -169,6 +169,15 @@ describe('экран «Сегодня»', () => {
     expect(push).toHaveBeenCalledWith('/entry/entry-1');
   });
 
+  it('тап по фото не открывает запись', async () => {
+    entries.value = [entry({ photo: 'data:image/webp;base64,photo' })];
+    const wrapper = mount(TodayView);
+
+    await wrapper.find('li img').trigger('click');
+
+    expect(push).not.toHaveBeenCalled();
+  });
+
   it('открывает день, выбранный в ленте, и возвращается к сегодня', async () => {
     const wrapper = mount(TodayView);
 
