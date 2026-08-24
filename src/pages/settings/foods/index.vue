@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight, Plus } from '@lucide/vue';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@lucide/vue';
 import { Button } from 'shonk-ui';
 import { RouterLink } from 'vue-router';
 import { FoodThumb, useCustomFoods } from '@/entities/food';
@@ -16,7 +16,7 @@ const customFoods = useCustomFoods();
         class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
         aria-label="Назад к настройкам"
       >
-        <ChevronLeft class="size-5" />
+        <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
       <h1 class="text-xl font-semibold text-text-primary">
@@ -42,7 +42,7 @@ const customFoods = useCustomFoods();
             </p>
           </div>
 
-          <ChevronRight class="size-4 shrink-0 text-text-tertiary" />
+          <ChevronRightIcon class="size-4 shrink-0 text-text-tertiary" />
         </RouterLink>
       </li>
     </ul>
@@ -52,7 +52,7 @@ const customFoods = useCustomFoods();
     </p>
 
     <Button :as="RouterLink" to="/settings/foods/new" variant="outline" class="mt-6 w-full">
-      <Plus class="size-4" />
+      <PlusIcon class="size-4" />
       Добавить блюдо
     </Button>
   </main>

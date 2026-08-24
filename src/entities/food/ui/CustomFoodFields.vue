@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Camera } from '@lucide/vue';
+import { CameraIcon } from '@lucide/vue';
 import { buttonVariants, Input, Label, toast } from 'shonk-ui';
 import { readPhoto } from '@/shared/lib';
 import FoodThumb from './FoodThumb.vue';
@@ -50,7 +50,7 @@ async function pickPhoto(event: Event) {
 
         <div class="flex flex-col items-start gap-2">
           <label :class="buttonVariants({ variant: 'outline', size: 'sm' })">
-            <Camera class="size-4" />
+            <CameraIcon class="size-4" />
             {{ photo ? 'Заменить' : 'Снять или выбрать' }}
             <input type="file" accept="image/*" class="sr-only" @change="pickPhoto">
           </label>

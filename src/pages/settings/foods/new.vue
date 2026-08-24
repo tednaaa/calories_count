@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft } from '@lucide/vue';
+import { ChevronLeftIcon } from '@lucide/vue';
 import { Button, toast } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -44,7 +44,7 @@ async function submit() {
         class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
         aria-label="Назад к своим блюдам"
       >
-        <ChevronLeft class="size-5" />
+        <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
       <h1 class="text-xl font-semibold text-text-primary">

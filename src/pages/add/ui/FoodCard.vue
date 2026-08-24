@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/entry';
 import type { Portion } from '@/entities/food';
-import { Minus, Plus } from '@lucide/vue';
+import { MinusIcon, PlusIcon } from '@lucide/vue';
 import { cn } from 'shonk-ui';
 import { decreaseQty, increaseQty, toggleQty } from '@/entities/entry';
 import { FoodThumb } from '@/entities/food';
@@ -56,7 +56,7 @@ function changeQty(qty: number) {
         :aria-label="`Убрать ${food.name}`"
         @click="changeQty(decreaseQty(props.qty))"
       >
-        <Minus class="size-4" />
+        <MinusIcon class="size-4" />
       </button>
 
       <span class="w-9 text-center text-sm font-medium tabular-nums text-text-primary">{{ props.qty }}</span>
@@ -67,7 +67,7 @@ function changeQty(qty: number) {
         :aria-label="`Добавить ${food.name}`"
         @click="changeQty(increaseQty(props.qty))"
       >
-        <Plus class="size-4" />
+        <PlusIcon class="size-4" />
       </button>
     </div>
   </li>

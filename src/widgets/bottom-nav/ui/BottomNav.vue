@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import { ChartColumn, House, Plus, Settings } from '@lucide/vue';
+import { ChartColumnIcon, HouseIcon, PlusIcon, SettingsIcon } from '@lucide/vue';
 import { cn } from 'shonk-ui';
 import { RouterLink } from 'vue-router';
 
@@ -12,10 +12,10 @@ interface NavItem {
 }
 
 const items: NavItem[] = [
-  { to: '/', label: 'Сегодня', icon: House },
-  { to: '/add', label: 'Добавить', icon: Plus, accent: true },
-  { to: '/stats', label: 'Статистика', icon: ChartColumn },
-  { to: '/settings', label: 'Настройки', icon: Settings },
+  { to: '/', label: 'Сегодня', icon: HouseIcon },
+  { to: '/add', label: 'Добавить', icon: PlusIcon, accent: true },
+  { to: '/stats', label: 'Статистика', icon: ChartColumnIcon },
+  { to: '/settings', label: 'Настройки', icon: SettingsIcon },
 ];
 </script>
 

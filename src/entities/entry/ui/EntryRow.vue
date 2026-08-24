@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Entry } from '@/shared/db';
-import { Trash2 } from '@lucide/vue';
+import { Trash2Icon } from '@lucide/vue';
 import { useSwipe } from '@vueuse/core';
 import { cn } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
@@ -50,7 +50,7 @@ const kcal = computed(() => entryKcal(props.entry));
 <template>
   <li class="relative overflow-hidden border-b border-border-default last:border-b-0">
     <div class="absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-bg-danger text-text-inverse">
-      <Trash2 class="size-5" />
+      <Trash2Icon class="size-5" />
     </div>
 
     <div

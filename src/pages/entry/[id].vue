@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CustomFood, Entry } from '@/shared/db';
-import { ChevronLeft, Minus, Plus } from '@lucide/vue';
+import { ChevronLeftIcon, MinusIcon, PlusIcon } from '@lucide/vue';
 import { Badge, Button, Switch, toast } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -79,7 +79,7 @@ async function submit() {
         class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
         aria-label="Назад в день"
       >
-        <ChevronLeft class="size-5" />
+        <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
       <h1 class="text-xl font-semibold text-text-primary">
@@ -119,7 +119,7 @@ async function submit() {
             aria-label="Меньше"
             @click="qty = decreaseQty(qty)"
           >
-            <Minus class="size-4" />
+            <MinusIcon class="size-4" />
           </button>
 
           <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ qty }}</span>
@@ -130,7 +130,7 @@ async function submit() {
             aria-label="Больше"
             @click="qty = increaseQty(qty)"
           >
-            <Plus class="size-4" />
+            <PlusIcon class="size-4" />
           </button>
         </div>
       </div>

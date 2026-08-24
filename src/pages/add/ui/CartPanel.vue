@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/entry';
-import { ChevronUp, Minus, Plus, X } from '@lucide/vue';
+import { ChevronUpIcon, MinusIcon, PlusIcon, XIcon } from '@lucide/vue';
 import { Button, cn } from 'shonk-ui';
 import { ref } from 'vue';
 import { decreaseQty, increaseQty } from '@/entities/entry';
@@ -45,7 +45,7 @@ function changeQty(item: CartItem, qty: number) {
           :aria-label="`Меньше ${item.name}`"
           @click="changeQty(item, decreaseQty(item.qty))"
         >
-          <Minus class="size-4" />
+          <MinusIcon class="size-4" />
         </button>
 
         <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ item.qty }}</span>
@@ -56,7 +56,7 @@ function changeQty(item: CartItem, qty: number) {
           :aria-label="`Больше ${item.name}`"
           @click="changeQty(item, increaseQty(item.qty))"
         >
-          <Plus class="size-4" />
+          <PlusIcon class="size-4" />
         </button>
 
         <button
@@ -65,7 +65,7 @@ function changeQty(item: CartItem, qty: number) {
           :aria-label="`Убрать ${item.name}`"
           @click="changeQty(item, 0)"
         >
-          <X class="size-4" />
+          <XIcon class="size-4" />
         </button>
       </li>
     </ul>
@@ -77,7 +77,7 @@ function changeQty(item: CartItem, qty: number) {
         @click="expanded = !expanded"
       >
         <span class="truncate text-sm text-text-primary">{{ cartSummary(props.items) }}</span>
-        <ChevronUp :class="cn('size-4 shrink-0 text-text-tertiary transition-transform', expanded && 'rotate-180')" />
+        <ChevronUpIcon :class="cn('size-4 shrink-0 text-text-tertiary transition-transform', expanded && 'rotate-180')" />
       </button>
 
       <Button :loading="props.saving" @click="emit('confirm')">

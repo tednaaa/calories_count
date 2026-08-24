@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue';
-import { X } from '@lucide/vue';
+import { XIcon } from '@lucide/vue';
 import { cn, Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { foodById, photoUrl } from '../lib/catalog';
@@ -69,7 +69,7 @@ function zoom(event: MouseEvent) {
           class="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full bg-black/50 text-white"
           aria-label="Закрыть фото"
         >
-          <X class="size-5" />
+          <XIcon class="size-5" />
         </DialogClose>
       </DialogContent>
     </Dialog>

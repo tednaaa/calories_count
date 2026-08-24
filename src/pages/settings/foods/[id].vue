@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CustomFood } from '@/shared/db';
-import { ChevronLeft } from '@lucide/vue';
+import { ChevronLeftIcon } from '@lucide/vue';
 import { Button, toast, useConfirm } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -91,7 +91,7 @@ function askToRemove() {
         class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
         aria-label="Назад к своим блюдам"
       >
-        <ChevronLeft class="size-5" />
+        <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
       <h1 class="text-xl font-semibold text-text-primary">

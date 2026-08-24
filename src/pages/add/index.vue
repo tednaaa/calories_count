@@ -2,7 +2,7 @@
 import type { ViewMode } from './lib/view-mode';
 import type { CartItem } from '@/entities/entry';
 import type { CategoryId, Portion } from '@/entities/food';
-import { Grid2x2, LayoutGrid, List } from '@lucide/vue';
+import { Grid2x2Icon, LayoutGridIcon, ListIcon } from '@lucide/vue';
 import {
   Badge,
   Button,
@@ -43,7 +43,7 @@ const chips: { id: ChipId; name: string }[] = [
   ...categories,
 ];
 
-const viewIcons = { grid: LayoutGrid, large: Grid2x2, list: List };
+const viewIcons = { grid: LayoutGridIcon, large: Grid2x2Icon, list: ListIcon };
 
 const query = ref('');
 const category = ref<ChipId>('all');
@@ -52,7 +52,7 @@ const saving = ref(false);
 
 const view = useViewMode();
 
-const viewIcon = computed(() => viewIcons[view.value] ?? LayoutGrid);
+const viewIcon = computed(() => viewIcons[view.value] ?? LayoutGridIcon);
 
 function chooseView(mode: unknown) {
   view.value = mode as ViewMode;
