@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.5 (2026-08-24)
+
+- use suffixed lucide icon names in code [`edb91b98`](https://github.com/tednaaa/calories_count/commit/edb91b984c8b9e82ed2491449497a043a3709aa0)
+- zoom food photo on tap in day list and entry form [`2504eb4e`](https://github.com/tednaaa/calories_count/commit/2504eb4ef534a043ea5f112e7c0aac6520fc991e)
+
 ## v0.4.4 (2026-08-23)
 
 - replace day header with a swipeable week strip calendar [`edb131a5`](https://github.com/tednaaa/calories_count/commit/edb131a5c9bd4f0bc93f5de45223c0784a1d767b)
