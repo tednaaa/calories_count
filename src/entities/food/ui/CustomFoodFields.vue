@@ -20,8 +20,9 @@ import { readPhoto } from '@/shared/lib';
 import { draftToServing, servingOptions, units } from '../lib/custom-draft';
 import { formatServing, unitName } from '../lib/serving';
 import FoodThumb from './FoodThumb.vue';
+import NutrientStrip from './NutrientStrip.vue';
 
-const props = defineProps<{ foodId?: string }>();
+const props = defineProps<{ foodId?: string; busy?: boolean }>();
 
 const draft = defineModel<CustomDraft>({ required: true });
 
@@ -69,6 +70,10 @@ async function pickPhoto(event: Event) {
     <div class="flex flex-col gap-2">
       <Label for="custom-name">Название</Label>
       <Input id="custom-name" v-model="draft.name" placeholder="Пирог у бабушки" />
+
+      <p v-if="props.busy" class="text-xs text-text-tertiary">
+        Спрашиваю базу продуктов по штрих-коду…
+      </p>
     </div>
 
     <div class="flex flex-col gap-2">
@@ -133,6 +138,8 @@ async function pickPhoto(event: Event) {
         </template>
       </p>
     </div>
+
+    <NutrientStrip :nutrients="portion?.nutrients" :grades="draft.grades" />
 
     <div class="flex flex-col gap-2">
       <Label>Фото</Label>

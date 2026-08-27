@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ChevronLeftIcon } from '@lucide/vue';
 import { Badge, Button, Switch, toast } from 'shonk-ui';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
-import { CustomFoodFields, draftToCustomFood, emptyCustomDraft } from '@/entities/food';
+import {
+  CustomFoodFields,
+  draftToCustomFood,
+  emptyCustomDraft,
+  isBarcode,
+  lookupBarcode,
+  productToDraft,
+} from '@/entities/food';
 import { formatDayLabel, isToday, requestedDateKey } from '@/shared/lib';
 import { addCustomFoodToDay, addCustomOnceToDay } from './lib/custom';
 
@@ -13,11 +20,41 @@ const router = useRouter();
 const draft = ref(emptyCustomDraft());
 const saves = ref(false);
 const saving = ref(false);
+const looking = ref(false);
 
 const dateKey = computed(() => requestedDateKey(route.query.date));
 const showsToday = computed(() => isToday(dateKey.value));
 const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }));
 const input = computed(() => draftToCustomFood(draft.value));
+
+const missing = {
+  missing: 'Такого кода нет в базе продуктов — заполни сам',
+  offline: 'Не удалось спросить базу продуктов, нет связи',
+};
+
+async function fillFromBarcode(code: string) {
+  looking.value = true;
+
+  const found = await lookupBarcode(code);
+
+  looking.value = false;
+
+  if (found.state === 'found') {
+    draft.value = productToDraft(found.product);
+    saves.value = true;
+    return;
+  }
+
+  toast(missing[found.state]);
+}
+
+onMounted(() => {
+  const code = String(route.query.barcode ?? '');
+
+  if (isBarcode(code)) {
+    void fillFromBarcode(code);
+  }
+});
 
 async function submit() {
   const food = input.value;
@@ -67,7 +104,7 @@ async function submit() {
     </div>
 
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <CustomFoodFields v-model="draft" />
+      <CustomFoodFields v-model="draft" :busy="looking" />
 
       <div class="flex items-center gap-3 rounded-lg border border-border-default p-3">
         <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="saves = !saves">

@@ -13,6 +13,26 @@ function cola(overrides: Record<string, unknown> = {}) {
   });
 }
 
+function gorilla(overrides: Record<string, unknown> = {}) {
+  return response(1, {
+    product_name: 'Gorilla energy drink',
+    quantity: '450 ml',
+    nutriscore_grade: 'e',
+    nova_group: 4,
+    nutriments: {
+      'energy-kcal_100g': 50,
+      'proteins_100g': 0,
+      'fat_100g': 0,
+      'saturated-fat_100g': 0,
+      'carbohydrates_100g': 12,
+      'sugars_100g': 12,
+      'fiber_100g': 0,
+      'salt_100g': 0,
+    },
+    ...overrides,
+  });
+}
+
 function answers(body: unknown, ok = true) {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok, json: () => Promise.resolve(body) }));
 }
@@ -62,7 +82,14 @@ describe('parsePackage', () => {
 
 describe('toProduct', () => {
   it('собирает продукт из ответа базы', () => {
-    expect(toProduct(cola())).toEqual({ name: 'Coca-Cola', kcalPerHundred: 42, amount: 330, unit: 'ml' });
+    expect(toProduct(cola())).toEqual({
+      name: 'Coca-Cola',
+      kcalPerHundred: 42,
+      amount: 330,
+      unit: 'ml',
+      nutrients: undefined,
+      grades: undefined,
+    });
   });
 
   it('оставляет массу пустой, когда её нет в базе', () => {
@@ -90,6 +117,23 @@ describe('toProduct', () => {
     expect(toProduct(cola({ nutriments: { 'energy-kcal_100g': 0 } }))).toBeNull();
   });
 
+  it('забирает состав с этикетки', () => {
+    expect(toProduct(gorilla())?.nutrients)
+      .toEqual({ protein: 0, fat: 0, saturatedFat: 0, carbs: 12, sugars: 12, fiber: 0, salt: 0 });
+  });
+
+  it('забирает Nutri-Score и NOVA', () => {
+    expect(toProduct(gorilla())?.grades).toEqual({ nutriScore: 'e', nova: 4 });
+  });
+
+  it('пропускает незнакомые бейджи', () => {
+    expect(toProduct(gorilla({ nutriscore_grade: 'unknown', nova_group: 9 }))?.grades).toBeUndefined();
+  });
+
+  it('без состава ничего не выдумывает', () => {
+    expect(toProduct(cola())?.nutrients).toBeUndefined();
+  });
+
   it('ничего не собирает без названия', () => {
     expect(toProduct(cola({ product_name: '', brands: '' }))).toBeNull();
   });
@@ -108,6 +152,13 @@ describe('productToDraft', () => {
     });
   });
 
+  it('кладёт состав этикетки в черновик', () => {
+    const draft = productToDraft(toProduct(gorilla())!);
+
+    expect(draft.nutrients).toMatchObject({ sugars: 12 });
+    expect(draft.grades).toEqual({ nutriScore: 'e', nova: 4 });
+  });
+
   it('оставляет вес порции пустым, когда масса неизвестна', () => {
     expect(productToDraft({ name: 'Nutella', kcalPerHundred: 539, unit: 'g' }).portion).toBe('');
   });
@@ -119,7 +170,14 @@ describe('lookupBarcode', () => {
 
     expect(await lookupBarcode('5449000000996')).toEqual({
       state: 'found',
-      product: { name: 'Coca-Cola', kcalPerHundred: 42, amount: 330, unit: 'ml' },
+      product: {
+        name: 'Coca-Cola',
+        kcalPerHundred: 42,
+        amount: 330,
+        unit: 'ml',
+        nutrients: undefined,
+        grades: undefined,
+      },
     });
   });
 

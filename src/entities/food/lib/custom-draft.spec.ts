@@ -121,6 +121,21 @@ describe('draftToCustomFood', () => {
     expect(draftToCustomFood(draft({ serving: 'portion', unit: 'ml' }))?.unit).toBeUndefined();
   });
 
+  it('пересчитывает состав вместе с порцией', () => {
+    const drink = draft({ serving: 'hundred', unit: 'ml', kcal: '50', portion: '450', nutrients: { sugars: 12 } });
+
+    expect(draftToCustomFood(drink)).toMatchObject({
+      nutrients: { sugars: 54 },
+      basis: { amount: 100, kcal: 50, nutrients: { sugars: 12 } },
+    });
+  });
+
+  it('переносит бейджи как есть', () => {
+    const scored = draft({ serving: 'hundred', kcal: '50', grades: { nutriScore: 'e', nova: 4 } });
+
+    expect(draftToCustomFood(scored)?.grades).toEqual({ nutriScore: 'e', nova: 4 });
+  });
+
   it('на своей базе требует базовый вес', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '' }))).toBeNull();
   });
@@ -203,6 +218,23 @@ describe('draftFromCustomFood', () => {
       amount: undefined,
       basis: undefined,
       photo: stored.photo,
+    });
+  });
+
+  it('круг не теряет состав и бейджи', () => {
+    const drink: CustomFood = {
+      ...stored,
+      kcal: 225,
+      amount: 450,
+      unit: 'ml',
+      basis: { amount: 100, kcal: 50, nutrients: { sugars: 12 } },
+      nutrients: { sugars: 54 },
+      grades: { nutriScore: 'e', nova: 4 },
+    };
+
+    expect(draftToCustomFood(draftFromCustomFood(drink))).toMatchObject({
+      nutrients: { sugars: 54 },
+      grades: { nutriScore: 'e', nova: 4 },
     });
   });
 

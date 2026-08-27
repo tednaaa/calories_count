@@ -2,7 +2,7 @@
 import type { ViewMode } from './lib/view-mode';
 import type { CartItem } from '@/entities/entry';
 import type { CategoryId, Portion } from '@/entities/food';
-import { Grid2x2Icon, LayoutGridIcon, ListIcon } from '@lucide/vue';
+import { Grid2x2Icon, LayoutGridIcon, ListIcon, ScanBarcodeIcon } from '@lucide/vue';
 import {
   Badge,
   Button,
@@ -27,6 +27,7 @@ import {
   useCustomFoods,
 } from '@/entities/food';
 import { formatDayLabel, isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
+import { BarcodeScanner } from '@/widgets/barcode-scanner';
 import { cartSummary, withCartItem } from './lib/cart';
 import { useViewMode, viewModeName, viewModes } from './lib/view-mode';
 import CartPanel from './ui/CartPanel.vue';
@@ -66,6 +67,13 @@ const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }
 
 function openCustom() {
   void router.push({ path: '/add/custom', query: dayQuery.value });
+}
+
+const scanning = ref(false);
+
+function openScanned(code: string) {
+  scanning.value = false;
+  void router.push({ path: '/add/custom', query: { ...dayQuery.value, barcode: code } });
 }
 
 const customFoods = useCustomFoods();
@@ -136,6 +144,8 @@ async function confirm() {
 </script>
 
 <template>
+  <BarcodeScanner v-if="scanning" @found="openScanned" @close="scanning = false" />
+
   <main class="flex min-h-0 flex-1 flex-col">
     <header class="shrink-0 px-4 pt-6 pb-3">
       <div v-if="!showsToday" class="mb-3 flex items-center gap-2">
@@ -153,6 +163,10 @@ async function confirm() {
           placeholder="Поиск блюда"
           class="flex-1"
         />
+
+        <Button variant="outline" size="icon" aria-label="Сканировать штрих-код" @click="scanning = true">
+          <ScanBarcodeIcon class="size-4" />
+        </Button>
 
         <Button variant="outline" @click="openCustom">
           Новое

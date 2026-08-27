@@ -4,10 +4,27 @@ export type Sex = 'male' | 'female';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'high' | 'veryHigh';
 export type Goal = 'cut' | 'cutMild' | 'maintain' | 'bulkMild' | 'bulk';
 export type Unit = 'g' | 'ml';
+export type NutriScore = 'a' | 'b' | 'c' | 'd' | 'e';
+
+export interface Nutrients {
+  protein?: number;
+  fat?: number;
+  saturatedFat?: number;
+  carbs?: number;
+  sugars?: number;
+  fiber?: number;
+  salt?: number;
+}
+
+export interface Grades {
+  nutriScore?: NutriScore;
+  nova?: number;
+}
 
 export interface Basis {
   amount: number;
   kcal: number;
+  nutrients?: Nutrients;
 }
 
 export interface Entry {
@@ -21,6 +38,8 @@ export interface Entry {
   amount?: number;
   unit?: Unit;
   basis?: Basis;
+  nutrients?: Nutrients;
+  grades?: Grades;
   name: string;
 }
 
@@ -31,6 +50,8 @@ export interface CustomFood {
   amount?: number;
   unit?: Unit;
   basis?: Basis;
+  nutrients?: Nutrients;
+  grades?: Grades;
   photo?: string;
   createdAt: number;
   updatedAt: number;

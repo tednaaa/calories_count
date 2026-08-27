@@ -69,6 +69,11 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         globIgnores: ['**/404.html'],
         navigateFallback: '/index.html',
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.endsWith('.wasm'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'barcode-decoder' },
+        }],
       },
     }),
     spaFallback(),

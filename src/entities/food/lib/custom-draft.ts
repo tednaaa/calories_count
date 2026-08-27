@@ -1,5 +1,6 @@
 import type { CustomFoodInput } from './custom-food';
-import type { Basis, CustomFood, Unit } from '@/shared/db';
+import type { Basis, CustomFood, Grades, Nutrients, Unit } from '@/shared/db';
+import { portionNutrients } from './nutrients';
 import { formatAmount, portionKcal, unitName } from './serving';
 
 export const MIN_KCAL = 1;
@@ -23,7 +24,7 @@ export function servingOptions(unit: Unit): { id: ServingId; name: string }[] {
   ];
 }
 
-export type Serving = Pick<CustomFoodInput, 'kcal' | 'amount' | 'unit' | 'basis'>;
+export type Serving = Pick<CustomFoodInput, 'kcal' | 'amount' | 'unit' | 'basis' | 'nutrients' | 'grades'>;
 
 export interface CustomDraft {
   name: string;
@@ -32,6 +33,8 @@ export interface CustomDraft {
   amount: string;
   kcal: string;
   portion: string;
+  nutrients?: Nutrients;
+  grades?: Grades;
   photo: string;
 }
 
@@ -70,9 +73,16 @@ export function draftToServing(draft: CustomDraft): Serving | null {
     return null;
   }
 
-  const basis: Basis = { amount: base, kcal };
+  const basis: Basis = { amount: base, kcal, nutrients: draft.nutrients };
 
-  return { kcal: portionKcal(basis, amount), amount, unit: draft.unit, basis };
+  return {
+    kcal: portionKcal(basis, amount),
+    amount,
+    unit: draft.unit,
+    basis,
+    nutrients: portionNutrients(basis, amount),
+    grades: draft.grades,
+  };
 }
 
 export function servingToDraft(serving: Serving): Omit<CustomDraft, 'name' | 'photo'> {
@@ -91,6 +101,8 @@ export function servingToDraft(serving: Serving): Omit<CustomDraft, 'name' | 'ph
     amount: String(basis.amount),
     kcal: String(basis.kcal),
     portion: portion === basis.amount ? '' : String(portion),
+    nutrients: basis.nutrients,
+    grades: serving.grades,
   };
 }
 

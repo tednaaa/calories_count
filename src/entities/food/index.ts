@@ -29,8 +29,11 @@ export {
   removeCustomFood,
   saveCustomFood,
 } from './lib/custom-food';
+export type { NutrientId } from './lib/nutrients';
+export { formatNutrient, nutrientNames, portionNutrients, scaleNutrients, sumNutrients } from './lib/nutrients';
 export { formatAmount, formatServing, portionKcal, unitName } from './lib/serving';
 export type { Food, Portion } from './lib/types';
 export { useCustomFoods } from './lib/use-custom-foods';
 export { default as CustomFoodFields } from './ui/CustomFoodFields.vue';
 export { default as FoodThumb } from './ui/FoodThumb.vue';
+export { default as NutrientStrip } from './ui/NutrientStrip.vue';

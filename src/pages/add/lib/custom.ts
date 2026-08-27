@@ -22,6 +22,8 @@ export async function addCustomOnceToDay(date: DateKey, input: CustomFoodInput):
     amount: input.amount,
     unit: input.unit,
     basis: input.basis,
+    nutrients: input.nutrients,
+    grades: input.grades,
     photo: input.photo,
   });
 }

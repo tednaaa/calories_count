@@ -1,5 +1,5 @@
 import type { CustomDraft } from '@/entities/food';
-import type { Basis, Entry, Unit } from '@/shared/db';
+import type { Basis, Entry, Grades, Nutrients, Unit } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { draftToCustomFood, servingToDraft } from '@/entities/food';
 
@@ -10,6 +10,8 @@ export interface CartItem {
   amount?: number;
   unit?: Unit;
   basis?: Basis;
+  nutrients?: Nutrients;
+  grades?: Grades;
   qty: number;
 }
 
@@ -24,6 +26,8 @@ export function buildEntries(date: DateKey, items: CartItem[], now: number): Ent
     amount: item.amount,
     unit: item.unit,
     basis: item.basis,
+    nutrients: item.nutrients,
+    grades: item.grades,
     name: item.name,
   }));
 }
@@ -34,6 +38,8 @@ export interface CustomItem {
   amount?: number;
   unit?: Unit;
   basis?: Basis;
+  nutrients?: Nutrients;
+  grades?: Grades;
   photo?: string;
 }
 
@@ -48,6 +54,8 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
     amount: item.amount,
     unit: item.unit,
     basis: item.basis,
+    nutrients: item.nutrients,
+    grades: item.grades,
     name: item.name,
   };
 }
@@ -55,7 +63,13 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
 export function draftFromEntry(entry: Entry): CustomDraft {
   return {
     name: entry.name,
-    ...servingToDraft({ kcal: entry.kcalPerPortion, amount: entry.amount, unit: entry.unit, basis: entry.basis }),
+    ...servingToDraft({
+      kcal: entry.kcalPerPortion,
+      amount: entry.amount,
+      unit: entry.unit,
+      basis: entry.basis,
+      grades: entry.grades,
+    }),
     photo: entry.photo ?? '',
   };
 }
@@ -69,6 +83,8 @@ export function draftToEntry(draft: CustomDraft): CustomItem | null {
     amount: food.amount,
     unit: food.unit,
     basis: food.basis,
+    nutrients: food.nutrients,
+    grades: food.grades,
     photo: food.photo,
   };
 }
@@ -81,6 +97,8 @@ export function nextEntry(current: Entry, item: CustomItem, qty: number): Entry 
     amount: item.amount,
     unit: item.unit,
     basis: item.basis,
+    nutrients: item.nutrients,
+    grades: item.grades,
     photo: item.photo,
     qty,
   };

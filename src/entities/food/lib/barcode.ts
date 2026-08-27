@@ -1,9 +1,10 @@
 import type { CustomDraft } from './custom-draft';
-import type { Unit } from '@/shared/db';
+import type { NutrientId } from './nutrients';
+import type { Grades, Nutrients, NutriScore, Unit } from '@/shared/db';
 import { HUNDRED, MAX_AMOUNT, MAX_KCAL, MIN_AMOUNT, MIN_KCAL } from './custom-draft';
 
 const ENDPOINT = 'https://world.openfoodfacts.org/api/v2/product';
-const FIELDS = 'product_name,brands,quantity,nutriments';
+const FIELDS = 'product_name,brands,quantity,nutriments,nutriscore_grade,nova_group';
 const TIMEOUT = 8000;
 
 const packageUnits: Record<string, { unit: Unit; scale: number }> = {
@@ -21,11 +22,27 @@ const packageUnits: Record<string, { unit: Unit; scale: number }> = {
 
 const quantityPattern = /^(\d+(?:[.,]\d+)?)\s*(\p{L}+)/u;
 
+const nutrientFields: Record<NutrientId, string> = {
+  protein: 'proteins_100g',
+  fat: 'fat_100g',
+  saturatedFat: 'saturated-fat_100g',
+  carbs: 'carbohydrates_100g',
+  sugars: 'sugars_100g',
+  fiber: 'fiber_100g',
+  salt: 'salt_100g',
+};
+
+const nutriScores: NutriScore[] = ['a', 'b', 'c', 'd', 'e'];
+
+const MAX_NOVA = 4;
+
 interface OpenFoodFactsProduct {
   product_name?: string;
   brands?: string;
   quantity?: string;
   nutriments?: Record<string, number | string | undefined>;
+  nutriscore_grade?: string;
+  nova_group?: number;
 }
 
 interface OpenFoodFactsResponse {
@@ -43,6 +60,8 @@ export interface Product {
   kcalPerHundred: number;
   amount?: number;
   unit: Unit;
+  nutrients?: Nutrients;
+  grades?: Grades;
 }
 
 export type Lookup
@@ -67,18 +86,46 @@ export function parsePackage(quantity: string): Package | undefined {
   return amount >= MIN_AMOUNT && amount <= MAX_AMOUNT ? { amount, unit: measure.unit } : undefined;
 }
 
+function toNutrients(nutriments: OpenFoodFactsProduct['nutriments']): Nutrients | undefined {
+  const measured = Object.entries(nutrientFields).flatMap(([id, field]) => {
+    const value = Number(nutriments?.[field]);
+
+    return Number.isFinite(value) && value >= 0 ? [[id, value] as const] : [];
+  });
+
+  return measured.length ? Object.fromEntries(measured) : undefined;
+}
+
+function toGrades(product: OpenFoodFactsProduct): Grades | undefined {
+  const score = nutriScores.find(grade => grade === product.nutriscore_grade);
+  const nova = product.nova_group;
+  const grades = {
+    ...score && { nutriScore: score },
+    ...Number.isInteger(nova) && nova! >= 1 && nova! <= MAX_NOVA && { nova },
+  };
+
+  return Object.keys(grades).length ? grades : undefined;
+}
+
 export function toProduct(response: OpenFoodFactsResponse): Product | null {
   const product = response.product;
   const name = (product?.product_name || product?.brands || '').trim();
   const kcal = Math.round(Number(product?.nutriments?.['energy-kcal_100g']));
 
-  if (response.status !== 1 || !name || !(kcal >= MIN_KCAL && kcal <= MAX_KCAL)) {
+  if (!product || response.status !== 1 || !name || !(kcal >= MIN_KCAL && kcal <= MAX_KCAL)) {
     return null;
   }
 
-  const packaging = parsePackage(product?.quantity ?? '');
+  const packaging = parsePackage(product.quantity ?? '');
 
-  return { name, kcalPerHundred: kcal, amount: packaging?.amount, unit: packaging?.unit ?? 'g' };
+  return {
+    name,
+    kcalPerHundred: kcal,
+    amount: packaging?.amount,
+    unit: packaging?.unit ?? 'g',
+    nutrients: toNutrients(product.nutriments),
+    grades: toGrades(product),
+  };
 }
 
 export function productToDraft(product: Product): CustomDraft {
@@ -89,6 +136,8 @@ export function productToDraft(product: Product): CustomDraft {
     amount: String(HUNDRED),
     kcal: String(product.kcalPerHundred),
     portion: product.amount === undefined ? '' : String(product.amount),
+    nutrients: product.nutrients,
+    grades: product.grades,
     photo: '',
   };
 }

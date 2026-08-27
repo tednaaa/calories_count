@@ -12,6 +12,8 @@ export async function keepEntryAsFood(current: Entry, item: CustomItem, qty: num
       amount: item.amount,
       unit: item.unit,
       basis: item.basis,
+      nutrients: item.nutrients,
+      grades: item.grades,
       photo: item.photo,
     },
     Date.now(),

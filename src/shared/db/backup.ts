@@ -1,4 +1,4 @@
-import type { Basis, CustomFood, Entry, Profile, Unit, WeightRecord } from './types';
+import type { Basis, CustomFood, Entry, Grades, Nutrients, Profile, Unit, WeightRecord } from './types';
 import { toDateKey } from '@/shared/lib';
 import { db, PROFILE_ID } from './database';
 import { renameGrams } from './legacy';
@@ -24,10 +24,28 @@ function isUnit(value: unknown): value is Unit | undefined {
   return value === undefined || value === 'g' || value === 'ml';
 }
 
+function isNutrients(value: unknown): value is Nutrients | undefined {
+  const nutrients = value as Record<string, unknown> | null;
+
+  return nutrients === undefined
+    || (typeof nutrients === 'object' && nutrients !== null
+      && Object.values(nutrients).every(amount => typeof amount === 'number'));
+}
+
+function isGrades(value: unknown): value is Grades | undefined {
+  const grades = value as Grades | null;
+
+  return grades === undefined
+    || (typeof grades === 'object' && grades !== null
+      && (grades.nutriScore === undefined || typeof grades.nutriScore === 'string')
+      && (grades.nova === undefined || typeof grades.nova === 'number'));
+}
+
 function isBasis(value: unknown): value is Basis | undefined {
   const basis = value as Basis | null;
 
-  return basis === undefined || (typeof basis?.amount === 'number' && typeof basis.kcal === 'number');
+  return basis === undefined
+    || (typeof basis?.amount === 'number' && typeof basis.kcal === 'number' && isNutrients(basis.nutrients));
 }
 
 function isEntry(value: unknown): value is Entry {
@@ -43,6 +61,8 @@ function isEntry(value: unknown): value is Entry {
     && (entry.amount === undefined || typeof entry.amount === 'number')
     && isUnit(entry.unit)
     && isBasis(entry.basis)
+    && isNutrients(entry.nutrients)
+    && isGrades(entry.grades)
     && typeof entry.name === 'string';
 }
 
@@ -55,6 +75,8 @@ function isCustomFood(value: unknown): value is CustomFood {
     && (food.amount === undefined || typeof food.amount === 'number')
     && isUnit(food.unit)
     && isBasis(food.basis)
+    && isNutrients(food.nutrients)
+    && isGrades(food.grades)
     && (food.photo === undefined || typeof food.photo === 'string')
     && typeof food.createdAt === 'number'
     && typeof food.updatedAt === 'number';

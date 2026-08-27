@@ -1,4 +1,4 @@
-import type { Basis, CustomFood, Unit } from '@/shared/db';
+import type { Basis, CustomFood, Grades, Nutrients, Unit } from '@/shared/db';
 import { db } from '@/shared/db';
 
 export interface CustomFoodInput {
@@ -7,6 +7,8 @@ export interface CustomFoodInput {
   amount?: number;
   unit?: Unit;
   basis?: Basis;
+  nutrients?: Nutrients;
+  grades?: Grades;
   photo?: string;
 }
 
@@ -18,6 +20,8 @@ export function buildCustomFood(input: CustomFoodInput, now: number): CustomFood
     amount: input.amount,
     unit: input.unit,
     basis: input.basis,
+    nutrients: input.nutrients,
+    grades: input.grades,
     photo: input.photo,
     createdAt: now,
     updatedAt: now,
@@ -32,6 +36,8 @@ export function nextCustomFood(current: CustomFood, input: CustomFoodInput, now:
     amount: input.amount,
     unit: input.unit,
     basis: input.basis,
+    nutrients: input.nutrients,
+    grades: input.grades,
     photo: input.photo,
     updatedAt: now,
   };

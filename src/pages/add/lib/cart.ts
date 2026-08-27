@@ -11,6 +11,8 @@ export function toCartItem(food: Portion, qty: number): CartItem {
     amount: food.amount,
     unit: food.unit,
     basis: food.basis,
+    nutrients: food.nutrients,
+    grades: food.grades,
     qty,
   };
 }
