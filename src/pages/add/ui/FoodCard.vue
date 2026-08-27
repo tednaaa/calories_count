@@ -4,8 +4,7 @@ import type { Portion } from '@/entities/food';
 import { MinusIcon, PlusIcon } from '@lucide/vue';
 import { cn } from 'shonk-ui';
 import { decreaseQty, increaseQty, toggleQty } from '@/entities/entry';
-import { FoodThumb } from '@/entities/food';
-import { formatNumber } from '@/shared/lib';
+import { FoodThumb, formatServing } from '@/entities/food';
 import { toCartItem } from '../lib/cart';
 
 const props = defineProps<{
@@ -42,7 +41,7 @@ function changeQty(qty: number) {
       </p>
 
       <p class="text-[11px] tabular-nums text-text-tertiary">
-        {{ formatNumber(food.kcal) }} ккал
+        {{ formatServing(food.kcal, food.grams) }}
       </p>
     </button>
 

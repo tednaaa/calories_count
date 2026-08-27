@@ -40,6 +40,14 @@ describe('nextCustomFood', () => {
     expect(next.updatedAt).toBe(NOW + 1000);
   });
 
+  it('снятая граммовка действительно пропадает', () => {
+    const weighed: CustomFood = { ...stored, kcal: 351, grams: 130, basis: { grams: 100, kcal: 270 } };
+    const next = nextCustomFood(weighed, { name: weighed.name, kcal: 350 }, NOW);
+
+    expect(next.grams).toBeUndefined();
+    expect(next.basis).toBeUndefined();
+  });
+
   it('снятое фото действительно пропадает', () => {
     expect(nextCustomFood(stored, { name: stored.name, kcal: stored.kcal }, NOW).photo).toBeUndefined();
   });

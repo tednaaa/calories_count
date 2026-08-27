@@ -2,8 +2,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@lucide/vue';
 import { Button } from 'shonk-ui';
 import { RouterLink } from 'vue-router';
-import { FoodThumb, useCustomFoods } from '@/entities/food';
-import { formatNumber } from '@/shared/lib';
+import { FoodThumb, formatServing, useCustomFoods } from '@/entities/food';
 
 const customFoods = useCustomFoods();
 </script>
@@ -38,7 +37,7 @@ const customFoods = useCustomFoods();
               {{ food.name }}
             </p>
             <p class="text-xs tabular-nums text-text-tertiary">
-              {{ formatNumber(food.kcal) }} ккал
+              {{ formatServing(food.kcal, food.grams) }}
             </p>
           </div>
 

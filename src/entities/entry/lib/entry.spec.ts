@@ -1,4 +1,5 @@
 import type { CartItem } from './entry';
+import type { CustomDraft } from '@/entities/food';
 import type { Entry } from '@/shared/db';
 import {
   buildCustomEntry,
@@ -6,6 +7,7 @@ import {
   decreaseQty,
   draftFromEntry,
   draftToEntry,
+  entryGrams,
   entryKcal,
   increaseQty,
   nextEntry,
@@ -19,7 +21,7 @@ const NOW = 1_770_000_000_000;
 
 const cart: CartItem[] = [
   { foodId: 'coffee-black', name: 'Кофе чёрный', kcalPerPortion: 5, qty: 1 },
-  { foodId: 'egg-boiled', name: 'Яйцо варёное', kcalPerPortion: 78, qty: 2 },
+  { foodId: 'egg-boiled', name: 'Яйцо варёное', kcalPerPortion: 78, grams: 50, qty: 2 },
 ];
 
 function entry(overrides: Partial<Entry> = {}): Entry {
@@ -54,6 +56,12 @@ describe('buildEntries', () => {
     expect(coffee.foodId).toBe('coffee-black');
   });
 
+  it('копирует граммовку снапшотом', () => {
+    const [, eggs] = buildEntries('2026-08-19', cart, NOW);
+
+    expect(eggs.grams).toBe(50);
+  });
+
   it('выдаёт уникальные идентификаторы', () => {
     const ids = buildEntries('2026-08-19', cart, NOW).map(item => item.id);
 
@@ -80,6 +88,12 @@ describe('buildCustomEntry', () => {
     expect(custom.name).toBe('Пирог');
     expect(custom.kcalPerPortion).toBe(350);
     expect(custom.date).toBe('2026-08-19');
+  });
+
+  it('переносит граммовку порции в запись', () => {
+    const custom = buildCustomEntry('2026-08-19', { name: 'Овсянка', kcalPerPortion: 350, grams: 100 }, NOW);
+
+    expect(custom.grams).toBe(100);
   });
 
   it('хранит фото рядом с записью', () => {
@@ -157,6 +171,20 @@ describe('entryKcal', () => {
 
   it('половина порции считается половиной калорий', () => {
     expect(entryKcal(entry({ qty: 0.5, kcalPerPortion: 230 }))).toBe(115);
+  });
+});
+
+describe('entryGrams', () => {
+  it('умножает вес порции на количество', () => {
+    expect(entryGrams(entry({ qty: 2, grams: 100 }))).toBe(200);
+  });
+
+  it('половина порции весит половину', () => {
+    expect(entryGrams(entry({ qty: 0.5, grams: 30 }))).toBe(15);
+  });
+
+  it('о записи без граммовки ничего не выдумывает', () => {
+    expect(entryGrams(entry({ qty: 2 }))).toBeUndefined();
   });
 });
 
@@ -245,11 +273,18 @@ describe('rankFoodIdsByFrequency', () => {
   });
 });
 
+function draft(overrides: Partial<CustomDraft> = {}): CustomDraft {
+  return { name: 'Пирог', serving: 'portion', grams: '', kcal: '350', portion: '', photo: '', ...overrides };
+}
+
 describe('draftFromEntry', () => {
   it('раскладывает запись по полям формы', () => {
     expect(draftFromEntry(entry({ photo: 'data:image/jpeg;base64,zzz' }))).toEqual({
       name: 'Кофе чёрный',
+      serving: 'portion',
+      grams: '',
       kcal: '5',
+      portion: '',
       photo: 'data:image/jpeg;base64,zzz',
     });
   });
@@ -257,20 +292,35 @@ describe('draftFromEntry', () => {
   it('без своего снимка отдаёт пустую строку', () => {
     expect(draftFromEntry(entry()).photo).toBe('');
   });
+
+  it('открывает запись на том же табе граммовки', () => {
+    const oatmeal = entry({ kcalPerPortion: 351, grams: 130, basis: { grams: 100, kcal: 270 } });
+
+    expect(draftFromEntry(oatmeal)).toMatchObject({ serving: 'hundred', grams: '100', kcal: '270', portion: '130' });
+  });
 });
 
 describe('draftToEntry', () => {
   it('собирает правку записи', () => {
-    expect(draftToEntry({ name: '  Пирог  ', kcal: '350', photo: '' })).toEqual({
+    expect(draftToEntry(draft({ name: '  Пирог  ' }))).toEqual({
       name: 'Пирог',
       kcalPerPortion: 350,
+      grams: undefined,
+      basis: undefined,
       photo: undefined,
     });
   });
 
+  it('переносит граммовку и вес порции в правку', () => {
+    const edited = draftToEntry(draft({ serving: 'hundred', kcal: '270', portion: '130' }));
+
+    expect(edited).toMatchObject({ kcalPerPortion: 351, grams: 130, basis: { grams: 100, kcal: 270 } });
+  });
+
   it('проверяет поля так же, как форма своего блюда', () => {
-    expect(draftToEntry({ name: '', kcal: '350', photo: '' })).toBeNull();
-    expect(draftToEntry({ name: 'Пирог', kcal: '90.5', photo: '' })).toBeNull();
+    expect(draftToEntry(draft({ name: '' }))).toBeNull();
+    expect(draftToEntry(draft({ kcal: '90.5' }))).toBeNull();
+    expect(draftToEntry(draft({ serving: 'custom' }))).toBeNull();
   });
 });
 
@@ -284,6 +334,14 @@ describe('nextEntry', () => {
       kcalPerPortion: 40,
       qty: 2,
     });
+  });
+
+  it('снятая граммовка действительно пропадает', () => {
+    const weighed = entry({ grams: 100, basis: { grams: 100, kcal: 5 } });
+    const next = nextEntry(weighed, { name: 'Кофе', kcalPerPortion: 5 }, 1);
+
+    expect(next.grams).toBeUndefined();
+    expect(next.basis).toBeUndefined();
   });
 
   it('оставляет запись при своём блюде', () => {

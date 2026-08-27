@@ -4,7 +4,14 @@ import { HALF_PORTION } from '@/entities/entry';
 import { formatNumber, pluralize } from '@/shared/lib';
 
 export function toCartItem(food: Portion, qty: number): CartItem {
-  return { foodId: food.id, name: food.name, kcalPerPortion: food.kcal, qty };
+  return {
+    foodId: food.id,
+    name: food.name,
+    kcalPerPortion: food.kcal,
+    grams: food.grams,
+    basis: food.basis,
+    qty,
+  };
 }
 
 export function cartQty(items: CartItem[], foodId: string): number {

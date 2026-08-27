@@ -1,4 +1,4 @@
-import type { CustomFood, Entry, Profile, WeightRecord } from './types';
+import type { Basis, CustomFood, Entry, Profile, WeightRecord } from './types';
 import { toDateKey } from '@/shared/lib';
 import { db, PROFILE_ID } from './database';
 
@@ -19,6 +19,12 @@ export type BackupCheck
   = | { ok: true; backup: Backup }
     | { ok: false; reason: string };
 
+function isBasis(value: unknown): value is Basis | undefined {
+  const basis = value as Basis | null;
+
+  return basis === undefined || (typeof basis?.grams === 'number' && typeof basis.kcal === 'number');
+}
+
 function isEntry(value: unknown): value is Entry {
   const entry = value as Entry | null;
 
@@ -29,6 +35,8 @@ function isEntry(value: unknown): value is Entry {
     && (entry.photo === undefined || typeof entry.photo === 'string')
     && typeof entry.qty === 'number'
     && typeof entry.kcalPerPortion === 'number'
+    && (entry.grams === undefined || typeof entry.grams === 'number')
+    && isBasis(entry.basis)
     && typeof entry.name === 'string';
 }
 
@@ -38,6 +46,8 @@ function isCustomFood(value: unknown): value is CustomFood {
   return typeof food?.id === 'string'
     && typeof food.name === 'string'
     && typeof food.kcal === 'number'
+    && (food.grams === undefined || typeof food.grams === 'number')
+    && isBasis(food.basis)
     && (food.photo === undefined || typeof food.photo === 'string')
     && typeof food.createdAt === 'number'
     && typeof food.updatedAt === 'number';

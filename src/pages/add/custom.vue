@@ -67,11 +67,7 @@ async function submit() {
     </div>
 
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <CustomFoodFields
-        v-model:name="draft.name"
-        v-model:kcal="draft.kcal"
-        v-model:photo="draft.photo"
-      />
+      <CustomFoodFields v-model="draft" />
 
       <div class="flex items-center gap-3 rounded-lg border border-border-default p-3">
         <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="saves = !saves">

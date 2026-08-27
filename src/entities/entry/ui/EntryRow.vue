@@ -4,9 +4,9 @@ import { Trash2Icon } from '@lucide/vue';
 import { useSwipe } from '@vueuse/core';
 import { cn } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
-import { FoodThumb } from '@/entities/food';
+import { FoodThumb, formatGrams } from '@/entities/food';
 import { formatNumber, formatTime } from '@/shared/lib';
-import { entryKcal } from '../lib/entry';
+import { entryGrams, entryKcal } from '../lib/entry';
 
 const props = defineProps<{ entry: Entry; photo?: string }>();
 
@@ -45,6 +45,7 @@ const { lengthX, direction, isSwiping } = useSwipe(row, {
 });
 
 const kcal = computed(() => entryKcal(props.entry));
+const grams = computed(() => entryGrams(props.entry));
 </script>
 
 <template>
@@ -73,6 +74,9 @@ const kcal = computed(() => entryKcal(props.entry));
       <div class="flex items-center gap-2">
         <span v-if="entry.qty !== 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
           ×{{ entry.qty }}
+        </span>
+        <span v-if="grams !== undefined" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
+          {{ formatGrams(grams) }}
         </span>
         <span class="text-sm tabular-nums text-text-primary">
           {{ formatNumber(kcal) }}<span class="ml-1 text-xs text-text-tertiary">ккал</span>

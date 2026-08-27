@@ -89,6 +89,27 @@ describe('readBackup', () => {
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
   });
 
+  it('принимает граммовку и этикетку в записях и своих блюдах', () => {
+    const weighed = backup({
+      entries: [{ ...entry, grams: 130, basis: { grams: 100, kcal: 270 } }],
+      customFoods: [{ ...customFood, grams: 30, basis: { grams: 30, kcal: 150 } }],
+    });
+
+    expect(readBackup(JSON.stringify(weighed))).toMatchObject({ ok: true });
+  });
+
+  it('отвергает битую этикетку', () => {
+    const broken = JSON.stringify(backup({ entries: [{ ...entry, basis: { grams: 100 } }] as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
+  });
+
+  it('отвергает битую граммовку', () => {
+    const broken = JSON.stringify(backup({ entries: [{ ...entry, grams: 'сто' }] as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
+  });
+
   it('отвергает битые свои блюда', () => {
     const broken = JSON.stringify(backup({ customFoods: [{ ...customFood, kcal: 'много' }] as never }));
 

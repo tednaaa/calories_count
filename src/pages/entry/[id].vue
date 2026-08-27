@@ -13,8 +13,8 @@ import {
   loadEntry,
   saveEntry,
 } from '@/entities/entry';
-import { CustomFoodFields, emptyCustomDraft, loadCustomFood } from '@/entities/food';
-import { formatDayLabel, formatNumber, isToday } from '@/shared/lib';
+import { CustomFoodFields, emptyCustomDraft, formatServing, loadCustomFood } from '@/entities/food';
+import { formatDayLabel, isToday } from '@/shared/lib';
 import { keepEntryAsFood } from './lib/keep';
 
 const route = useRoute('/entry/[id]');
@@ -31,6 +31,7 @@ const item = computed(() => draftToEntry(draft.value));
 const showsToday = computed(() => !entry.value || isToday(entry.value.date));
 const dayQuery = computed(() => (showsToday.value || !entry.value ? {} : { date: entry.value.date }));
 const total = computed(() => (item.value ? item.value.kcalPerPortion * qty.value : 0));
+const totalGrams = computed(() => (item.value?.grams === undefined ? undefined : item.value.grams * qty.value));
 
 onMounted(async () => {
   const stored = await loadEntry(route.params.id);
@@ -98,17 +99,12 @@ async function submit() {
     </p>
 
     <form v-if="entry" class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <CustomFoodFields
-        v-model:name="draft.name"
-        v-model:kcal="draft.kcal"
-        v-model:photo="draft.photo"
-        :food-id="entry.foodId"
-      />
+      <CustomFoodFields v-model="draft" :food-id="entry.foodId" />
 
       <div class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3">
         <div class="min-w-0">
           <span class="text-sm text-text-primary">Порций</span>
-          <span class="mt-1 block text-xs text-text-tertiary">Итого {{ formatNumber(total) }} ккал</span>
+          <span class="mt-1 block text-xs text-text-tertiary">Итого {{ formatServing(total, totalGrams) }}</span>
         </div>
 
         <div class="flex items-center gap-2">

@@ -5,7 +5,10 @@ import { buildCustomFood } from '@/entities/food';
 import { db } from '@/shared/db';
 
 export async function keepEntryAsFood(current: Entry, item: CustomItem, qty: number): Promise<void> {
-  const food = buildCustomFood({ name: item.name, kcal: item.kcalPerPortion, photo: item.photo }, Date.now());
+  const food = buildCustomFood(
+    { name: item.name, kcal: item.kcalPerPortion, grams: item.grams, basis: item.basis, photo: item.photo },
+    Date.now(),
+  );
 
   await db.transaction('rw', db.customFoods, db.entries, async () => {
     await db.customFoods.add(food);

@@ -104,11 +104,7 @@ function askToRemove() {
     </p>
 
     <form v-if="food" class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <CustomFoodFields
-        v-model:name="draft.name"
-        v-model:kcal="draft.kcal"
-        v-model:photo="draft.photo"
-      />
+      <CustomFoodFields v-model="draft" />
 
       <Button type="submit" size="lg" :disabled="!input" :loading="saving">
         Сохранить

@@ -4,6 +4,11 @@ export type Sex = 'male' | 'female';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'high' | 'veryHigh';
 export type Goal = 'cut' | 'cutMild' | 'maintain' | 'bulkMild' | 'bulk';
 
+export interface Basis {
+  grams: number;
+  kcal: number;
+}
+
 export interface Entry {
   id: string;
   date: DateKey;
@@ -12,6 +17,8 @@ export interface Entry {
   photo?: string;
   qty: number;
   kcalPerPortion: number;
+  grams?: number;
+  basis?: Basis;
   name: string;
 }
 
@@ -19,6 +26,8 @@ export interface CustomFood {
   id: string;
   name: string;
   kcal: number;
+  grams?: number;
+  basis?: Basis;
   photo?: string;
   createdAt: number;
   updatedAt: number;
