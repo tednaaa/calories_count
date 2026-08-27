@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.6 (2026-08-27)
+
+- disable browser swipe navigation overlay [`9e856172`](https://github.com/tednaaa/calories_count/commit/9e85617277f7a82ecccbafd80d246d66c656c3d3)
+- shift selected day by gestures over day summary [`d50c0c9a`](https://github.com/tednaaa/calories_count/commit/d50c0c9abbe0d9dfb1c5e577d9485608632c8063)
+
 ## v0.4.5 (2026-08-24)
 
 - use suffixed lucide icon names in code [`edb91b98`](https://github.com/tednaaa/calories_count/commit/edb91b984c8b9e82ed2491449497a043a3709aa0)
