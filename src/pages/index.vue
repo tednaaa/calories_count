@@ -83,7 +83,7 @@ function editEntry(entry: Entry) {
 
 <template>
   <main class="flex min-h-0 flex-1 flex-col">
-    <WeekStrip v-model="dateKey" class="shrink-0 pt-6 pb-2" />
+    <WeekStrip v-model="dateKey" :gesture-area="summary" class="shrink-0 pt-6 pb-2" />
 
     <div
       ref="summary"

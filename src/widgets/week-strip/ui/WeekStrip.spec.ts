@@ -2,8 +2,8 @@ import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import WeekStrip from './WeekStrip.vue';
 
-function mountStrip(selected = '2026-08-19') {
-  return mount(WeekStrip, { props: { modelValue: selected } });
+function mountStrip(selected = '2026-08-19', gestureArea?: HTMLElement) {
+  return mount(WeekStrip, { props: { modelValue: selected, gestureArea } });
 }
 
 function weekBlocks(wrapper: VueWrapper) {
@@ -70,6 +70,24 @@ describe('лента недели', () => {
 
   it('держит наготове полгода истории', () => {
     expect(weekBlocks(mountStrip())).toHaveLength(26);
+  });
+
+  it('колесом над переданной областью двигает выбор на день назад', () => {
+    const area = document.createElement('div');
+    const wrapper = mountStrip('2026-08-19', area);
+
+    area.dispatchEvent(new WheelEvent('wheel', { deltaY: -120 }));
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([['2026-08-18']]);
+  });
+
+  it('не уводит выбор в будущее', () => {
+    const area = document.createElement('div');
+    const wrapper = mountStrip('2026-08-19', area);
+
+    area.dispatchEvent(new WheelEvent('wheel', { deltaY: 120 }));
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 
   it('доматывает историю до выбранного дня', () => {

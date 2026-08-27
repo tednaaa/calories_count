@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DateKey } from '@/shared/lib';
+import { useEventListener, useSwipe } from '@vueuse/core';
 import { cn } from 'shonk-ui';
 import { computed, onMounted, useTemplateRef, watch } from 'vue';
 import {
@@ -14,9 +15,12 @@ import {
   weekDateKeys,
 } from '@/shared/lib';
 
+const props = defineProps<{ gestureArea?: HTMLElement | null }>();
+
 const selected = defineModel<DateKey>({ required: true });
 
 const HISTORY_WEEKS = 26;
+const WHEEL_STEP_DELAY = 400;
 
 const weeks = computed(() => {
   const selectedWeek = startOfWeek(selected.value);
@@ -44,6 +48,34 @@ function showSelectedWeek(behavior: ScrollBehavior) {
     element.scrollTo({ left: selectedWeekIndex.value * element.clientWidth, behavior });
   }
 }
+
+function shiftSelectedDay(step: number) {
+  const shifted = shiftDateKey(selected.value, step);
+
+  selected.value = isFuture(shifted) ? toDateKey() : shifted;
+}
+
+let lastWheelStep = Number.NEGATIVE_INFINITY;
+
+function stepByWheel(event: WheelEvent) {
+  const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+  const settled = event.timeStamp - lastWheelStep >= WHEEL_STEP_DELAY;
+
+  if (delta !== 0 && settled) {
+    lastWheelStep = event.timeStamp;
+    shiftSelectedDay(Math.sign(delta));
+  }
+}
+
+useEventListener(() => props.gestureArea, 'wheel', stepByWheel);
+
+useSwipe(() => props.gestureArea, {
+  onSwipeEnd(_, direction) {
+    if (direction === 'left' || direction === 'right') {
+      shiftSelectedDay(direction === 'left' ? 1 : -1);
+    }
+  },
+});
 
 onMounted(() => {
   showSelectedWeek('instant');
