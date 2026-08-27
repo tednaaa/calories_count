@@ -6,6 +6,7 @@ import { HUNDRED, MAX_AMOUNT, MAX_KCAL, MIN_AMOUNT, MIN_KCAL } from './custom-dr
 const ENDPOINT = 'https://world.openfoodfacts.org/api/v2/product';
 const FIELDS = 'product_name,brands,quantity,nutriments,nutriscore_grade,nova_group';
 const KCAL_PER_KJ = 4.184;
+const NOT_FOUND = 404;
 const TIMEOUT = 8000;
 
 const packageUnits: Record<string, { unit: Unit; scale: number }> = {
@@ -163,11 +164,24 @@ export async function lookupBarcode(barcode: string): Promise<Lookup> {
     return { state: 'offline' };
   }
 
+  if (response.status === NOT_FOUND) {
+    return { state: 'missing' };
+  }
+
   if (!response.ok) {
     return { state: 'offline' };
   }
 
-  const product = toProduct(await response.json().catch(() => ({})));
+  let payload: OpenFoodFactsResponse;
+
+  try {
+    payload = await response.json();
+  }
+  catch {
+    return { state: 'offline' };
+  }
+
+  const product = toProduct(payload);
 
   return product ? { state: 'found', product } : { state: 'missing' };
 }

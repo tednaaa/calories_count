@@ -33,8 +33,12 @@ function gorilla(overrides: Record<string, unknown> = {}) {
   });
 }
 
-function answers(body: unknown, ok = true) {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok, json: () => Promise.resolve(body) }));
+function answers(body: unknown, status = 200) {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    ok: status >= 200 && status < 300,
+    status,
+    json: () => Promise.resolve(body),
+  }));
 }
 
 describe('isBarcode', () => {
@@ -207,17 +211,30 @@ describe('lookupBarcode', () => {
     expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
   });
 
-  it('не падает на мусоре вместо ответа', async () => {
+  it('заглушку вместо ответа не считает отсутствием товара', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
+      status: 200,
       json: () => Promise.reject(new Error('not json')),
     }));
 
-    expect(await lookupBarcode('5449000000996')).toEqual({ state: 'missing' });
+    expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
+  });
+
+  it('незнакомый товар приходит четырёхсоткой и это не поломка', async () => {
+    answers({ status: 0, status_verbose: 'product not found' }, 404);
+
+    expect(await lookupBarcode('4850006192263')).toEqual({ state: 'missing' });
   });
 
   it('считает ошибку сервера обрывом связи', async () => {
-    answers(cola(), false);
+    answers(cola(), 500);
+
+    expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
+  });
+
+  it('лимит запросов тоже считает обрывом связи', async () => {
+    answers({}, 429);
 
     expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
   });

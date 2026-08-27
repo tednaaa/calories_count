@@ -75,7 +75,7 @@ async function pickPhoto(event: Event) {
         Спрашиваю базу продуктов по штрих-коду…
       </p>
       <p v-else-if="draft.barcode" class="text-xs text-text-tertiary">
-        Штрих-код {{ draft.barcode }} — запомню за этим блюдом
+        Штрих-код {{ draft.barcode }}
       </p>
     </div>
 
