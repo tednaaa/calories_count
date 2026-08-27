@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.0 (2026-08-27)
+
+- show how the day went beyond calories [`bed7231f`](https://github.com/tednaaa/calories_count/commit/bed7231fecdb6694dd1c09b41142b14c4ed65523)
+- scan barcodes with the camera and store nutrients from the label [`01d60301`](https://github.com/tednaaa/calories_count/commit/01d603018242a8b92756c474aec81b2abc7dbcc2)
+- measure portions in grams or millilitres [`20c306d6`](https://github.com/tednaaa/calories_count/commit/20c306d67f9a28aa2e0153de349379313244cba3)
+- enter calories per serving weight in custom food form [`c95e6a3b`](https://github.com/tednaaa/calories_count/commit/c95e6a3bc2266a0189857f3cc370b269c1f7d41a)
+
 ## v0.4.6 (2026-08-27)
 
 - disable browser swipe navigation overlay [`9e856172`](https://github.com/tednaaa/calories_count/commit/9e85617277f7a82ecccbafd80d246d66c656c3d3)
