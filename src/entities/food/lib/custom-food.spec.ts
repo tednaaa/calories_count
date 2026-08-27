@@ -41,10 +41,10 @@ describe('nextCustomFood', () => {
   });
 
   it('снятая граммовка действительно пропадает', () => {
-    const weighed: CustomFood = { ...stored, kcal: 351, grams: 130, basis: { grams: 100, kcal: 270 } };
+    const weighed: CustomFood = { ...stored, kcal: 351, amount: 130, basis: { amount: 100, kcal: 270 } };
     const next = nextCustomFood(weighed, { name: weighed.name, kcal: 350 }, NOW);
 
-    expect(next.grams).toBeUndefined();
+    expect(next.amount).toBeUndefined();
     expect(next.basis).toBeUndefined();
   });
 

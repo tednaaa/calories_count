@@ -37,7 +37,7 @@ const customFoods = useCustomFoods();
               {{ food.name }}
             </p>
             <p class="text-xs tabular-nums text-text-tertiary">
-              {{ formatServing(food.kcal, food.grams) }}
+              {{ formatServing(food.kcal, food.amount, food.unit) }}
             </p>
           </div>
 

@@ -8,7 +8,8 @@ export function toCartItem(food: Portion, qty: number): CartItem {
     foodId: food.id,
     name: food.name,
     kcalPerPortion: food.kcal,
-    grams: food.grams,
+    amount: food.amount,
+    unit: food.unit,
     basis: food.basis,
     qty,
   };

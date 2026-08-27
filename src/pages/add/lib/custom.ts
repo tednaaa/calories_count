@@ -19,7 +19,8 @@ export async function addCustomOnceToDay(date: DateKey, input: CustomFoodInput):
   await addCustomEntry(date, {
     name: input.name,
     kcalPerPortion: input.kcal,
-    grams: input.grams,
+    amount: input.amount,
+    unit: input.unit,
     basis: input.basis,
     photo: input.photo,
   });

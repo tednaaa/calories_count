@@ -31,7 +31,7 @@ const item = computed(() => draftToEntry(draft.value));
 const showsToday = computed(() => !entry.value || isToday(entry.value.date));
 const dayQuery = computed(() => (showsToday.value || !entry.value ? {} : { date: entry.value.date }));
 const total = computed(() => (item.value ? item.value.kcalPerPortion * qty.value : 0));
-const totalGrams = computed(() => (item.value?.grams === undefined ? undefined : item.value.grams * qty.value));
+const totalAmount = computed(() => (item.value?.amount === undefined ? undefined : item.value.amount * qty.value));
 
 onMounted(async () => {
   const stored = await loadEntry(route.params.id);
@@ -104,7 +104,7 @@ async function submit() {
       <div class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3">
         <div class="min-w-0">
           <span class="text-sm text-text-primary">Порций</span>
-          <span class="mt-1 block text-xs text-text-tertiary">Итого {{ formatServing(total, totalGrams) }}</span>
+          <span class="mt-1 block text-xs text-text-tertiary">Итого {{ formatServing(total, totalAmount, item?.unit) }}</span>
         </div>
 
         <div class="flex items-center gap-2">

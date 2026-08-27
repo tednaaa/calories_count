@@ -1,16 +1,22 @@
-import type { Basis } from '@/shared/db';
+import type { Basis, Unit } from '@/shared/db';
 import { formatNumber } from '@/shared/lib';
 
-export function portionKcal(basis: Basis, grams: number): number {
-  return Math.round(basis.kcal * grams / basis.grams);
+const unitNames: Record<Unit, string> = { g: 'г', ml: 'мл' };
+
+export function portionKcal(basis: Basis, amount: number): number {
+  return Math.round(basis.kcal * amount / basis.amount);
 }
 
-export function formatGrams(grams: number): string {
-  return `${formatNumber(grams)} г`;
+export function unitName(unit: Unit = 'g'): string {
+  return unitNames[unit];
 }
 
-export function formatServing(kcal: number, grams?: number): string {
+export function formatAmount(amount: number, unit?: Unit): string {
+  return `${formatNumber(amount)} ${unitName(unit)}`;
+}
+
+export function formatServing(kcal: number, amount?: number, unit?: Unit): string {
   const calories = `${formatNumber(kcal)} ккал`;
 
-  return grams === undefined ? calories : `${formatGrams(grams)} · ${calories}`;
+  return amount === undefined ? calories : `${formatAmount(amount, unit)} · ${calories}`;
 }

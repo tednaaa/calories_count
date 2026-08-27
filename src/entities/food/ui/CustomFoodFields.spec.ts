@@ -8,12 +8,36 @@ function mountFields(overrides: Partial<CustomDraft> = {}) {
 }
 
 const BASE = '[aria-label="Базовый вес"]';
+const VOLUME_BASE = '[aria-label="Базовый объём"]';
 
 describe('форма своего блюда', () => {
   it('предлагает порцию, сотню и свою базу', () => {
     const tabs = mountFields().findAll('[data-slot="tabs-trigger"]');
 
     expect(tabs.map(tab => tab.text())).toEqual(['Порция', '100 г', 'Своё']);
+  });
+
+  it('на граммовке даёт выбрать граммы или миллилитры', () => {
+    const tabs = mountFields({ serving: 'hundred' }).findAll('[data-slot="tabs-trigger"]');
+
+    expect(tabs.map(tab => tab.text())).toEqual(['г', 'мл', 'Порция', '100 г', 'Своё']);
+  });
+
+  it('в миллилитрах переписывает подписи', () => {
+    const wrapper = mountFields({ serving: 'custom', unit: 'ml' });
+
+    expect(wrapper.text()).toContain('Объём порции');
+    expect(wrapper.find(VOLUME_BASE).exists()).toBe(true);
+    expect(wrapper.find(BASE).exists()).toBe(false);
+  });
+
+  it('выбранная единица уходит в черновик', async () => {
+    const draft = { ...emptyCustomDraft(), serving: 'hundred' as const };
+    const wrapper = mount(CustomFoodFields, { props: { modelValue: draft } });
+
+    await wrapper.findAll('[data-slot="tabs-trigger"]')[1].trigger('mousedown');
+
+    expect(draft.unit).toBe('ml');
   });
 
   it('на порции и сотне поле базы не мешается', () => {

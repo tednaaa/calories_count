@@ -7,7 +7,7 @@ import {
   decreaseQty,
   draftFromEntry,
   draftToEntry,
-  entryGrams,
+  entryAmount,
   entryKcal,
   increaseQty,
   nextEntry,
@@ -21,7 +21,7 @@ const NOW = 1_770_000_000_000;
 
 const cart: CartItem[] = [
   { foodId: 'coffee-black', name: 'Кофе чёрный', kcalPerPortion: 5, qty: 1 },
-  { foodId: 'egg-boiled', name: 'Яйцо варёное', kcalPerPortion: 78, grams: 50, qty: 2 },
+  { foodId: 'egg-boiled', name: 'Яйцо варёное', kcalPerPortion: 78, amount: 50, qty: 2 },
 ];
 
 function entry(overrides: Partial<Entry> = {}): Entry {
@@ -59,7 +59,7 @@ describe('buildEntries', () => {
   it('копирует граммовку снапшотом', () => {
     const [, eggs] = buildEntries('2026-08-19', cart, NOW);
 
-    expect(eggs.grams).toBe(50);
+    expect(eggs.amount).toBe(50);
   });
 
   it('выдаёт уникальные идентификаторы', () => {
@@ -91,9 +91,9 @@ describe('buildCustomEntry', () => {
   });
 
   it('переносит граммовку порции в запись', () => {
-    const custom = buildCustomEntry('2026-08-19', { name: 'Овсянка', kcalPerPortion: 350, grams: 100 }, NOW);
+    const custom = buildCustomEntry('2026-08-19', { name: 'Овсянка', kcalPerPortion: 350, amount: 100 }, NOW);
 
-    expect(custom.grams).toBe(100);
+    expect(custom.amount).toBe(100);
   });
 
   it('хранит фото рядом с записью', () => {
@@ -174,17 +174,17 @@ describe('entryKcal', () => {
   });
 });
 
-describe('entryGrams', () => {
+describe('entryAmount', () => {
   it('умножает вес порции на количество', () => {
-    expect(entryGrams(entry({ qty: 2, grams: 100 }))).toBe(200);
+    expect(entryAmount(entry({ qty: 2, amount: 100 }))).toBe(200);
   });
 
   it('половина порции весит половину', () => {
-    expect(entryGrams(entry({ qty: 0.5, grams: 30 }))).toBe(15);
+    expect(entryAmount(entry({ qty: 0.5, amount: 30 }))).toBe(15);
   });
 
   it('о записи без граммовки ничего не выдумывает', () => {
-    expect(entryGrams(entry({ qty: 2 }))).toBeUndefined();
+    expect(entryAmount(entry({ qty: 2 }))).toBeUndefined();
   });
 });
 
@@ -274,7 +274,7 @@ describe('rankFoodIdsByFrequency', () => {
 });
 
 function draft(overrides: Partial<CustomDraft> = {}): CustomDraft {
-  return { name: 'Пирог', serving: 'portion', grams: '', kcal: '350', portion: '', photo: '', ...overrides };
+  return { name: 'Пирог', serving: 'portion', unit: 'g', amount: '', kcal: '350', portion: '', photo: '', ...overrides };
 }
 
 describe('draftFromEntry', () => {
@@ -282,7 +282,8 @@ describe('draftFromEntry', () => {
     expect(draftFromEntry(entry({ photo: 'data:image/jpeg;base64,zzz' }))).toEqual({
       name: 'Кофе чёрный',
       serving: 'portion',
-      grams: '',
+      unit: 'g',
+      amount: '',
       kcal: '5',
       portion: '',
       photo: 'data:image/jpeg;base64,zzz',
@@ -294,9 +295,9 @@ describe('draftFromEntry', () => {
   });
 
   it('открывает запись на том же табе граммовки', () => {
-    const oatmeal = entry({ kcalPerPortion: 351, grams: 130, basis: { grams: 100, kcal: 270 } });
+    const oatmeal = entry({ kcalPerPortion: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
 
-    expect(draftFromEntry(oatmeal)).toMatchObject({ serving: 'hundred', grams: '100', kcal: '270', portion: '130' });
+    expect(draftFromEntry(oatmeal)).toMatchObject({ serving: 'hundred', amount: '100', kcal: '270', portion: '130' });
   });
 });
 
@@ -305,7 +306,7 @@ describe('draftToEntry', () => {
     expect(draftToEntry(draft({ name: '  Пирог  ' }))).toEqual({
       name: 'Пирог',
       kcalPerPortion: 350,
-      grams: undefined,
+      amount: undefined,
       basis: undefined,
       photo: undefined,
     });
@@ -314,7 +315,7 @@ describe('draftToEntry', () => {
   it('переносит граммовку и вес порции в правку', () => {
     const edited = draftToEntry(draft({ serving: 'hundred', kcal: '270', portion: '130' }));
 
-    expect(edited).toMatchObject({ kcalPerPortion: 351, grams: 130, basis: { grams: 100, kcal: 270 } });
+    expect(edited).toMatchObject({ kcalPerPortion: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
   });
 
   it('проверяет поля так же, как форма своего блюда', () => {
@@ -337,10 +338,10 @@ describe('nextEntry', () => {
   });
 
   it('снятая граммовка действительно пропадает', () => {
-    const weighed = entry({ grams: 100, basis: { grams: 100, kcal: 5 } });
+    const weighed = entry({ amount: 100, basis: { amount: 100, kcal: 5 } });
     const next = nextEntry(weighed, { name: 'Кофе', kcalPerPortion: 5 }, 1);
 
-    expect(next.grams).toBeUndefined();
+    expect(next.amount).toBeUndefined();
     expect(next.basis).toBeUndefined();
   });
 

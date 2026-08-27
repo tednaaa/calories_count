@@ -18,16 +18,16 @@ describe('toCartItem', () => {
       foodId: 'egg-boiled',
       name: 'Яйцо варёное',
       kcalPerPortion: 78,
-      grams: undefined,
+      amount: undefined,
       basis: undefined,
       qty: 2,
     });
   });
 
   it('переносит граммовку и этикетку блюда в корзину', () => {
-    const cheese = food({ kcal: 351, grams: 130, basis: { grams: 100, kcal: 270 } });
+    const cheese = food({ kcal: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
 
-    expect(toCartItem(cheese, 2)).toMatchObject({ grams: 130, basis: { grams: 100, kcal: 270 } });
+    expect(toCartItem(cheese, 2)).toMatchObject({ amount: 130, basis: { amount: 100, kcal: 270 } });
   });
 });
 

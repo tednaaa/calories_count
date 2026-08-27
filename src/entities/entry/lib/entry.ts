@@ -1,5 +1,5 @@
 import type { CustomDraft } from '@/entities/food';
-import type { Basis, Entry } from '@/shared/db';
+import type { Basis, Entry, Unit } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { draftToCustomFood, servingToDraft } from '@/entities/food';
 
@@ -7,7 +7,8 @@ export interface CartItem {
   foodId: string;
   name: string;
   kcalPerPortion: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   qty: number;
 }
@@ -20,7 +21,8 @@ export function buildEntries(date: DateKey, items: CartItem[], now: number): Ent
     foodId: item.foodId,
     qty: item.qty,
     kcalPerPortion: item.kcalPerPortion,
-    grams: item.grams,
+    amount: item.amount,
+    unit: item.unit,
     basis: item.basis,
     name: item.name,
   }));
@@ -29,7 +31,8 @@ export function buildEntries(date: DateKey, items: CartItem[], now: number): Ent
 export interface CustomItem {
   name: string;
   kcalPerPortion: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   photo?: string;
 }
@@ -42,7 +45,8 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
     photo: item.photo,
     qty: 1,
     kcalPerPortion: item.kcalPerPortion,
-    grams: item.grams,
+    amount: item.amount,
+    unit: item.unit,
     basis: item.basis,
     name: item.name,
   };
@@ -51,7 +55,7 @@ export function buildCustomEntry(date: DateKey, item: CustomItem, now: number): 
 export function draftFromEntry(entry: Entry): CustomDraft {
   return {
     name: entry.name,
-    ...servingToDraft({ kcal: entry.kcalPerPortion, grams: entry.grams, basis: entry.basis }),
+    ...servingToDraft({ kcal: entry.kcalPerPortion, amount: entry.amount, unit: entry.unit, basis: entry.basis }),
     photo: entry.photo ?? '',
   };
 }
@@ -62,7 +66,8 @@ export function draftToEntry(draft: CustomDraft): CustomItem | null {
   return food && {
     name: food.name,
     kcalPerPortion: food.kcal,
-    grams: food.grams,
+    amount: food.amount,
+    unit: food.unit,
     basis: food.basis,
     photo: food.photo,
   };
@@ -73,7 +78,8 @@ export function nextEntry(current: Entry, item: CustomItem, qty: number): Entry 
     ...current,
     name: item.name,
     kcalPerPortion: item.kcalPerPortion,
-    grams: item.grams,
+    amount: item.amount,
+    unit: item.unit,
     basis: item.basis,
     photo: item.photo,
     qty,
@@ -98,8 +104,8 @@ export function entryKcal(entry: Entry): number {
   return entry.qty * entry.kcalPerPortion;
 }
 
-export function entryGrams(entry: Entry): number | undefined {
-  return entry.grams === undefined ? undefined : entry.qty * entry.grams;
+export function entryAmount(entry: Entry): number | undefined {
+  return entry.amount === undefined ? undefined : entry.qty * entry.amount;
 }
 
 export function totalKcal(entries: Entry[]): number {

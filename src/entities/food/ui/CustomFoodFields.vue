@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CustomDraft, ServingId } from '../lib/custom-draft';
+import type { Unit } from '@/shared/db';
 import { CameraIcon } from '@lucide/vue';
 import {
   buttonVariants,
@@ -16,8 +17,8 @@ import {
 } from 'shonk-ui';
 import { computed } from 'vue';
 import { readPhoto } from '@/shared/lib';
-import { draftToServing, servings } from '../lib/custom-draft';
-import { formatServing } from '../lib/serving';
+import { draftToServing, servingOptions, units } from '../lib/custom-draft';
+import { formatServing, unitName } from '../lib/serving';
 import FoodThumb from './FoodThumb.vue';
 
 const props = defineProps<{ foodId?: string }>();
@@ -26,9 +27,21 @@ const draft = defineModel<CustomDraft>({ required: true });
 
 const weighed = computed(() => draft.value.serving !== 'portion');
 const portion = computed(() => draftToServing(draft.value));
+const servings = computed(() => servingOptions(draft.value.unit));
+const poured = computed(() => draft.value.unit === 'ml');
+const measure = computed(() => unitName(draft.value.unit));
+const baseLabel = computed(() => (poured.value ? 'Базовый объём' : 'Базовый вес'));
+const portionLabel = computed(() => (poured.value ? 'Объём порции' : 'Вес порции'));
+const portionHint = computed(() => (poured.value
+  ? 'Сколько наливаешь за раз. Пусто — значит порция равна базовому объёму.'
+  : 'Сколько весит то, что кладёшь в день. Пусто — значит порция равна базовому весу.'));
 
 function chooseServing(id: unknown) {
   draft.value.serving = id as ServingId;
+}
+
+function chooseUnit(id: unknown) {
+  draft.value.unit = id as Unit;
 }
 
 async function pickPhoto(event: Event) {
@@ -59,7 +72,17 @@ async function pickPhoto(event: Event) {
     </div>
 
     <div class="flex flex-col gap-2">
-      <Label for="custom-kcal">Калорийность</Label>
+      <div class="flex items-center justify-between gap-2">
+        <Label for="custom-kcal">Калорийность</Label>
+
+        <Tabs v-if="weighed" :model-value="draft.unit" @update:model-value="chooseUnit">
+          <TabsList>
+            <TabsTrigger v-for="option in units" :key="option.id" :value="option.id" class="px-3">
+              {{ option.name }}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       <Tabs :model-value="draft.serving" @update:model-value="chooseServing">
         <TabsList class="w-full">
@@ -72,13 +95,13 @@ async function pickPhoto(event: Event) {
       <div class="flex items-center gap-2">
         <InputGroup v-if="draft.serving === 'custom'" class="w-28 shrink-0">
           <InputGroupInput
-            v-model="draft.grams"
+            v-model="draft.amount"
             inputmode="numeric"
             placeholder="30"
-            aria-label="Базовый вес"
+            :aria-label="baseLabel"
           />
           <InputGroupAddon align="inline-end">
-            <InputGroupText>г</InputGroupText>
+            <InputGroupText>{{ measure }}</InputGroupText>
           </InputGroupAddon>
         </InputGroup>
 
@@ -92,21 +115,21 @@ async function pickPhoto(event: Event) {
     </div>
 
     <div v-if="weighed" class="flex flex-col gap-2">
-      <Label for="custom-portion">Вес порции</Label>
+      <Label for="custom-portion">{{ portionLabel }}</Label>
 
       <InputGroup>
         <InputGroupInput id="custom-portion" v-model="draft.portion" inputmode="numeric" placeholder="130" />
         <InputGroupAddon align="inline-end">
-          <InputGroupText>г</InputGroupText>
+          <InputGroupText>{{ measure }}</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
 
       <p class="text-xs text-text-tertiary">
-        <template v-if="portion?.grams === undefined">
-          Сколько весит то, что кладёшь в день. Пусто — значит порция равна базовому весу.
+        <template v-if="portion?.amount === undefined">
+          {{ portionHint }}
         </template>
         <template v-else>
-          Одна порция — {{ formatServing(portion.kcal, portion.grams) }}
+          Одна порция — {{ formatServing(portion.kcal, portion.amount, portion.unit) }}
         </template>
       </p>
     </div>

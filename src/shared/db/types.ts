@@ -3,9 +3,10 @@ import type { DateKey } from '@/shared/lib';
 export type Sex = 'male' | 'female';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'high' | 'veryHigh';
 export type Goal = 'cut' | 'cutMild' | 'maintain' | 'bulkMild' | 'bulk';
+export type Unit = 'g' | 'ml';
 
 export interface Basis {
-  grams: number;
+  amount: number;
   kcal: number;
 }
 
@@ -17,7 +18,8 @@ export interface Entry {
   photo?: string;
   qty: number;
   kcalPerPortion: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   name: string;
 }
@@ -26,7 +28,8 @@ export interface CustomFood {
   id: string;
   name: string;
   kcal: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   photo?: string;
   createdAt: number;

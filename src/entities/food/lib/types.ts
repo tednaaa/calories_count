@@ -1,11 +1,12 @@
 import type { CategoryId } from './categories';
-import type { Basis } from '@/shared/db';
+import type { Basis, Unit } from '@/shared/db';
 
 export interface Food {
   id: string;
   name: string;
   kcal: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   photo?: string;
   category: CategoryId;
@@ -13,4 +14,4 @@ export interface Food {
   archived?: boolean;
 }
 
-export type Portion = Pick<Food, 'id' | 'name' | 'kcal' | 'grams' | 'basis'>;
+export type Portion = Pick<Food, 'id' | 'name' | 'kcal' | 'amount' | 'unit' | 'basis'>;

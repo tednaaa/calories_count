@@ -91,21 +91,44 @@ describe('readBackup', () => {
 
   it('принимает граммовку и этикетку в записях и своих блюдах', () => {
     const weighed = backup({
-      entries: [{ ...entry, grams: 130, basis: { grams: 100, kcal: 270 } }],
-      customFoods: [{ ...customFood, grams: 30, basis: { grams: 30, kcal: 150 } }],
+      entries: [{ ...entry, amount: 130, basis: { amount: 100, kcal: 270 } }],
+      customFoods: [{ ...customFood, amount: 30, basis: { amount: 30, kcal: 150 } }],
     });
 
     expect(readBackup(JSON.stringify(weighed))).toMatchObject({ ok: true });
   });
 
+  it('принимает миллилитры', () => {
+    const drink = backup({ entries: [{ ...entry, amount: 450, unit: 'ml' }] });
+
+    expect(readBackup(JSON.stringify(drink))).toMatchObject({ ok: true });
+  });
+
+  it('отвергает незнакомую единицу', () => {
+    const broken = JSON.stringify(backup({ entries: [{ ...entry, unit: 'штук' }] as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
+  });
+
+  it('читает копию, выгруженную когда вес звался граммами', () => {
+    const older = backup({
+      entries: [{ ...entry, grams: 130, basis: { grams: 100, kcal: 270 } }],
+      customFoods: [{ ...customFood, grams: 30 }],
+    } as never);
+    const result = readBackup(JSON.stringify(older));
+
+    expect(result.ok && result.backup.entries[0]).toMatchObject({ amount: 130, basis: { amount: 100, kcal: 270 } });
+    expect(result.ok && result.backup.customFoods[0]).toMatchObject({ amount: 30 });
+  });
+
   it('отвергает битую этикетку', () => {
-    const broken = JSON.stringify(backup({ entries: [{ ...entry, basis: { grams: 100 } }] as never }));
+    const broken = JSON.stringify(backup({ entries: [{ ...entry, basis: { amount: 100 } }] as never }));
 
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
   });
 
   it('отвергает битую граммовку', () => {
-    const broken = JSON.stringify(backup({ entries: [{ ...entry, grams: 'сто' }] as never }));
+    const broken = JSON.stringify(backup({ entries: [{ ...entry, amount: 'сто' }] as never }));
 
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
   });

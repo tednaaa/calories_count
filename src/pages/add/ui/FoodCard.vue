@@ -41,7 +41,7 @@ function changeQty(qty: number) {
       </p>
 
       <p class="text-[11px] tabular-nums text-text-tertiary">
-        {{ formatServing(food.kcal, food.grams) }}
+        {{ formatServing(food.kcal, food.amount, food.unit) }}
       </p>
     </button>
 

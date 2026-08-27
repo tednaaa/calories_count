@@ -1,6 +1,7 @@
-import type { Basis, CustomFood, Entry, Profile, WeightRecord } from './types';
+import type { Basis, CustomFood, Entry, Profile, Unit, WeightRecord } from './types';
 import { toDateKey } from '@/shared/lib';
 import { db, PROFILE_ID } from './database';
+import { renameGrams } from './legacy';
 
 export const BACKUP_VERSION = 1;
 
@@ -19,10 +20,14 @@ export type BackupCheck
   = | { ok: true; backup: Backup }
     | { ok: false; reason: string };
 
+function isUnit(value: unknown): value is Unit | undefined {
+  return value === undefined || value === 'g' || value === 'ml';
+}
+
 function isBasis(value: unknown): value is Basis | undefined {
   const basis = value as Basis | null;
 
-  return basis === undefined || (typeof basis?.grams === 'number' && typeof basis.kcal === 'number');
+  return basis === undefined || (typeof basis?.amount === 'number' && typeof basis.kcal === 'number');
 }
 
 function isEntry(value: unknown): value is Entry {
@@ -35,7 +40,8 @@ function isEntry(value: unknown): value is Entry {
     && (entry.photo === undefined || typeof entry.photo === 'string')
     && typeof entry.qty === 'number'
     && typeof entry.kcalPerPortion === 'number'
-    && (entry.grams === undefined || typeof entry.grams === 'number')
+    && (entry.amount === undefined || typeof entry.amount === 'number')
+    && isUnit(entry.unit)
     && isBasis(entry.basis)
     && typeof entry.name === 'string';
 }
@@ -46,7 +52,8 @@ function isCustomFood(value: unknown): value is CustomFood {
   return typeof food?.id === 'string'
     && typeof food.name === 'string'
     && typeof food.kcal === 'number'
-    && (food.grams === undefined || typeof food.grams === 'number')
+    && (food.amount === undefined || typeof food.amount === 'number')
+    && isUnit(food.unit)
     && isBasis(food.basis)
     && (food.photo === undefined || typeof food.photo === 'string')
     && typeof food.createdAt === 'number'
@@ -99,13 +106,17 @@ export function readBackup(raw: string): BackupCheck {
   if (candidate?.version !== BACKUP_VERSION) {
     return { ok: false, reason: 'Незнакомый формат копии' };
   }
-  if (!Array.isArray(candidate.entries) || !candidate.entries.every(isEntry)) {
+
+  const entries = Array.isArray(candidate.entries) ? candidate.entries.map(renameGrams) : null;
+
+  if (!entries?.every(isEntry)) {
     return { ok: false, reason: 'Записи дневника в файле повреждены' };
   }
 
-  const customFoods = candidate.customFoods ?? [];
+  const stored = candidate.customFoods ?? [];
+  const customFoods = Array.isArray(stored) ? stored.map(renameGrams) : null;
 
-  if (!Array.isArray(customFoods) || !customFoods.every(isCustomFood)) {
+  if (!customFoods?.every(isCustomFood)) {
     return { ok: false, reason: 'Свои блюда в файле повреждены' };
   }
   if (!Array.isArray(candidate.weightLog) || !candidate.weightLog.every(isWeightRecord)) {
@@ -121,7 +132,7 @@ export function readBackup(raw: string): BackupCheck {
       version: BACKUP_VERSION,
       exportedAt: typeof candidate.exportedAt === 'string' ? candidate.exportedAt : '',
       profile: candidate.profile ?? null,
-      entries: candidate.entries,
+      entries,
       customFoods,
       weightLog: candidate.weightLog,
     },

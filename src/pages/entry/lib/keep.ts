@@ -6,7 +6,14 @@ import { db } from '@/shared/db';
 
 export async function keepEntryAsFood(current: Entry, item: CustomItem, qty: number): Promise<void> {
   const food = buildCustomFood(
-    { name: item.name, kcal: item.kcalPerPortion, grams: item.grams, basis: item.basis, photo: item.photo },
+    {
+      name: item.name,
+      kcal: item.kcalPerPortion,
+      amount: item.amount,
+      unit: item.unit,
+      basis: item.basis,
+      photo: item.photo,
+    },
     Date.now(),
   );
 

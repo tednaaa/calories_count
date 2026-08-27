@@ -38,7 +38,7 @@ function changeQty(qty: number) {
 
       <span class="min-w-0 flex-1">
         <span class="block truncate text-sm text-text-primary">{{ food.name }}</span>
-        <span class="block text-xs tabular-nums text-text-tertiary">{{ formatServing(food.kcal, food.grams) }}</span>
+        <span class="block text-xs tabular-nums text-text-tertiary">{{ formatServing(food.kcal, food.amount, food.unit) }}</span>
       </span>
     </button>
 

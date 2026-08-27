@@ -1,46 +1,54 @@
 import type { CustomFoodInput } from './custom-food';
-import type { Basis, CustomFood } from '@/shared/db';
-import { formatGrams, portionKcal } from './serving';
+import type { Basis, CustomFood, Unit } from '@/shared/db';
+import { formatAmount, portionKcal, unitName } from './serving';
 
 export const MIN_KCAL = 1;
 export const MAX_KCAL = 5000;
-export const MIN_GRAMS = 1;
-export const MAX_GRAMS = 5000;
-export const HUNDRED_GRAMS = 100;
+export const MIN_AMOUNT = 1;
+export const MAX_AMOUNT = 5000;
+export const HUNDRED = 100;
 
 export type ServingId = 'portion' | 'hundred' | 'custom';
 
-export const servings: { id: ServingId; name: string }[] = [
-  { id: 'portion', name: 'Порция' },
-  { id: 'hundred', name: formatGrams(HUNDRED_GRAMS) },
-  { id: 'custom', name: 'Своё' },
+export const units: { id: Unit; name: string }[] = [
+  { id: 'g', name: unitName('g') },
+  { id: 'ml', name: unitName('ml') },
 ];
 
-export type Serving = Pick<CustomFoodInput, 'kcal' | 'grams' | 'basis'>;
+export function servingOptions(unit: Unit): { id: ServingId; name: string }[] {
+  return [
+    { id: 'portion', name: 'Порция' },
+    { id: 'hundred', name: formatAmount(HUNDRED, unit) },
+    { id: 'custom', name: 'Своё' },
+  ];
+}
+
+export type Serving = Pick<CustomFoodInput, 'kcal' | 'amount' | 'unit' | 'basis'>;
 
 export interface CustomDraft {
   name: string;
   serving: ServingId;
-  grams: string;
+  unit: Unit;
+  amount: string;
   kcal: string;
   portion: string;
   photo: string;
 }
 
 export function emptyCustomDraft(): CustomDraft {
-  return { name: '', serving: 'portion', grams: '', kcal: '', portion: '', photo: '' };
+  return { name: '', serving: 'portion', unit: 'g', amount: '', kcal: '', portion: '', photo: '' };
 }
 
 function wholeWithin(value: number, min: number, max: number): boolean {
   return Number.isInteger(value) && value >= min && value <= max;
 }
 
-function basisGrams(draft: CustomDraft): number | undefined {
+function basisAmount(draft: CustomDraft): number | undefined {
   if (draft.serving === 'portion') {
     return undefined;
   }
 
-  return draft.serving === 'hundred' ? HUNDRED_GRAMS : Number(draft.grams.trim());
+  return draft.serving === 'hundred' ? HUNDRED : Number(draft.amount.trim());
 }
 
 export function draftToServing(draft: CustomDraft): Serving | null {
@@ -50,38 +58,39 @@ export function draftToServing(draft: CustomDraft): Serving | null {
     return null;
   }
 
-  const base = basisGrams(draft);
+  const base = basisAmount(draft);
 
   if (base === undefined) {
     return { kcal };
   }
 
-  const grams = draft.portion.trim() ? Number(draft.portion.trim()) : base;
+  const amount = draft.portion.trim() ? Number(draft.portion.trim()) : base;
 
-  if (!wholeWithin(base, MIN_GRAMS, MAX_GRAMS) || !wholeWithin(grams, MIN_GRAMS, MAX_GRAMS)) {
+  if (!wholeWithin(base, MIN_AMOUNT, MAX_AMOUNT) || !wholeWithin(amount, MIN_AMOUNT, MAX_AMOUNT)) {
     return null;
   }
 
-  const basis: Basis = { grams: base, kcal };
+  const basis: Basis = { amount: base, kcal };
 
-  return { kcal: portionKcal(basis, grams), grams, basis };
+  return { kcal: portionKcal(basis, amount), amount, unit: draft.unit, basis };
 }
 
 export function servingToDraft(serving: Serving): Omit<CustomDraft, 'name' | 'photo'> {
   const basis = serving.basis
-    ?? (serving.grams === undefined ? undefined : { grams: serving.grams, kcal: serving.kcal });
+    ?? (serving.amount === undefined ? undefined : { amount: serving.amount, kcal: serving.kcal });
 
   if (basis === undefined) {
-    return { serving: 'portion', grams: '', kcal: String(serving.kcal), portion: '' };
+    return { serving: 'portion', unit: 'g', amount: '', kcal: String(serving.kcal), portion: '' };
   }
 
-  const portion = serving.grams ?? basis.grams;
+  const portion = serving.amount ?? basis.amount;
 
   return {
-    serving: basis.grams === HUNDRED_GRAMS ? 'hundred' : 'custom',
-    grams: String(basis.grams),
+    serving: basis.amount === HUNDRED ? 'hundred' : 'custom',
+    unit: serving.unit ?? 'g',
+    amount: String(basis.amount),
     kcal: String(basis.kcal),
-    portion: portion === basis.grams ? '' : String(portion),
+    portion: portion === basis.amount ? '' : String(portion),
   };
 }
 

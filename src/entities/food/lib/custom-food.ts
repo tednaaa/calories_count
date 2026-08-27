@@ -1,10 +1,11 @@
-import type { Basis, CustomFood } from '@/shared/db';
+import type { Basis, CustomFood, Unit } from '@/shared/db';
 import { db } from '@/shared/db';
 
 export interface CustomFoodInput {
   name: string;
   kcal: number;
-  grams?: number;
+  amount?: number;
+  unit?: Unit;
   basis?: Basis;
   photo?: string;
 }
@@ -14,7 +15,8 @@ export function buildCustomFood(input: CustomFoodInput, now: number): CustomFood
     id: crypto.randomUUID(),
     name: input.name,
     kcal: input.kcal,
-    grams: input.grams,
+    amount: input.amount,
+    unit: input.unit,
     basis: input.basis,
     photo: input.photo,
     createdAt: now,
@@ -27,7 +29,8 @@ export function nextCustomFood(current: CustomFood, input: CustomFoodInput, now:
     ...current,
     name: input.name,
     kcal: input.kcal,
-    grams: input.grams,
+    amount: input.amount,
+    unit: input.unit,
     basis: input.basis,
     photo: input.photo,
     updatedAt: now,

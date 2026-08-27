@@ -1,3 +1,5 @@
+export type { Lookup, Package, Product } from './lib/barcode';
+export { isBarcode, lookupBarcode, parsePackage, productToDraft } from './lib/barcode';
 export { activeFoods, foodById, foods, matchesQuery, photoUrl, searchFoods } from './lib/catalog';
 export type { CategoryId } from './lib/categories';
 export { categories, categoryName } from './lib/categories';
@@ -7,13 +9,14 @@ export {
   draftToCustomFood,
   draftToServing,
   emptyCustomDraft,
-  HUNDRED_GRAMS,
-  MAX_GRAMS,
+  HUNDRED,
+  MAX_AMOUNT,
   MAX_KCAL,
-  MIN_GRAMS,
+  MIN_AMOUNT,
   MIN_KCAL,
-  servings,
+  servingOptions,
   servingToDraft,
+  units,
 } from './lib/custom-draft';
 export type { CustomFoodInput } from './lib/custom-food';
 export {
@@ -26,7 +29,7 @@ export {
   removeCustomFood,
   saveCustomFood,
 } from './lib/custom-food';
-export { formatGrams, formatServing, portionKcal } from './lib/serving';
+export { formatAmount, formatServing, portionKcal, unitName } from './lib/serving';
 export type { Food, Portion } from './lib/types';
 export { useCustomFoods } from './lib/use-custom-foods';
 export { default as CustomFoodFields } from './ui/CustomFoodFields.vue';
