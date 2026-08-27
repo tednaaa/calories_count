@@ -2,6 +2,7 @@ export type { CartItem, CustomItem } from './lib/entry';
 export {
   buildCustomEntry,
   buildEntries,
+  countMeasured,
   decreaseQty,
   draftFromEntry,
   draftToEntry,
@@ -12,6 +13,7 @@ export {
   rankFoodIdsByFrequency,
   toggleQty,
   totalKcal,
+  totalNutrients,
   totalsByDate,
 } from './lib/entry';
 export {

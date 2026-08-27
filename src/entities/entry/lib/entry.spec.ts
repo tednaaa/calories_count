@@ -4,6 +4,7 @@ import type { Entry } from '@/shared/db';
 import {
   buildCustomEntry,
   buildEntries,
+  countMeasured,
   decreaseQty,
   draftFromEntry,
   draftToEntry,
@@ -14,6 +15,7 @@ import {
   rankFoodIdsByFrequency,
   toggleQty,
   totalKcal,
+  totalNutrients,
   totalsByDate,
 } from './entry';
 
@@ -185,6 +187,32 @@ describe('entryAmount', () => {
 
   it('о записи без граммовки ничего не выдумывает', () => {
     expect(entryAmount(entry({ qty: 2 }))).toBeUndefined();
+  });
+});
+
+describe('totalNutrients', () => {
+  it('умножает состав порции на количество', () => {
+    expect(totalNutrients([entry({ qty: 2, nutrients: { sugars: 12 } })])).toEqual({ sugars: 24 });
+  });
+
+  it('складывает записи с составом и пропускает остальные', () => {
+    const day = [
+      entry({ nutrients: { sugars: 54, protein: 0 } }),
+      entry({ id: 'kebab', name: 'Ангус-кебаб', kcalPerPortion: 850 }),
+      entry({ id: 'cheese', nutrients: { protein: 22 } }),
+    ];
+
+    expect(totalNutrients(day)).toEqual({ protein: 22, sugars: 54 });
+  });
+
+  it('за день без состава молчит', () => {
+    expect(totalNutrients([entry()])).toBeUndefined();
+  });
+});
+
+describe('countMeasured', () => {
+  it('считает записи, у которых состав известен', () => {
+    expect(countMeasured([entry({ nutrients: { sugars: 1 } }), entry({ id: 'kebab' })])).toBe(1);
   });
 });
 

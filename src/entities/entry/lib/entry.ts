@@ -1,7 +1,7 @@
 import type { CustomDraft } from '@/entities/food';
 import type { Basis, Entry, Grades, Nutrients, Unit } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
-import { draftToCustomFood, servingToDraft } from '@/entities/food';
+import { draftToCustomFood, scaleNutrients, servingToDraft, sumNutrients } from '@/entities/food';
 
 export interface CartItem {
   foodId: string;
@@ -124,6 +124,18 @@ export function entryKcal(entry: Entry): number {
 
 export function entryAmount(entry: Entry): number | undefined {
   return entry.amount === undefined ? undefined : entry.qty * entry.amount;
+}
+
+export function entryNutrients(entry: Entry): Nutrients | undefined {
+  return scaleNutrients(entry.nutrients, entry.qty);
+}
+
+export function totalNutrients(entries: Entry[]): Nutrients | undefined {
+  return sumNutrients(entries.map(entryNutrients));
+}
+
+export function countMeasured(entries: Entry[]): number {
+  return entries.filter(entry => entry.nutrients !== undefined).length;
 }
 
 export function totalKcal(entries: Entry[]): number {

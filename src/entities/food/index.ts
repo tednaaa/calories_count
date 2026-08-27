@@ -29,6 +29,8 @@ export {
   removeCustomFood,
   saveCustomFood,
 } from './lib/custom-food';
+export type { NutrientTarget, TargetGoal } from './lib/nutrient-targets';
+export { meetsTarget, nutrientTargets, plainNutrients, targetRatio } from './lib/nutrient-targets';
 export type { NutrientId } from './lib/nutrients';
 export { formatNutrient, nutrientNames, portionNutrients, scaleNutrients, sumNutrients } from './lib/nutrients';
 export { formatAmount, formatServing, portionKcal, unitName } from './lib/serving';

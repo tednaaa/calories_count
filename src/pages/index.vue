@@ -5,16 +5,19 @@ import { Button, cn, toast, useConfirm } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
+  countMeasured,
   entriesOfDay,
   EntryRow,
   removeEntry,
   restoreEntry,
   totalKcal,
+  totalNutrients,
 } from '@/entities/entry';
 import { photosById, useCustomFoods } from '@/entities/food';
 import { loadProfile } from '@/entities/profile';
 import { isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
+import { DayQuality } from '@/widgets/day-quality';
 import { WeekStrip } from '@/widgets/week-strip';
 import { nextCompact } from './compact';
 
@@ -37,6 +40,9 @@ const customPhotos = computed(() => photosById(customFoods.value));
 
 const eaten = computed(() => totalKcal(entries.value));
 const target = computed(() => profile.value?.targetKcal ?? 0);
+const weight = computed(() => profile.value?.weightKg ?? 0);
+const nutrients = computed(() => totalNutrients(entries.value));
+const measured = computed(() => countMeasured(entries.value));
 const showsToday = computed(() => isToday(dateKey.value));
 const addLink = computed(() => (showsToday.value ? '/add' : `/add?date=${dateKey.value}`));
 
@@ -90,6 +96,16 @@ function editEntry(entry: Entry) {
       :class="cn('shrink-0 border-b border-border-default px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
     >
       <DayProgress :eaten="eaten" :target="target" :compact="compact" />
+
+      <DayQuality
+        v-if="!compact && entries.length"
+        :nutrients="nutrients"
+        :measured="measured"
+        :entries="entries.length"
+        :weight-kg="weight"
+        :target-kcal="target"
+        class="mt-5"
+      />
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto pb-6" @scroll="trackScroll">
