@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.1 (2026-08-27)
+
+- tell apart a missing product from a base that did not answer [`6840902f`](https://github.com/tednaaa/calories_count/commit/6840902fae337e0a4afe544adcb04197adbb4a3e)
+- remember barcodes on your own foods [`2eb3f04b`](https://github.com/tednaaa/calories_count/commit/2eb3f04b112b2b436d0fcdfa08f0535818611c30)
+
 ## v0.5.0 (2026-08-27)
 
 - show how the day went beyond calories [`bed7231f`](https://github.com/tednaaa/calories_count/commit/bed7231fecdb6694dd1c09b41142b14c4ed65523)
