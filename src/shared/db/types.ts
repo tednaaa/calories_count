@@ -46,6 +46,7 @@ export interface Entry {
 export interface CustomFood {
   id: string;
   name: string;
+  barcode?: string;
   kcal: number;
   amount?: number;
   unit?: Unit;

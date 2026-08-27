@@ -3,6 +3,7 @@ import { db } from '@/shared/db';
 
 export interface CustomFoodInput {
   name: string;
+  barcode?: string;
   kcal: number;
   amount?: number;
   unit?: Unit;
@@ -16,6 +17,7 @@ export function buildCustomFood(input: CustomFoodInput, now: number): CustomFood
   return {
     id: crypto.randomUUID(),
     name: input.name,
+    barcode: input.barcode,
     kcal: input.kcal,
     amount: input.amount,
     unit: input.unit,
@@ -32,6 +34,7 @@ export function nextCustomFood(current: CustomFood, input: CustomFoodInput, now:
   return {
     ...current,
     name: input.name,
+    barcode: input.barcode,
     kcal: input.kcal,
     amount: input.amount,
     unit: input.unit,
@@ -53,6 +56,10 @@ export function listCustomFoods(): Promise<CustomFood[]> {
 
 export function loadCustomFood(id: string): Promise<CustomFood | undefined> {
   return db.customFoods.get(id);
+}
+
+export function findCustomFoodByBarcode(barcode: string): Promise<CustomFood | undefined> {
+  return db.customFoods.filter(food => food.barcode === barcode).first();
 }
 
 export async function createCustomFood(input: CustomFoodInput): Promise<CustomFood> {

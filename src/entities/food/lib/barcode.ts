@@ -5,6 +5,7 @@ import { HUNDRED, MAX_AMOUNT, MAX_KCAL, MIN_AMOUNT, MIN_KCAL } from './custom-dr
 
 const ENDPOINT = 'https://world.openfoodfacts.org/api/v2/product';
 const FIELDS = 'product_name,brands,quantity,nutriments,nutriscore_grade,nova_group';
+const KCAL_PER_KJ = 4.184;
 const TIMEOUT = 8000;
 
 const packageUnits: Record<string, { unit: Unit; scale: number }> = {
@@ -57,7 +58,7 @@ export interface Package {
 
 export interface Product {
   name: string;
-  kcalPerHundred: number;
+  kcalPerHundred?: number;
   amount?: number;
   unit: Unit;
   nutrients?: Nutrients;
@@ -107,12 +108,19 @@ function toGrades(product: OpenFoodFactsProduct): Grades | undefined {
   return Object.keys(grades).length ? grades : undefined;
 }
 
+function toKcal(nutriments: OpenFoodFactsProduct['nutriments']): number | undefined {
+  const printed = Number(nutriments?.['energy-kcal_100g']);
+  const joules = Number(nutriments?.['energy-kj_100g']);
+  const kcal = Math.round(Number.isFinite(printed) ? printed : joules / KCAL_PER_KJ);
+
+  return kcal >= MIN_KCAL && kcal <= MAX_KCAL ? kcal : undefined;
+}
+
 export function toProduct(response: OpenFoodFactsResponse): Product | null {
   const product = response.product;
   const name = (product?.product_name || product?.brands || '').trim();
-  const kcal = Math.round(Number(product?.nutriments?.['energy-kcal_100g']));
 
-  if (!product || response.status !== 1 || !name || !(kcal >= MIN_KCAL && kcal <= MAX_KCAL)) {
+  if (!product || response.status !== 1 || !name) {
     return null;
   }
 
@@ -120,7 +128,7 @@ export function toProduct(response: OpenFoodFactsResponse): Product | null {
 
   return {
     name,
-    kcalPerHundred: kcal,
+    kcalPerHundred: toKcal(product.nutriments),
     amount: packaging?.amount,
     unit: packaging?.unit ?? 'g',
     nutrients: toNutrients(product.nutriments),
@@ -134,7 +142,7 @@ export function productToDraft(product: Product): CustomDraft {
     serving: 'hundred',
     unit: product.unit,
     amount: String(HUNDRED),
-    kcal: String(product.kcalPerHundred),
+    kcal: product.kcalPerHundred === undefined ? '' : String(product.kcalPerHundred),
     portion: product.amount === undefined ? '' : String(product.amount),
     nutrients: product.nutrients,
     grades: product.grades,

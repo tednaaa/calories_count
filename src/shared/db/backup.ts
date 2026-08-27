@@ -71,6 +71,7 @@ function isCustomFood(value: unknown): value is CustomFood {
 
   return typeof food?.id === 'string'
     && typeof food.name === 'string'
+    && (food.barcode === undefined || typeof food.barcode === 'string')
     && typeof food.kcal === 'number'
     && (food.amount === undefined || typeof food.amount === 'number')
     && isUnit(food.unit)

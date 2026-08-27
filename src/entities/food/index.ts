@@ -22,6 +22,7 @@ export type { CustomFoodInput } from './lib/custom-food';
 export {
   buildCustomFood,
   createCustomFood,
+  findCustomFoodByBarcode,
   listCustomFoods,
   loadCustomFood,
   nextCustomFood,

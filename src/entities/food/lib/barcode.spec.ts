@@ -112,9 +112,20 @@ describe('toProduct', () => {
     expect(toProduct(response(0))).toBeNull();
   });
 
-  it('ничего не собирает без калорийности', () => {
-    expect(toProduct(cola({ nutriments: {} }))).toBeNull();
-    expect(toProduct(cola({ nutriments: { 'energy-kcal_100g': 0 } }))).toBeNull();
+  it('находит продукт, даже когда калорийности в базе нет', () => {
+    expect(toProduct(cola({ nutriments: {} }))).toMatchObject({ name: 'Coca-Cola', kcalPerHundred: undefined });
+  });
+
+  it('переводит килоджоули, когда калорий не написали', () => {
+    expect(toProduct(cola({ nutriments: { 'energy-kj_100g': 1120 } }))?.kcalPerHundred).toBe(268);
+  });
+
+  it('оставляет калорийность пустой, когда цифра бессмысленная', () => {
+    expect(toProduct(cola({ nutriments: { 'energy-kcal_100g': 0 } }))?.kcalPerHundred).toBeUndefined();
+  });
+
+  it('без калорийности оставляет поле пустым в форме', () => {
+    expect(productToDraft(toProduct(cola({ nutriments: {} }))!).kcal).toBe('');
   });
 
   it('забирает состав с этикетки', () => {

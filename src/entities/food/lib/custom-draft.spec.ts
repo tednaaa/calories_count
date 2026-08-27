@@ -130,6 +130,10 @@ describe('draftToCustomFood', () => {
     });
   });
 
+  it('запоминает штрих-код за блюдом', () => {
+    expect(draftToCustomFood(draft({ barcode: '4607065608873' }))?.barcode).toBe('4607065608873');
+  });
+
   it('переносит бейджи как есть', () => {
     const scored = draft({ serving: 'hundred', kcal: '50', grades: { nutriScore: 'e', nova: 4 } });
 
@@ -219,6 +223,12 @@ describe('draftFromCustomFood', () => {
       basis: undefined,
       photo: stored.photo,
     });
+  });
+
+  it('круг не теряет штрих-код', () => {
+    const scanned: CustomFood = { ...stored, barcode: '4607065608873' };
+
+    expect(draftToCustomFood(draftFromCustomFood(scanned))?.barcode).toBe('4607065608873');
   });
 
   it('круг не теряет состав и бейджи', () => {

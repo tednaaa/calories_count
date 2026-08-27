@@ -28,6 +28,7 @@ export type Serving = Pick<CustomFoodInput, 'kcal' | 'amount' | 'unit' | 'basis'
 
 export interface CustomDraft {
   name: string;
+  barcode?: string;
   serving: ServingId;
   unit: Unit;
   amount: string;
@@ -109,6 +110,7 @@ export function servingToDraft(serving: Serving): Omit<CustomDraft, 'name' | 'ph
 export function draftFromCustomFood(food: CustomFood): CustomDraft {
   return {
     name: food.name,
+    barcode: food.barcode,
     ...servingToDraft(food),
     photo: food.photo ?? '',
   };
@@ -122,5 +124,5 @@ export function draftToCustomFood(draft: CustomDraft): CustomFoodInput | null {
     return null;
   }
 
-  return { name, ...serving, photo: draft.photo || undefined };
+  return { name, barcode: draft.barcode, ...serving, photo: draft.photo || undefined };
 }

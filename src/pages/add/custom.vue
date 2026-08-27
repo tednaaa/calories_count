@@ -5,8 +5,10 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
   CustomFoodFields,
+  draftFromCustomFood,
   draftToCustomFood,
   emptyCustomDraft,
+  findCustomFoodByBarcode,
   isBarcode,
   lookupBarcode,
   productToDraft,
@@ -27,25 +29,39 @@ const showsToday = computed(() => isToday(dateKey.value));
 const dayQuery = computed(() => (showsToday.value ? {} : { date: dateKey.value }));
 const input = computed(() => draftToCustomFood(draft.value));
 
-const missing = {
-  missing: 'Такого кода нет в базе продуктов — заполни сам',
+const misses = {
+  missing: 'В базе продуктов такого нет. Заполни сам — в следующий раз узнаю по коду',
   offline: 'Не удалось спросить базу продуктов, нет связи',
 };
 
 async function fillFromBarcode(code: string) {
   looking.value = true;
 
-  const found = await lookupBarcode(code);
+  const own = await findCustomFoodByBarcode(code);
 
-  looking.value = false;
-
-  if (found.state === 'found') {
-    draft.value = productToDraft(found.product);
-    saves.value = true;
+  if (own) {
+    draft.value = draftFromCustomFood(own);
+    looking.value = false;
+    toast(`Знакомый продукт: ${own.name}`);
     return;
   }
 
-  toast(missing[found.state]);
+  const found = await lookupBarcode(code);
+
+  looking.value = false;
+  draft.value = { ...draft.value, barcode: code };
+  saves.value = true;
+
+  if (found.state !== 'found') {
+    toast(misses[found.state]);
+    return;
+  }
+
+  draft.value = { ...productToDraft(found.product), barcode: code };
+
+  if (found.product.kcalPerHundred === undefined) {
+    toast('Нашёл продукт, но калорийности в базе нет — впиши с упаковки');
+  }
 }
 
 onMounted(() => {
