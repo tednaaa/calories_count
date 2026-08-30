@@ -102,7 +102,7 @@ function dayStyle(day: DateKey) {
     ref="strip"
     role="group"
     aria-label="Выбор дня"
-    class="scrollbar-none flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+    class="scrollbar-none flex touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-contain"
   >
     <div v-for="week in weeks" :key="week[0]" class="grid w-full shrink-0 snap-center grid-cols-7 px-2">
       <button
