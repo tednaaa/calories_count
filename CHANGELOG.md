@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.2 (2026-08-30)
+
+- fix(week-strip): lock calendar swipe to the horizontal axis [`bd8a15ba`](https://github.com/tednaaa/calories_count/commit/bd8a15bade94222a5fffa27e4b5c9668138f7638)
+
 ## v0.5.1 (2026-08-27)
 
 - tell apart a missing product from a base that did not answer [`6840902f`](https://github.com/tednaaa/calories_count/commit/6840902fae337e0a4afe544adcb04197adbb4a3e)
