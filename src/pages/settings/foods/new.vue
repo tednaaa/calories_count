@@ -41,18 +41,18 @@ async function submit() {
     <header class="flex items-center gap-1">
       <RouterLink
         to="/settings/foods"
-        class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
+        class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
         aria-label="Назад к своим блюдам"
       >
         <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
-      <h1 class="text-xl font-semibold text-text-primary">
+      <h1 class="text-xl font-semibold text-foreground">
         Новое блюдо
       </h1>
     </header>
 
-    <p class="mt-1 text-sm text-text-secondary">
+    <p class="mt-1 text-sm text-muted-foreground">
       Появится в сетке «Добавить». В дневник ничего не запишется.
     </p>
 

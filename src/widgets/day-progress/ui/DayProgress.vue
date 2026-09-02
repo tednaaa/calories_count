@@ -35,7 +35,7 @@ const stats = computed(() => [
           :r="RADIUS"
           fill="none"
           stroke-width="10"
-          class="stroke-bg-muted"
+          class="stroke-muted"
         />
         <circle
           cx="60"
@@ -46,7 +46,7 @@ const stats = computed(() => [
           stroke-linecap="round"
           :stroke-dasharray="CIRCUMFERENCE"
           :stroke-dashoffset="CIRCUMFERENCE * (1 - filled)"
-          class="stroke-bg-brand transition-[stroke-dashoffset] duration-300"
+          class="stroke-primary transition-[stroke-dashoffset] duration-300"
         />
         <circle
           v-if="overflow > 0"
@@ -58,24 +58,24 @@ const stats = computed(() => [
           stroke-linecap="round"
           :stroke-dasharray="CIRCUMFERENCE"
           :stroke-dashoffset="CIRCUMFERENCE * (1 - overflow)"
-          class="stroke-bg-danger transition-[stroke-dashoffset] duration-300"
+          class="stroke-destructive transition-[stroke-dashoffset] duration-300"
         />
       </svg>
 
       <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <span :class="cn('font-semibold tabular-nums text-text-primary transition-all duration-300', props.compact ? 'text-lg' : 'text-3xl')">
+        <span :class="cn('font-semibold tabular-nums text-foreground transition-all duration-300', props.compact ? 'text-lg' : 'text-3xl')">
           {{ formatNumber(eaten) }}
         </span>
-        <span v-if="!props.compact" class="text-xs text-text-tertiary">из {{ formatNumber(target) }} ккал</span>
+        <span v-if="!props.compact" class="text-xs text-muted-foreground">из {{ formatNumber(target) }} ккал</span>
       </div>
     </div>
 
     <dl :class="cn('transition-all duration-300', props.compact ? 'flex min-w-0 flex-1 flex-col gap-1.5' : 'grid w-full grid-cols-3 gap-2 text-center')">
       <div v-for="stat in stats" :key="stat.label" :class="cn(props.compact && 'flex items-baseline justify-between gap-3')">
-        <dt class="text-xs text-text-tertiary">
+        <dt class="text-xs text-muted-foreground">
           {{ stat.label }}
         </dt>
-        <dd :class="cn('text-sm tabular-nums', stat.over ? 'text-text-danger' : 'text-text-primary')">
+        <dd :class="cn('text-sm tabular-nums', stat.over ? 'text-destructive' : 'text-foreground')">
           {{ formatNumber(stat.value) }}
         </dd>
       </div>

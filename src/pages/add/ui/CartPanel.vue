@@ -26,8 +26,8 @@ function changeQty(item: CartItem, qty: number) {
 </script>
 
 <template>
-  <section class="border-t border-border-default bg-bg-surface">
-    <ul v-if="expanded" class="max-h-56 overflow-y-auto border-b border-border-default">
+  <section class="border-t border-border bg-background">
+    <ul v-if="expanded" class="max-h-56 overflow-y-auto border-b border-border">
       <li
         v-for="item in props.items"
         :key="item.foodId"
@@ -35,24 +35,24 @@ function changeQty(item: CartItem, qty: number) {
       >
         <FoodThumb :food-id="item.foodId" :photo="props.photos.get(item.foodId)" :name="item.name" class="size-9" />
 
-        <p class="min-w-0 flex-1 truncate text-sm text-text-primary">
+        <p class="min-w-0 flex-1 truncate text-sm text-foreground">
           {{ item.name }}
         </p>
 
         <button
           type="button"
-          class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
+          class="flex size-8 items-center justify-center rounded-full border border-border text-muted-foreground"
           :aria-label="`Меньше ${item.name}`"
           @click="changeQty(item, decreaseQty(item.qty))"
         >
           <MinusIcon class="size-4" />
         </button>
 
-        <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ item.qty }}</span>
+        <span class="w-9 text-center text-sm tabular-nums text-foreground">{{ item.qty }}</span>
 
         <button
           type="button"
-          class="flex size-8 items-center justify-center rounded-full border border-border-default text-text-secondary"
+          class="flex size-8 items-center justify-center rounded-full border border-border text-muted-foreground"
           :aria-label="`Больше ${item.name}`"
           @click="changeQty(item, increaseQty(item.qty))"
         >
@@ -61,7 +61,7 @@ function changeQty(item: CartItem, qty: number) {
 
         <button
           type="button"
-          class="flex size-8 items-center justify-center text-text-tertiary"
+          class="flex size-8 items-center justify-center text-muted-foreground"
           :aria-label="`Убрать ${item.name}`"
           @click="changeQty(item, 0)"
         >
@@ -76,8 +76,8 @@ function changeQty(item: CartItem, qty: number) {
         class="flex min-w-0 flex-1 items-center gap-1 text-left"
         @click="expanded = !expanded"
       >
-        <span class="truncate text-sm text-text-primary">{{ cartSummary(props.items) }}</span>
-        <ChevronUpIcon :class="cn('size-4 shrink-0 text-text-tertiary transition-transform', expanded && 'rotate-180')" />
+        <span class="truncate text-sm text-foreground">{{ cartSummary(props.items) }}</span>
+        <ChevronUpIcon :class="cn('size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-180')" />
       </button>
 
       <Button :loading="props.saving" @click="emit('confirm')">

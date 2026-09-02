@@ -54,7 +54,7 @@ const goalHint = computed(() => goalOptions.find(option => option.id === goal.va
           {{ option.name }}
         </NativeSelectOption>
       </NativeSelect>
-      <p class="text-xs text-text-tertiary">
+      <p class="text-xs text-muted-foreground">
         {{ activityHint }}
       </p>
     </div>
@@ -66,7 +66,7 @@ const goalHint = computed(() => goalOptions.find(option => option.id === goal.va
           {{ option.name }}
         </NativeSelectOption>
       </NativeSelect>
-      <p class="text-xs text-text-tertiary">
+      <p class="text-xs text-muted-foreground">
         {{ goalHint }}
       </p>
     </div>

@@ -93,7 +93,7 @@ function editEntry(entry: Entry) {
 
     <div
       ref="summary"
-      :class="cn('shrink-0 border-b border-border-default px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
+      :class="cn('shrink-0 border-b border-border px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
     >
       <DayProgress :eaten="eaten" :target="target" :compact="compact" />
 
@@ -120,7 +120,7 @@ function editEntry(entry: Entry) {
         />
       </ul>
 
-      <p v-else class="px-4 py-8 text-center text-sm text-text-secondary">
+      <p v-else class="px-4 py-8 text-center text-sm text-muted-foreground">
         {{ showsToday ? 'Сегодня пока пусто' : 'В этот день записей нет' }}
       </p>
 

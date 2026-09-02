@@ -22,19 +22,19 @@ describe('состав дня', () => {
   it('перебор по сахару выделяет', () => {
     const wrapper = mountQuality({ nutrients: { sugars: 90 } });
 
-    expect(wrapper.find('.bg-bg-danger').exists()).toBe(true);
+    expect(wrapper.find('.bg-destructive').exists()).toBe(true);
   });
 
   it('недобор по белку не ругается', () => {
     const wrapper = mountQuality({ nutrients: { protein: 10 } });
 
-    expect(wrapper.find('.bg-bg-danger').exists()).toBe(false);
+    expect(wrapper.find('.bg-destructive').exists()).toBe(false);
   });
 
   it('добранную цель отмечает', () => {
     const wrapper = mountQuality({ nutrients: { protein: 140 } });
 
-    expect(wrapper.find('.bg-bg-success').exists()).toBe(true);
+    expect(wrapper.find('.bg-success').exists()).toBe(true);
   });
 
   it('жиры и углеводы показывает без норм', () => {

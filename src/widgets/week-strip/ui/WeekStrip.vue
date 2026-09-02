@@ -87,13 +87,13 @@ watch(selected, () => {
 
 function dayStyle(day: DateKey) {
   if (day === selected.value) {
-    return 'border-border-brand bg-bg-brand-subtle font-semibold text-text-brand';
+    return 'border-primary bg-primary/10 font-semibold text-primary';
   }
   if (isToday(day)) {
-    return 'border-border-strong text-text-primary';
+    return 'border-input text-foreground';
   }
 
-  return 'border-border-default text-text-secondary';
+  return 'border-border text-muted-foreground';
 }
 </script>
 
@@ -118,7 +118,7 @@ function dayStyle(day: DateKey) {
         <span
           :class="cn(
             'text-[11px] whitespace-nowrap capitalize',
-            day === selected ? 'text-text-primary' : 'text-text-tertiary',
+            day === selected ? 'text-foreground' : 'text-muted-foreground',
           )"
         >
           {{ isToday(day) ? 'Сегодня' : formatWeekday(day) }}

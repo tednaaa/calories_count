@@ -24,7 +24,7 @@ const eaten = computed(() => props.nutrients ?? {});
 
 type Tone = 'done' | 'going' | 'over';
 
-const barTones: Record<Tone, string> = { done: 'bg-bg-success', going: 'bg-bg-brand', over: 'bg-bg-danger' };
+const barTones: Record<Tone, string> = { done: 'bg-success', going: 'bg-primary', over: 'bg-destructive' };
 
 const tracked = computed(() => nutrientTargets(props.weightKg, props.targetKcal).map((target) => {
   const amount = eaten.value[target.id] ?? 0;
@@ -54,22 +54,22 @@ const coverage = computed(() => {
 <template>
   <section v-if="props.nutrients" class="flex flex-col gap-3">
     <header class="flex items-baseline justify-between gap-2">
-      <h2 class="text-xs text-text-tertiary">
+      <h2 class="text-xs text-muted-foreground">
         Кроме калорий
       </h2>
-      <span class="text-xs text-text-tertiary">{{ coverage }}</span>
+      <span class="text-xs text-muted-foreground">{{ coverage }}</span>
     </header>
 
     <ul class="grid grid-cols-2 gap-x-4 gap-y-2">
       <li v-for="target in tracked" :key="target.id" class="flex flex-col gap-1">
         <div class="flex items-baseline justify-between gap-2 text-xs">
-          <span class="text-text-secondary">{{ target.name }}</span>
-          <span :class="cn('tabular-nums', target.tone === 'over' ? 'text-text-danger' : 'text-text-primary')">
+          <span class="text-muted-foreground">{{ target.name }}</span>
+          <span :class="cn('tabular-nums', target.tone === 'over' ? 'text-destructive' : 'text-foreground')">
             {{ target.text }}
           </span>
         </div>
 
-        <div class="h-1 overflow-hidden rounded-full bg-bg-muted">
+        <div class="h-1 overflow-hidden rounded-full bg-muted">
           <div
             :class="cn('h-full rounded-full transition-[width] duration-300', barTones[target.tone])"
             :style="{ width: `${target.fill * 100}%` }"
@@ -78,12 +78,12 @@ const coverage = computed(() => {
       </li>
     </ul>
 
-    <p v-if="rest" class="text-xs text-text-tertiary">
+    <p v-if="rest" class="text-xs text-muted-foreground">
       {{ rest }}
     </p>
   </section>
 
-  <p v-else-if="props.entries" class="text-xs text-text-tertiary">
+  <p v-else-if="props.entries" class="text-xs text-muted-foreground">
     Состав дня появится, когда добавишь продукт по штрих-коду.
   </p>
 </template>

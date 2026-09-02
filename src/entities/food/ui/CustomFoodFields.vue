@@ -71,10 +71,10 @@ async function pickPhoto(event: Event) {
       <Label for="custom-name">Название</Label>
       <Input id="custom-name" v-model="draft.name" placeholder="Пирог у бабушки" />
 
-      <p v-if="props.busy" class="text-xs text-text-tertiary">
+      <p v-if="props.busy" class="text-xs text-muted-foreground">
         Спрашиваю базу продуктов по штрих-коду…
       </p>
-      <p v-else-if="draft.barcode" class="text-xs text-text-tertiary">
+      <p v-else-if="draft.barcode" class="text-xs text-muted-foreground">
         Штрих-код {{ draft.barcode }}
       </p>
     </div>
@@ -132,7 +132,7 @@ async function pickPhoto(event: Event) {
         </InputGroupAddon>
       </InputGroup>
 
-      <p class="text-xs text-text-tertiary">
+      <p class="text-xs text-muted-foreground">
         <template v-if="portion?.amount === undefined">
           {{ portionHint }}
         </template>
@@ -160,7 +160,7 @@ async function pickPhoto(event: Event) {
           <button
             v-if="draft.photo"
             type="button"
-            class="text-xs text-text-secondary"
+            class="text-xs text-muted-foreground"
             @click="draft.photo = ''"
           >
             Убрать фото
@@ -168,7 +168,7 @@ async function pickPhoto(event: Event) {
         </div>
       </div>
 
-      <p class="text-xs text-text-tertiary">
+      <p class="text-xs text-muted-foreground">
         Необязательно. Снимок уменьшается до 400 px и хранится прямо в базе.
       </p>
     </div>

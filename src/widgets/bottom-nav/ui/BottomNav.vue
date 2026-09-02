@@ -20,7 +20,7 @@ const items: NavItem[] = [
 </script>
 
 <template>
-  <nav class="border-t border-border-default bg-bg-surface pb-[env(safe-area-inset-bottom)]">
+  <nav class="border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
     <ul class="grid grid-cols-4">
       <li v-for="item in items" :key="item.to">
         <RouterLink #default="{ href, navigate, isExactActive }" :to="item.to" custom>
@@ -28,13 +28,13 @@ const items: NavItem[] = [
             :href="href"
             :class="cn(
               'flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] transition-colors',
-              isExactActive ? 'text-text-brand' : 'text-text-secondary',
+              isExactActive ? 'text-primary' : 'text-muted-foreground',
             )"
             @click="navigate"
           >
             <component
               :is="item.icon"
-              :class="cn('size-5', item.accent && 'size-7 rounded-full bg-bg-brand p-1 text-text-inverse')"
+              :class="cn('size-5', item.accent && 'size-7 rounded-full bg-primary p-1 text-primary-foreground')"
             />
             {{ item.label }}
           </a>

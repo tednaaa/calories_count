@@ -85,8 +85,8 @@ describe('экран статистики', () => {
 
     const bars = mount(StatsView).findAll('button span');
 
-    expect(bars[6].classes()).toContain('bg-bg-danger');
-    expect(bars[5].classes()).toContain('bg-bg-brand');
+    expect(bars[6].classes()).toContain('bg-destructive');
+    expect(bars[5].classes()).toContain('bg-primary');
   });
 
   it('тап по столбику открывает этот день', async () => {

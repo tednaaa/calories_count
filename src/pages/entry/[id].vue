@@ -77,13 +77,13 @@ async function submit() {
     <header class="flex items-center gap-1">
       <RouterLink
         :to="{ path: '/', query: dayQuery }"
-        class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
+        class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
         aria-label="Назад в день"
       >
         <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
-      <h1 class="text-xl font-semibold text-text-primary">
+      <h1 class="text-xl font-semibold text-foreground">
         Запись
       </h1>
     </header>
@@ -94,23 +94,23 @@ async function submit() {
       </Badge>
     </div>
 
-    <p class="mt-1 text-sm text-text-secondary">
+    <p class="mt-1 text-sm text-muted-foreground">
       Правка меняет только эту запись: блюдо в каталоге и в избранном останется прежним.
     </p>
 
     <form v-if="entry" class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
       <CustomFoodFields v-model="draft" :food-id="entry.foodId" />
 
-      <div class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3">
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
         <div class="min-w-0">
-          <span class="text-sm text-text-primary">Порций</span>
-          <span class="mt-1 block text-xs text-text-tertiary">Итого {{ formatServing(total, totalAmount, item?.unit) }}</span>
+          <span class="text-sm text-foreground">Порций</span>
+          <span class="mt-1 block text-xs text-muted-foreground">Итого {{ formatServing(total, totalAmount, item?.unit) }}</span>
         </div>
 
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="flex size-10 items-center justify-center rounded-full border border-border-default text-text-secondary disabled:opacity-40"
+            class="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground disabled:opacity-40"
             :disabled="qty <= HALF_PORTION"
             aria-label="Меньше"
             @click="qty = decreaseQty(qty)"
@@ -118,11 +118,11 @@ async function submit() {
             <MinusIcon class="size-4" />
           </button>
 
-          <span class="w-9 text-center text-sm tabular-nums text-text-primary">{{ qty }}</span>
+          <span class="w-9 text-center text-sm tabular-nums text-foreground">{{ qty }}</span>
 
           <button
             type="button"
-            class="flex size-10 items-center justify-center rounded-full border border-border-default text-text-secondary"
+            class="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground"
             aria-label="Больше"
             @click="qty = increaseQty(qty)"
           >
@@ -134,14 +134,14 @@ async function submit() {
       <RouterLink
         v-if="ownFood"
         :to="`/settings/foods/${ownFood.id}`"
-        class="flex items-center justify-between gap-3 rounded-lg border border-border-default p-3"
+        class="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
       >
-        <span class="text-sm text-text-primary">Блюдо уже в избранном</span>
-        <span class="text-xs text-text-brand">Открыть</span>
+        <span class="text-sm text-foreground">Блюдо уже в избранном</span>
+        <span class="text-xs text-primary">Открыть</span>
       </RouterLink>
 
-      <div v-else-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border-default p-3">
-        <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="keeps = !keeps">
+      <div v-else-if="!entry.foodId" class="flex items-center gap-3 rounded-lg border border-border p-3">
+        <button type="button" class="min-w-0 flex-1 text-left text-sm text-foreground" @click="keeps = !keeps">
           Сохранить в избранное
         </button>
 

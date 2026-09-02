@@ -27,10 +27,10 @@ async function submit() {
 
 <template>
   <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-8">
-    <h1 class="text-2xl font-semibold text-text-primary">
+    <h1 class="text-2xl font-semibold text-foreground">
       Норма калорий
     </h1>
-    <p class="mt-1 text-sm text-text-secondary">
+    <p class="mt-1 text-sm text-muted-foreground">
       Считаем один раз. Потом можно поменять в настройках.
     </p>
 
@@ -44,22 +44,22 @@ async function submit() {
         v-model:goal="form.goal"
       />
 
-      <div class="rounded-lg border border-border-default bg-bg-subtle p-4">
+      <div class="rounded-lg border border-border bg-secondary p-4">
         <template v-if="breakdown">
-          <p class="text-3xl font-semibold tabular-nums text-text-primary">
+          <p class="text-3xl font-semibold tabular-nums text-foreground">
             {{ formatNumber(breakdown.target) }}
-            <span class="text-base font-normal text-text-secondary">ккал в день</span>
+            <span class="text-base font-normal text-muted-foreground">ккал в день</span>
           </p>
-          <p class="mt-2 text-xs text-text-tertiary">
+          <p class="mt-2 text-xs text-muted-foreground">
             Базовый обмен {{ formatNumber(Math.round(breakdown.bmr)) }},
             полный расход {{ formatNumber(Math.round(breakdown.tdee)) }} ккал
           </p>
-          <p v-if="breakdown.clampedToMinimum" class="mt-2 text-xs text-text-warning">
+          <p v-if="breakdown.clampedToMinimum" class="mt-2 text-xs text-warning">
             Расчёт дал меньше безопасного минимума, норма поднята до {{ formatNumber(breakdown.target) }} ккал.
           </p>
         </template>
 
-        <p v-else class="text-sm text-text-secondary">
+        <p v-else class="text-sm text-muted-foreground">
           Заполни возраст, рост и вес, чтобы увидеть норму.
         </p>
       </div>

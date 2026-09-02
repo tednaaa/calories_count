@@ -125,13 +125,13 @@ async function submit() {
     <header class="flex items-center gap-1">
       <RouterLink
         :to="{ path: '/add', query: dayQuery }"
-        class="-ml-2 flex size-10 items-center justify-center rounded-full text-text-secondary"
+        class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
         aria-label="Назад к каталогу"
       >
         <ChevronLeftIcon class="size-5" />
       </RouterLink>
 
-      <h1 class="text-xl font-semibold text-text-primary">
+      <h1 class="text-xl font-semibold text-foreground">
         Своё блюдо
       </h1>
     </header>
@@ -140,14 +140,14 @@ async function submit() {
       <Badge variant="secondary">
         {{ formatDayLabel(dateKey) }}
       </Badge>
-      <span class="text-xs text-text-tertiary">запись задним числом</span>
+      <span class="text-xs text-muted-foreground">запись задним числом</span>
     </div>
 
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
       <CustomFoodFields v-model="draft" :busy="looking" />
 
-      <div class="flex items-center gap-3 rounded-lg border border-border-default p-3">
-        <button type="button" class="min-w-0 flex-1 text-left text-sm text-text-primary" @click="saves = !saves">
+      <div class="flex items-center gap-3 rounded-lg border border-border p-3">
+        <button type="button" class="min-w-0 flex-1 text-left text-sm text-foreground" @click="saves = !saves">
           {{ draft.barcode ? 'Сохранить в избранное и запомнить штрих-код' : 'Сохранить в избранное' }}
         </button>
 

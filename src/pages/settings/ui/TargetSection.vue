@@ -42,12 +42,12 @@ async function reset() {
 
 <template>
   <div class="flex flex-col gap-3">
-    <p class="text-3xl font-semibold tabular-nums text-text-primary">
+    <p class="text-3xl font-semibold tabular-nums text-foreground">
       {{ formatNumber(props.profile.targetKcal) }}
-      <span class="text-base font-normal text-text-secondary">ккал в день</span>
+      <span class="text-base font-normal text-muted-foreground">ккал в день</span>
     </p>
 
-    <p class="text-xs text-text-tertiary">
+    <p class="text-xs text-muted-foreground">
       {{ props.profile.targetOverridden ? 'Задана вручную' : 'Посчитана по профилю' }}.
       Расчёт по профилю сейчас даёт {{ formatNumber(calculated) }} ккал.
     </p>
@@ -59,7 +59,7 @@ async function reset() {
       </Button>
     </div>
 
-    <p v-if="entered === null" class="text-xs text-text-warning">
+    <p v-if="entered === null" class="text-xs text-warning">
       Норма должна быть целым числом от {{ formatNumber(MIN_TARGET) }} до {{ formatNumber(MAX_TARGET) }} ккал.
     </p>
 

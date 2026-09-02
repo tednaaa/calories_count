@@ -5,7 +5,7 @@
 	}
 
 	body {
-		@apply overflow-hidden bg-bg-subtle;
+		@apply overflow-hidden bg-secondary;
 	}
 
 	#app {

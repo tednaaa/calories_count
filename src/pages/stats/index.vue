@@ -35,7 +35,7 @@ function showDay(date: DateKey) {
 
 <template>
   <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-6">
-    <h1 class="text-xl font-semibold text-text-primary">
+    <h1 class="text-xl font-semibold text-foreground">
       Неделя
     </h1>
 
@@ -46,29 +46,29 @@ function showDay(date: DateKey) {
     <template v-if="summary.trackedDays">
       <dl class="grid grid-cols-2 gap-4 pt-8">
         <div>
-          <dt class="text-xs text-text-tertiary">
+          <dt class="text-xs text-muted-foreground">
             В среднем за день
           </dt>
-          <dd class="text-lg tabular-nums text-text-primary">
+          <dd class="text-lg tabular-nums text-foreground">
             {{ formatNumber(summary.average) }} ккал
           </dd>
         </div>
         <div>
-          <dt class="text-xs text-text-tertiary">
+          <dt class="text-xs text-muted-foreground">
             Всего за неделю
           </dt>
-          <dd class="text-lg tabular-nums text-text-primary">
+          <dd class="text-lg tabular-nums text-foreground">
             {{ formatNumber(summary.total) }} ккал
           </dd>
         </div>
       </dl>
 
-      <p class="pt-4 text-sm text-text-secondary">
+      <p class="pt-4 text-sm text-muted-foreground">
         Против цели за {{ trackedLabel }}: {{ formatDeviation(summary.deviation) }}
       </p>
     </template>
 
-    <p v-else class="pt-8 text-center text-sm text-text-secondary">
+    <p v-else class="pt-8 text-center text-sm text-muted-foreground">
       За эту неделю записей пока нет
     </p>
   </main>

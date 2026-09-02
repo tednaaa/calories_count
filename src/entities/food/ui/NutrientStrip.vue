@@ -35,7 +35,7 @@ const nova = computed(() => props.grades?.nova);
 </script>
 
 <template>
-  <div v-if="measured.length || score || nova" class="flex flex-col gap-3 rounded-lg bg-bg-muted p-3">
+  <div v-if="measured.length || score || nova" class="flex flex-col gap-3 rounded-lg bg-muted p-3">
     <div v-if="score || nova" class="flex items-center gap-2">
       <span
         v-if="score"
@@ -44,17 +44,17 @@ const nova = computed(() => props.grades?.nova);
         {{ score }}
       </span>
 
-      <span v-if="nova" class="text-xs text-text-secondary">
+      <span v-if="nova" class="text-xs text-muted-foreground">
         NOVA {{ nova }} · {{ novaNames[nova] }}
       </span>
     </div>
 
     <dl v-if="measured.length" class="grid grid-cols-2 gap-x-4 gap-y-1">
       <div v-for="item in measured" :key="item.id" class="flex items-baseline justify-between gap-2 text-xs">
-        <dt class="text-text-secondary">
+        <dt class="text-muted-foreground">
           {{ item.name }}
         </dt>
-        <dd class="tabular-nums text-text-primary">
+        <dd class="tabular-nums text-foreground">
           {{ item.value }}
         </dd>
       </div>

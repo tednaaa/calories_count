@@ -98,11 +98,11 @@ function askToWipe() {
       @change="pickFile"
     >
 
-    <div v-if="pending" class="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-subtle p-4">
-      <p class="text-sm text-text-primary">
+    <div v-if="pending" class="flex flex-col gap-3 rounded-lg border border-border bg-secondary p-4">
+      <p class="text-sm text-foreground">
         В файле {{ describeBackup(pending) }}.
       </p>
-      <p class="text-xs text-text-tertiary">
+      <p class="text-xs text-muted-foreground">
         «Заменить всё» сотрёт то, что накоплено сейчас. «Дополнить» добавит записи к текущим, а профиль оставит нынешний.
       </p>
 

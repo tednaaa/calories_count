@@ -27,7 +27,7 @@ function heightPercent(kcal: number): string {
     <div class="relative flex h-44 gap-1.5">
       <div
         v-if="props.target > 0"
-        class="pointer-events-none absolute inset-x-0 border-t border-dashed border-border-strong"
+        class="pointer-events-none absolute inset-x-0 border-t border-dashed border-input"
         :style="{ bottom: heightPercent(props.target) }"
       />
 
@@ -35,14 +35,14 @@ function heightPercent(kcal: number): string {
         v-for="day in props.days"
         :key="day.date"
         type="button"
-        class="relative flex-1 rounded-t-sm bg-bg-muted/40"
+        class="relative flex-1 rounded-t-sm bg-muted/40"
         :aria-label="`${formatDayLabel(day.date)}, ${formatNumber(day.kcal)} ккал`"
         @click="emit('pick', day.date)"
       >
         <span
           :class="cn(
             'absolute inset-x-0 bottom-0 rounded-t-sm',
-            day.kcal > props.target ? 'bg-bg-danger' : 'bg-bg-brand',
+            day.kcal > props.target ? 'bg-destructive' : 'bg-primary',
           )"
           :style="{ height: heightPercent(day.kcal) }"
         />
@@ -55,7 +55,7 @@ function heightPercent(kcal: number): string {
         :key="day.date"
         :class="cn(
           'flex-1 text-center text-[11px]',
-          isToday(day.date) ? 'font-medium text-text-primary' : 'text-text-tertiary',
+          isToday(day.date) ? 'font-medium text-foreground' : 'text-muted-foreground',
         )"
       >
         {{ formatWeekday(day.date) }}

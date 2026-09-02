@@ -54,12 +54,12 @@ async function submit() {
       v-model:goal="form.goal"
     />
 
-    <p v-if="breakdown" class="text-sm text-text-secondary">
-      Расчётная норма: <span class="tabular-nums text-text-primary">{{ formatNumber(breakdown.target) }} ккал</span>
+    <p v-if="breakdown" class="text-sm text-muted-foreground">
+      Расчётная норма: <span class="tabular-nums text-foreground">{{ formatNumber(breakdown.target) }} ккал</span>
       <span v-if="props.profile.targetOverridden"> — сейчас не применяется, норма задана вручную</span>
     </p>
 
-    <p v-else class="text-sm text-text-warning">
+    <p v-else class="text-sm text-warning">
       Возраст, рост или вес выходят за разумные границы.
     </p>
 

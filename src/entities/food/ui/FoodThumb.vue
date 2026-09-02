@@ -41,7 +41,7 @@ function zoom(event: MouseEvent) {
 
 <template>
   <div
-    :class="cn('flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-bg-muted', zooms && 'cursor-zoom-in', props.class)"
+    :class="cn('flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted', zooms && 'cursor-zoom-in', props.class)"
     @click="zoom"
   >
     <img
@@ -52,7 +52,7 @@ function zoom(event: MouseEvent) {
       class="size-full object-cover"
       @error="failed = true"
     >
-    <span v-else class="text-sm font-medium text-text-tertiary">{{ initial }}</span>
+    <span v-else class="text-sm font-medium text-muted-foreground">{{ initial }}</span>
 
     <Dialog v-model:open="zoomed">
       <DialogContent class="overflow-hidden p-0">

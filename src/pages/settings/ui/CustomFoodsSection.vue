@@ -14,7 +14,7 @@ const counted = computed(() => (
 
 <template>
   <div class="flex flex-col gap-3">
-    <p class="text-sm text-text-secondary">
+    <p class="text-sm text-muted-foreground">
       Заведено с телефона: {{ counted }}. Здесь их можно добавить, поправить и удалить.
     </p>
 

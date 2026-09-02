@@ -49,37 +49,37 @@ const amount = computed(() => entryAmount(props.entry));
 </script>
 
 <template>
-  <li class="relative overflow-hidden border-b border-border-default last:border-b-0">
-    <div class="absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-bg-danger text-text-inverse">
+  <li class="relative overflow-hidden border-b border-border last:border-b-0">
+    <div class="absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-destructive text-destructive-foreground">
       <Trash2Icon class="size-5" />
     </div>
 
     <div
       ref="row"
-      :class="cn('relative flex items-center gap-3 bg-bg-surface px-4 py-3', !isSwiping && 'transition-transform')"
+      :class="cn('relative flex items-center gap-3 bg-background px-4 py-3', !isSwiping && 'transition-transform')"
       :style="{ transform: `translateX(${offset}px)` }"
       @click="emit('edit', props.entry)"
     >
       <FoodThumb :food-id="entry.foodId" :photo="entry.photo ?? props.photo" :name="entry.name" zoomable class="size-11" />
 
       <div class="min-w-0 flex-1">
-        <p class="truncate text-sm text-text-primary">
+        <p class="truncate text-sm text-foreground">
           {{ entry.name }}
         </p>
-        <p class="text-xs text-text-tertiary">
+        <p class="text-xs text-muted-foreground">
           {{ formatTime(entry.createdAt) }}
         </p>
       </div>
 
       <div class="flex items-center gap-2">
-        <span v-if="entry.qty !== 1" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
+        <span v-if="entry.qty !== 1" class="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
           ×{{ entry.qty }}
         </span>
-        <span v-if="amount !== undefined" class="rounded-full bg-bg-muted px-2 py-0.5 text-xs tabular-nums text-text-secondary">
+        <span v-if="amount !== undefined" class="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
           {{ formatAmount(amount, entry.unit) }}
         </span>
-        <span class="text-sm tabular-nums text-text-primary">
-          {{ formatNumber(kcal) }}<span class="ml-1 text-xs text-text-tertiary">ккал</span>
+        <span class="text-sm tabular-nums text-foreground">
+          {{ formatNumber(kcal) }}<span class="ml-1 text-xs text-muted-foreground">ккал</span>
         </span>
       </div>
     </div>

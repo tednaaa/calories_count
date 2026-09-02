@@ -13,20 +13,20 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
 
 <template>
   <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
-    <h1 class="text-xl font-semibold text-text-primary">
+    <h1 class="text-xl font-semibold text-foreground">
       Настройки
     </h1>
 
     <template v-if="profile">
       <section class="pt-8">
-        <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+        <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
           Норма
         </h2>
         <TargetSection :profile="profile" />
       </section>
 
       <section class="pt-8">
-        <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+        <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
           Профиль
         </h2>
         <ProfileSection :profile="profile" />
@@ -34,21 +34,21 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
     </template>
 
     <section class="pt-8">
-      <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+      <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
         Свои блюда
       </h2>
       <CustomFoodsSection />
     </section>
 
     <section class="pt-8">
-      <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+      <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
         Данные
       </h2>
       <DataSection />
     </section>
 
     <section class="pt-8">
-      <h2 class="pb-4 text-xs font-medium tracking-wide text-text-tertiary uppercase">
+      <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
         О приложении
       </h2>
       <AboutSection />
