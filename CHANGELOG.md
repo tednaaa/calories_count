@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.3 (2026-09-02)
+
+- migrate shonk-ui v0.4.0 [`ad9ce725`](https://github.com/tednaaa/calories_count/commit/ad9ce7259c8ae79d76b05b1c1298418b987d1a98)
+
 ## v0.5.2 (2026-08-30)
 
 - fix(week-strip): lock calendar swipe to the horizontal axis [`bd8a15ba`](https://github.com/tednaaa/calories_count/commit/bd8a15bade94222a5fffa27e4b5c9668138f7638)
