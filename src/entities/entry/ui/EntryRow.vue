@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { Entry } from '@/shared/db';
 import { Trash2Icon } from '@lucide/vue';
-import { useSwipe } from '@vueuse/core';
-import { cn } from 'shonk-ui';
-import { computed, ref, useTemplateRef } from 'vue';
+import { SwipeAction } from 'shonk-ui';
+import { computed } from 'vue';
 import { FoodThumb, formatAmount } from '@/entities/food';
 import { formatNumber, formatTime } from '@/shared/lib';
 import { entryAmount, entryKcal } from '../lib/entry';
@@ -15,51 +14,23 @@ const emit = defineEmits<{
   edit: [entry: Entry];
 }>();
 
-const SWIPE_START = 24;
-const REMOVE_THRESHOLD = 96;
-
-const row = useTemplateRef<HTMLElement>('row');
-const offset = ref(0);
-
-let sideways: boolean | undefined;
-
-const { lengthX, direction, isSwiping } = useSwipe(row, {
-  threshold: SWIPE_START,
-  onSwipeStart() {
-    sideways = undefined;
-  },
-  onSwipe() {
-    sideways ??= direction.value === 'left';
-
-    if (sideways) {
-      offset.value = Math.min(0, SWIPE_START - lengthX.value);
-    }
-  },
-  onSwipeEnd() {
-    if (offset.value <= -REMOVE_THRESHOLD) {
-      emit('remove', props.entry);
-    }
-
-    offset.value = 0;
-  },
-});
-
 const kcal = computed(() => entryKcal(props.entry));
 const amount = computed(() => entryAmount(props.entry));
 </script>
 
 <template>
-  <li class="relative overflow-hidden border-b border-border last:border-b-0">
-    <div class="absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-destructive text-destructive-foreground">
-      <Trash2Icon class="size-5" />
-    </div>
+  <SwipeAction
+    as="li"
+    :trigger-threshold="0.3"
+    right-action-aria-label="Удалить"
+    class="border-b border-border last:border-b-0"
+    @trigger="emit('remove', props.entry)"
+  >
+    <template #right-action>
+      <Trash2Icon />
+    </template>
 
-    <div
-      ref="row"
-      :class="cn('relative flex items-center gap-3 bg-background px-4 py-3', !isSwiping && 'transition-transform')"
-      :style="{ transform: `translateX(${offset}px)` }"
-      @click="emit('edit', props.entry)"
-    >
+    <div class="flex items-center gap-3 px-4 py-3" @click="emit('edit', props.entry)">
       <FoodThumb :food-id="entry.foodId" :photo="entry.photo ?? props.photo" :name="entry.name" zoomable class="size-11" />
 
       <div class="min-w-0 flex-1">
@@ -83,5 +54,5 @@ const amount = computed(() => entryAmount(props.entry));
         </span>
       </div>
     </div>
-  </li>
+  </SwipeAction>
 </template>
