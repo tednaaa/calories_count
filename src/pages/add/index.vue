@@ -164,11 +164,11 @@ async function confirm() {
           class="flex-1"
         />
 
-        <Button variant="outline" size="icon" aria-label="Сканировать штрих-код" @click="scanning = true">
+        <Button variant="secondary" size="icon" aria-label="Сканировать штрих-код" @click="scanning = true">
           <ScanBarcodeIcon class="size-4" />
         </Button>
 
-        <Button variant="outline" @click="openCustom">
+        <Button variant="secondary" @click="openCustom">
           Новое
         </Button>
       </div>
@@ -270,7 +270,7 @@ async function confirm() {
           {{ emptyText }}
         </p>
 
-        <Button variant="outline" class="mt-3" @click="openCustom">
+        <Button variant="secondary" class="mt-3" @click="openCustom">
           Добавить своё
         </Button>
       </div>

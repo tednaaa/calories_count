@@ -151,7 +151,7 @@ async function pickPhoto(event: Event) {
         <FoodThumb :food-id="props.foodId" :photo="draft.photo" :name="draft.name" zoomable class="size-16" />
 
         <div class="flex flex-col items-start gap-2">
-          <label :class="buttonVariants({ variant: 'outline', size: 'sm' })">
+          <label :class="buttonVariants({ variant: 'secondary', size: 'sm' })">
             <CameraIcon class="size-4" />
             {{ draft.photo ? 'Заменить' : 'Снять или выбрать' }}
             <input type="file" accept="image/*" class="sr-only" @change="pickPhoto">

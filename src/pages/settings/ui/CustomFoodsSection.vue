@@ -18,7 +18,7 @@ const counted = computed(() => (
       Заведено с телефона: {{ counted }}. Здесь их можно добавить, поправить и удалить.
     </p>
 
-    <Button :as="RouterLink" to="/settings/foods" variant="outline">
+    <Button :as="RouterLink" to="/settings/foods" variant="secondary">
       Открыть список
     </Button>
   </div>

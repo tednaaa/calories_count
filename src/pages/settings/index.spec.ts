@@ -1,6 +1,6 @@
 import type { CustomFood, Profile } from '@/shared/db';
 import { flushPromises, mount } from '@vue/test-utils';
-import { downloadFile, toast } from 'shonk-ui';
+import { downloadBlob, toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { useCustomFoods } from '@/entities/food';
 import { resetTargetToCalculated, saveProfile, setManualTarget } from '@/entities/profile';
@@ -18,7 +18,7 @@ vi.mock('vue-router', () => ({
 vi.mock('shonk-ui', async importOriginal => ({
   ...await importOriginal<typeof import('shonk-ui')>(),
   toast: vi.fn(),
-  downloadFile: vi.fn(),
+  downloadBlob: vi.fn(),
   useConfirm: () => ({ require: requireConfirm }),
 }));
 
@@ -165,7 +165,7 @@ describe('экран настроек', () => {
     await wrapper.findElementByText('button', 'Выгрузить копию').trigger('click');
     await flushPromises();
 
-    expect(downloadFile).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^calories-count-\d{4}-\d{2}-\d{2}\.json$/));
+    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^calories-count-\d{4}-\d{2}-\d{2}\.json$/));
   });
 
   it('объясняет, почему файл не подошёл', async () => {

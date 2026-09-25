@@ -66,7 +66,7 @@ async function reset() {
     <Button
       v-if="props.profile.targetOverridden"
       type="button"
-      variant="outline"
+      variant="secondary"
       @click="reset"
     >
       Вернуть расчётную

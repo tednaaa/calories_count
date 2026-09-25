@@ -24,7 +24,7 @@ const goalHint = computed(() => goalOptions.find(option => option.id === goal.va
           v-for="option in sexOptions"
           :key="option.id"
           type="button"
-          :variant="sex === option.id ? 'default' : 'outline'"
+          :variant="sex === option.id ? 'default' : 'secondary'"
           @click="sex = option.id"
         >
           {{ option.name }}

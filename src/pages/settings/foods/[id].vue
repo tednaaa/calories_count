@@ -76,6 +76,7 @@ function askToRemove() {
   confirmation.require({
     message: `«${current.name}» пропадёт из выбора. Записи в дневнике останутся: название и калорийность в них свои, изменится только миниатюра — вместо фотографии будет первая буква.`,
     acceptButtonText: 'Удалить',
+    acceptButtonVariant: 'destructive',
     accept: () => {
       void remove(current.id);
     },

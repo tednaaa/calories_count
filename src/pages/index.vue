@@ -76,6 +76,7 @@ function askToRemove(entry: Entry) {
   confirmation.require({
     message: `«${entry.name}» пропадёт из дневника за этот день.`,
     acceptButtonText: 'Удалить',
+    acceptButtonVariant: 'destructive',
     accept: () => {
       void remove(entry);
     },

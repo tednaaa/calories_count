@@ -50,7 +50,7 @@ const customFoods = useCustomFoods();
       Пока пусто. Первое блюдо проще всего завести прямо во время еды — кнопкой «Новое» на экране «Добавить».
     </p>
 
-    <Button :as="RouterLink" to="/settings/foods/new" variant="outline" class="mt-6 w-full">
+    <Button :as="RouterLink" to="/settings/foods/new" variant="secondary" class="mt-6 w-full">
       <PlusIcon class="size-4" />
       Добавить блюдо
     </Button>
