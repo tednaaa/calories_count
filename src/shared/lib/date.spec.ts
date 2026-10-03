@@ -1,5 +1,6 @@
 import {
   dayNumber,
+  daysBetween,
   formatDayLabel,
   formatFullDate,
   formatTime,
@@ -233,5 +234,20 @@ describe('formatTime', () => {
 
   it('использует 24-часовой формат', () => {
     expect(formatTime(new Date(2026, 7, 19, 21, 30).getTime())).toBe('21:30');
+  });
+});
+
+describe('daysBetween', () => {
+  it('считает календарные дни между датами', () => {
+    expect(daysBetween('2026-09-28', '2026-10-03')).toBe(5);
+  });
+
+  it('даёт ноль для одной даты и минус для обратного порядка', () => {
+    expect(daysBetween('2026-10-03', '2026-10-03')).toBe(0);
+    expect(daysBetween('2026-10-03', '2026-10-01')).toBe(-2);
+  });
+
+  it('не сбивается на переходе на зимнее время', () => {
+    expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
   });
 });

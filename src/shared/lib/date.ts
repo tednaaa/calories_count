@@ -53,8 +53,14 @@ export function weekDateKeys(key: DateKey): DateKey[] {
   return Array.from({ length: 7 }, (_, index) => shiftDateKey(monday, index));
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export function dayNumber(key: DateKey): number {
   return fromDateKey(key).getDate();
+}
+
+export function daysBetween(from: DateKey, to: DateKey): number {
+  return Math.round((fromDateKey(to).getTime() - fromDateKey(from).getTime()) / DAY_MS);
 }
 
 export function lastDateKeys(count: number, until: DateKey = toDateKey()): DateKey[] {

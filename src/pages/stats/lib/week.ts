@@ -1,7 +1,6 @@
 import type { DateKey } from '@/shared/lib';
 import { formatNumber } from '@/shared/lib';
-
-export const KCAL_PER_KG = 7700;
+import { KCAL_PER_KG } from './impact';
 
 const HEADROOM = 1.1;
 
