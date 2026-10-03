@@ -26,6 +26,8 @@ export interface DayContext {
   isToday: boolean;
 }
 
+export const DEVIATION_MIN_DAYS = 7;
+
 const TARGET_TOLERANCE = 0.05;
 
 const MONTH_KEY_PATTERN = /^\d{4}-\d{2}$/;

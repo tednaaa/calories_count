@@ -107,9 +107,15 @@ describe('экран статистики', () => {
   });
 
   it('отклонение считает от цели за дни с записями', () => {
+    entries.value = [13, 14, 15, 16, 17, 18, 19].map(day => entry(`2026-08-${day}`, 2000));
+
+    expect(mountStats().text()).toContain('дефицит 2 800 ккал ≈ 0,36 кг');
+  });
+
+  it('за пару дней отклонение от цели не показывает', () => {
     entries.value = [entry('2026-08-19', 2000)];
 
-    expect(mountStats().text()).toContain('дефицит 400 ккал ≈ 0,05 кг');
+    expect(mountStats().text()).not.toContain('дефицит');
   });
 
   it('не берёт в расчёт дни другого месяца', () => {
@@ -152,6 +158,27 @@ describe('экран статистики', () => {
 
     expect(route.query).toEqual({});
     expect(wrapper.text()).toContain('Август 2026');
+  });
+
+  it('по умолчанию открывает калории', () => {
+    expect(mountStats().find('weight-section-stub').exists()).toBe(false);
+  });
+
+  it('вес открывается отдельной вкладкой', () => {
+    route.query = { tab: 'weight' };
+    const wrapper = mountStats();
+
+    expect(wrapper.find('weight-section-stub').exists()).toBe(true);
+    expect(wrapper.findAll('section button')).toHaveLength(0);
+  });
+
+  it('листая месяцы, остаётся на своей вкладке', async () => {
+    route.query = { tab: 'kcal' };
+    const wrapper = mountStats();
+
+    await wrapper.get('[aria-label="Предыдущий месяц"]').trigger('click');
+
+    expect(route.query).toEqual({ tab: 'kcal', month: '2026-07' });
   });
 
   it('в будущее не листает', () => {

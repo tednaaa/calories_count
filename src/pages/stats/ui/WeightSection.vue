@@ -68,11 +68,7 @@ const weighing = ref(false);
 
 <template>
   <section>
-    <h2 class="text-xl font-semibold text-foreground">
-      Вес
-    </h2>
-
-    <div class="flex items-end justify-between gap-4 pt-4">
+    <div class="flex items-end justify-between gap-4">
       <div v-if="latest">
         <p class="text-lg tabular-nums text-foreground">
           {{ formatKg(latest.kg) }} кг

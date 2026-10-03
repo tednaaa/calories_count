@@ -2,18 +2,25 @@
 import type { Entry, Profile } from '@/shared/db';
 import type { DateKey } from '@/shared/lib';
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { Button } from 'shonk-ui';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from 'shonk-ui';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { entriesBetween, totalsByDate } from '@/entities/entry';
 import { loadProfile } from '@/entities/profile';
 import { formatNumber, pluralize, useLiveQuery, useToday } from '@/shared/lib';
-import { dayTotals, endOfMonth, formatDeviation, formatMonth, monthDateKeys, requestedMonth, shiftMonth, startOfMonth, summarizeDays } from './lib/month';
+import { dayTotals, DEVIATION_MIN_DAYS, endOfMonth, formatDeviation, formatMonth, monthDateKeys, requestedMonth, shiftMonth, startOfMonth, summarizeDays } from './lib/month';
 import MonthCalendar from './ui/MonthCalendar.vue';
 import WeightSection from './ui/WeightSection.vue';
 
 const route = useRoute();
 const router = useRouter();
+
+const tab = computed({
+  get: () => (route.query.tab === 'weight' ? 'weight' : 'kcal'),
+  set: (next: string | number) => {
+    void router.replace({ query: { ...route.query, tab: next === 'weight' ? next : undefined } });
+  },
+});
 
 const today = useToday();
 const month = computed(() => requestedMonth(route.query.month, today.value));
@@ -35,9 +42,9 @@ const trackedLabel = computed(() => {
 
 function showMonth(months: number) {
   const next = shiftMonth(month.value, months);
-  const query = next === startOfMonth(today.value) ? {} : { month: next.slice(0, 7) };
+  const monthKey = next === startOfMonth(today.value) ? undefined : next.slice(0, 7);
 
-  void router.replace({ query });
+  void router.replace({ query: { ...route.query, month: monthKey } });
 }
 
 function showDay(date: DateKey) {
@@ -51,63 +58,83 @@ function showDay(date: DateKey) {
       Статистика
     </h1>
 
-    <div class="flex items-center justify-between pt-4">
-      <Button variant="ghost" size="icon" aria-label="Предыдущий месяц" @click="showMonth(-1)">
-        <ChevronLeftIcon class="size-5" />
-      </Button>
-      <h2 class="text-base font-medium text-foreground">
-        {{ formatMonth(month) }}
-      </h2>
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Следующий месяц"
-        :disabled="isCurrentMonth"
-        @click="showMonth(1)"
-      >
-        <ChevronRightIcon class="size-5" />
-      </Button>
-    </div>
+    <Tabs v-model="tab" class="pt-4">
+      <TabsList class="w-full">
+        <TabsTrigger value="kcal" class="flex-1">
+          Калории
+        </TabsTrigger>
+        <TabsTrigger value="weight" class="flex-1">
+          Вес
+        </TabsTrigger>
+      </TabsList>
 
-    <MonthCalendar
-      class="pt-2"
-      :month="month"
-      :today="today"
-      :totals="totals"
-      :target="target"
-      :goal="goal"
-      @pick="showDay"
-    />
-
-    <template v-if="summary.trackedDays">
-      <dl class="grid grid-cols-2 gap-4 pt-8">
-        <div>
-          <dt class="text-xs text-muted-foreground">
-            В среднем за день
-          </dt>
-          <dd class="text-lg tabular-nums text-foreground">
-            {{ formatNumber(summary.average) }} ккал
-          </dd>
+      <TabsContent value="kcal">
+        <div class="flex items-center justify-between pt-4">
+          <Button variant="ghost" size="icon" aria-label="Предыдущий месяц" @click="showMonth(-1)">
+            <ChevronLeftIcon class="size-5" />
+          </Button>
+          <h2 class="text-base font-medium text-foreground">
+            {{ formatMonth(month) }}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Следующий месяц"
+            :disabled="isCurrentMonth"
+            @click="showMonth(1)"
+          >
+            <ChevronRightIcon class="size-5" />
+          </Button>
         </div>
-        <div>
-          <dt class="text-xs text-muted-foreground">
-            Всего за месяц
-          </dt>
-          <dd class="text-lg tabular-nums text-foreground">
-            {{ formatNumber(summary.total) }} ккал
-          </dd>
-        </div>
-      </dl>
 
-      <p class="pt-4 text-sm text-muted-foreground">
-        Против цели за {{ trackedLabel }}: {{ formatDeviation(summary.deviation) }}
-      </p>
-    </template>
+        <MonthCalendar
+          class="pt-2"
+          :month="month"
+          :today="today"
+          :totals="totals"
+          :target="target"
+          :goal="goal"
+          @pick="showDay"
+        />
 
-    <p v-else class="pt-8 text-center text-sm text-muted-foreground">
-      За этот месяц записей нет
-    </p>
+        <template v-if="summary.trackedDays">
+          <dl class="grid grid-cols-2 gap-4 pt-8">
+            <div>
+              <dt class="text-xs text-muted-foreground">
+                В среднем за день
+              </dt>
+              <dd class="text-lg tabular-nums text-foreground">
+                {{ formatNumber(summary.average) }} ккал
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted-foreground">
+                Всего за месяц
+              </dt>
+              <dd class="text-lg tabular-nums text-foreground">
+                {{ formatNumber(summary.total) }} ккал
+              </dd>
+            </div>
+          </dl>
 
-    <WeightSection class="pt-10" />
+          <p class="pt-4 text-sm text-muted-foreground">
+            <template v-if="summary.trackedDays >= DEVIATION_MIN_DAYS">
+              Против цели за {{ trackedLabel }}: {{ formatDeviation(summary.deviation) }}
+            </template>
+            <template v-else>
+              {{ trackedLabel }}
+            </template>
+          </p>
+        </template>
+
+        <p v-else class="pt-8 text-center text-sm text-muted-foreground">
+          За этот месяц записей нет
+        </p>
+      </TabsContent>
+
+      <TabsContent value="weight">
+        <WeightSection class="pt-6" />
+      </TabsContent>
+    </Tabs>
   </main>
 </template>
