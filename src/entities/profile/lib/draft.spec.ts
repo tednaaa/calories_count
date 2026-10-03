@@ -29,6 +29,10 @@ describe('draftFromProfile', () => {
       goal: 'cutMild',
     });
   });
+
+  it('пишет дробный вес через запятую', () => {
+    expect(draftFromProfile(profile({ weightKg: 85.4 })).weightKg).toBe('85,4');
+  });
 });
 
 describe('draftToInput', () => {
@@ -53,6 +57,10 @@ describe('draftToInput', () => {
     expect(draftToInput({ ...draft, age: '7' })).toBeNull();
     expect(draftToInput({ ...draft, heightCm: '400' })).toBeNull();
     expect(draftToInput({ ...draft, weightKg: '5' })).toBeNull();
+  });
+
+  it('понимает вес с запятой', () => {
+    expect(draftToInput({ ...draftFromProfile(profile()), weightKg: '85,4' })?.weightKg).toBe(85.4);
   });
 
   it('отвергает нечисловой ввод', () => {

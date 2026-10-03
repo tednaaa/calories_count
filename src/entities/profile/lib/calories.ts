@@ -1,4 +1,5 @@
 import type { ActivityLevel, Goal, Profile, Sex } from '@/shared/db';
+import { WEIGHT_LIMITS } from '@/shared/lib';
 
 export const ACTIVITY_FACTOR: Record<ActivityLevel, number> = {
   sedentary: 1.2,
@@ -24,7 +25,7 @@ export const SAFE_MINIMUM_KCAL: Record<Sex, number> = {
 export const LIMITS = {
   age: { min: 14, max: 100 },
   heightCm: { min: 120, max: 230 },
-  weightKg: { min: 30, max: 300 },
+  weightKg: WEIGHT_LIMITS,
 } as const;
 
 export type Measurements = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg'>;

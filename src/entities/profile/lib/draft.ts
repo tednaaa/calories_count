@@ -1,5 +1,6 @@
 import type { CalcInput } from './calories';
 import type { ActivityLevel, Goal, Profile, Sex } from '@/shared/db';
+import { formatKg, parseKg } from '@/shared/lib';
 import { isWithinLimits } from './calories';
 
 export interface ProfileDraft {
@@ -27,7 +28,7 @@ export function draftFromProfile(profile: Profile): ProfileDraft {
     sex: profile.sex,
     age: String(profile.age),
     heightCm: String(profile.heightCm),
-    weightKg: String(profile.weightKg),
+    weightKg: formatKg(profile.weightKg),
     activity: profile.activity,
     goal: profile.goal,
   };
@@ -47,7 +48,7 @@ export function draftToInput(draft: ProfileDraft): CalcInput | null {
     sex: draft.sex,
     age: Number(draft.age),
     heightCm: Number(draft.heightCm),
-    weightKg: Number(draft.weightKg),
+    weightKg: parseKg(draft.weightKg) ?? Number.NaN,
     activity: draft.activity,
     goal: draft.goal,
   };

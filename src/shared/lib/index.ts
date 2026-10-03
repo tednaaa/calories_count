@@ -17,6 +17,7 @@ export {
   weekDateKeys,
 } from './date';
 export { readPhoto } from './image';
+export { formatKg, parseKg, WEIGHT_LIMITS } from './kg';
 export { formatNumber, pluralize } from './pluralize';
 export { requestPersistentStorage } from './storage';
 export { useLiveQuery } from './use-live-query';

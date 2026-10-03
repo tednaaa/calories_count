@@ -43,7 +43,7 @@ const goalHint = computed(() => goalOptions.find(option => option.id === goal.va
       </div>
       <div class="flex flex-col gap-2">
         <Label for="weight">Вес, кг</Label>
-        <Input id="weight" v-model="weightKg" inputmode="numeric" placeholder="85" />
+        <Input id="weight" v-model="weightKg" inputmode="decimal" placeholder="85" />
       </div>
     </div>
 

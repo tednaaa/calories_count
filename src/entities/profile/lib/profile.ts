@@ -1,7 +1,7 @@
 import type { Profile } from '@/shared/db';
 import { db, PROFILE_ID } from '@/shared/db';
-import { toDateKey } from '@/shared/lib';
 import { calcTarget } from './calories';
+import { logWeight } from './weight-log';
 
 export type ProfileInput = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg' | 'activity' | 'goal'>;
 
@@ -33,13 +33,6 @@ export function withCalculatedTarget(profile: Profile, now: number): Profile {
 
 export function loadProfile(): Promise<Profile | undefined> {
   return db.profile.get(PROFILE_ID);
-}
-
-async function logWeight(kg: number, now: number): Promise<void> {
-  const date = toDateKey(new Date(now));
-  const existing = await db.weightLog.where('date').equals(date).first();
-
-  await db.weightLog.put({ ...existing, date, kg, createdAt: now });
 }
 
 export async function saveProfile(input: ProfileInput): Promise<Profile> {
