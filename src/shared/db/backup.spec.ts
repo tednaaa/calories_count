@@ -158,6 +158,17 @@ describe('readBackup', () => {
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Профиль в файле повреждён' });
   });
 
+  it('принимает профиль с целевым весом и без него', () => {
+    expect(readBackup(JSON.stringify(backup({ profile: { ...profile, targetWeightKg: 78 } as never })))).toMatchObject({ ok: true });
+    expect(readBackup(JSON.stringify(backup({ profile: profile as never })))).toMatchObject({ ok: true });
+  });
+
+  it('отвергает целевой вес строкой', () => {
+    const broken = JSON.stringify(backup({ profile: { ...profile, targetWeightKg: '78' } as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Профиль в файле повреждён' });
+  });
+
   it('пустая копия без профиля — это нормально', () => {
     expect(readBackup(JSON.stringify(backup()))).toMatchObject({ ok: true });
   });

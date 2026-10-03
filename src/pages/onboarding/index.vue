@@ -2,7 +2,7 @@
 import { Button } from 'shonk-ui';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { calcTarget, draftToInput, emptyDraft, ProfileFields, saveProfile } from '@/entities/profile';
+import { calcTarget, draftToInput, emptyDraft, hasInvalidTargetWeight, ProfileFields, saveProfile } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
 
 const router = useRouter();
@@ -11,11 +11,12 @@ const form = reactive(emptyDraft());
 
 const measurements = computed(() => draftToInput(form));
 const breakdown = computed(() => (measurements.value ? calcTarget(measurements.value) : null));
+const canStart = computed(() => breakdown.value !== null && !hasInvalidTargetWeight(form));
 
 const saving = ref(false);
 
 async function submit() {
-  if (!measurements.value) {
+  if (!measurements.value || !canStart.value) {
     return;
   }
 
@@ -40,6 +41,7 @@ async function submit() {
         v-model:age="form.age"
         v-model:height-cm="form.heightCm"
         v-model:weight-kg="form.weightKg"
+        v-model:target-weight-kg="form.targetWeightKg"
         v-model:activity="form.activity"
         v-model:goal="form.goal"
       />
@@ -64,7 +66,7 @@ async function submit() {
         </p>
       </div>
 
-      <Button type="submit" size="lg" :disabled="!breakdown" :loading="saving">
+      <Button type="submit" size="lg" :disabled="!canStart" :loading="saving">
         Начать
       </Button>
     </form>

@@ -7,6 +7,7 @@ import {
   draftFromProfile,
   draftsEqual,
   draftToInput,
+  hasInvalidTargetWeight,
   ProfileFields,
   saveProfile,
 } from '@/entities/profile';
@@ -25,11 +26,12 @@ const breakdown = computed(() => (
   measurements.value ? calcTarget({ ...measurements.value, tdeeCorrectionKcal: props.profile.tdeeCorrectionKcal }) : null
 ));
 const edited = computed(() => !draftsEqual(form, draftFromProfile(props.profile)));
+const canSave = computed(() => breakdown.value !== null && edited.value && !hasInvalidTargetWeight(form));
 
 const saving = ref(false);
 
 async function submit() {
-  if (!measurements.value) {
+  if (!measurements.value || !canSave.value) {
     return;
   }
 
@@ -52,6 +54,7 @@ async function submit() {
       v-model:age="form.age"
       v-model:height-cm="form.heightCm"
       v-model:weight-kg="form.weightKg"
+      v-model:target-weight-kg="form.targetWeightKg"
       v-model:activity="form.activity"
       v-model:goal="form.goal"
     />
@@ -65,7 +68,7 @@ async function submit() {
       Возраст, рост или вес выходят за разумные границы.
     </p>
 
-    <Button type="submit" :disabled="!breakdown || !edited" :loading="saving">
+    <Button type="submit" :disabled="!canSave" :loading="saving">
       Сохранить профиль
     </Button>
   </form>

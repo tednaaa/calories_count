@@ -3,7 +3,7 @@ import { db, PROFILE_ID } from '@/shared/db';
 import { calcTarget } from './calories';
 import { logWeight } from './weight-log';
 
-export type ProfileInput = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg' | 'activity' | 'goal'>;
+export type ProfileInput = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg' | 'targetWeightKg' | 'activity' | 'goal'>;
 
 type Calibration = Pick<Profile, 'tdeeCorrectionKcal' | 'calibratedAt'>;
 
@@ -105,9 +105,9 @@ export async function resetTargetToCalculated(): Promise<void> {
 }
 
 export function withWeight(profile: Profile, weightKg: number): ProfileInput {
-  const { sex, age, heightCm, activity, goal } = profile;
+  const { sex, age, heightCm, targetWeightKg, activity, goal } = profile;
 
-  return { sex, age, heightCm, weightKg, activity, goal };
+  return { sex, age, heightCm, weightKg, activity, goal, ...(targetWeightKg && { targetWeightKg }) };
 }
 
 export async function recordWeight(kg: number): Promise<void> {

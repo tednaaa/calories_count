@@ -98,6 +98,7 @@ function isProfile(value: unknown): value is Profile {
     && typeof profile.age === 'number'
     && typeof profile.heightCm === 'number'
     && typeof profile.weightKg === 'number'
+    && (profile.targetWeightKg === undefined || typeof profile.targetWeightKg === 'number')
     && typeof profile.targetKcal === 'number'
     && (profile.tdeeCorrectionKcal === undefined || typeof profile.tdeeCorrectionKcal === 'number')
     && (profile.calibratedAt === undefined || typeof profile.calibratedAt === 'number');

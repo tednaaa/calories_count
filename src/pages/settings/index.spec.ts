@@ -117,6 +117,16 @@ describe('экран настроек', () => {
     expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ weightKg: 82 }));
   });
 
+  it('ошибку в целевом весе не выдаёт за ошибку роста или веса', async () => {
+    const wrapper = mount(SettingsView);
+    await wrapper.find('#target-weight').setValue('500');
+
+    expect(wrapper.text()).toContain('Целевой вес — число от 30 до 300 кг');
+    expect(wrapper.text()).not.toContain('выходят за разумные границы');
+    expect(wrapper.text()).toContain('Расчётная норма');
+    expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
+  });
+
   it('показывает, как изменится расчётная норма', async () => {
     const wrapper = mount(SettingsView);
     await wrapper.find('#weight').setValue('75');

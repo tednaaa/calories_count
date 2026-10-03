@@ -64,6 +64,7 @@ export interface Profile {
   age: number;
   heightCm: number;
   weightKg: number;
+  targetWeightKg?: number;
   activity: ActivityLevel;
   goal: Goal;
   targetKcal: number;

@@ -3,7 +3,7 @@ import type { Entry, Profile, WeightRecord } from '@/shared/db';
 import { Button } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { entriesFrom, totalsByDate } from '@/entities/entry';
-import { calcTarget, loadProfile } from '@/entities/profile';
+import { calcTarget, loadProfile, weightToGo } from '@/entities/profile';
 import { lastWeight, weightsFrom } from '@/entities/weight';
 import { formatDayLabel, formatKg, lastDateKeys, useLiveQuery, useToday } from '@/shared/lib';
 import { WeighInDialog } from '@/widgets/weigh-in';
@@ -40,6 +40,21 @@ const calibration = computed(() => {
     : null;
 });
 
+const goalProgress = computed(() => {
+  const target = profile.value?.targetWeightKg;
+  const current = latest.value?.kg ?? profile.value?.weightKg;
+
+  if (!profile.value || !target || !current) {
+    return null;
+  }
+
+  const toGo = weightToGo(profile.value.goal, current, target);
+
+  return toGo.reached
+    ? `Целевой вес ${formatKg(target)} кг достигнут`
+    : `До целевого веса ${formatKg(target)} кг осталось ${formatKg(toGo.kg)} кг`;
+});
+
 const weighing = ref(false);
 </script>
 
@@ -66,6 +81,10 @@ const weighing = ref(false);
         Записать вес
       </Button>
     </div>
+
+    <p v-if="goalProgress" class="pt-2 text-sm text-muted-foreground">
+      {{ goalProgress }}
+    </p>
 
     <WeightChart
       v-if="points.length"

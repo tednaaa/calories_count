@@ -1,5 +1,5 @@
 import type { Profile } from '@/shared/db';
-import { draftFromProfile, draftsEqual, draftToInput, emptyDraft } from './draft';
+import { draftFromProfile, draftsEqual, draftToInput, emptyDraft, hasInvalidTargetWeight } from './draft';
 
 function profile(overrides: Partial<Profile> = {}): Profile {
   return {
@@ -25,6 +25,7 @@ describe('draftFromProfile', () => {
       age: '30',
       heightCm: '180',
       weightKg: '85',
+      targetWeightKg: '',
       activity: 'moderate',
       goal: 'cutMild',
     });
@@ -61,6 +62,26 @@ describe('draftToInput', () => {
 
   it('понимает вес с запятой', () => {
     expect(draftToInput({ ...draftFromProfile(profile()), weightKg: '85,4' })?.weightKg).toBe(85.4);
+  });
+
+  it('целевой вес необязателен', () => {
+    expect(draftToInput(draftFromProfile(profile()))).not.toHaveProperty('targetWeightKg');
+  });
+
+  it('берёт целевой вес с запятой', () => {
+    expect(draftToInput({ ...draftFromProfile(profile()), targetWeightKg: '78,5' })?.targetWeightKg).toBe(78.5);
+  });
+
+  it('целевой вес вне пределов не ломает расчёт нормы, но и не сохраняется', () => {
+    const draft = { ...draftFromProfile(profile()), targetWeightKg: '12' };
+
+    expect(draftToInput(draft)).not.toHaveProperty('targetWeightKg');
+    expect(draftToInput(draft)?.weightKg).toBe(85);
+    expect(hasInvalidTargetWeight(draft)).toBe(true);
+  });
+
+  it('пустой целевой вес — не ошибка', () => {
+    expect(hasInvalidTargetWeight(draftFromProfile(profile()))).toBe(false);
   });
 
   it('отвергает нечисловой ввод', () => {
