@@ -1,9 +1,11 @@
-export type { CalcInput, Measurements, TargetBreakdown } from './lib/calories';
+export type { CalcInput, Calibration, Measurements, TargetBreakdown } from './lib/calories';
 export {
   ACTIVITY_FACTOR,
   calcBmr,
   calcTarget,
   calcTdee,
+  calibrateTarget,
+  CALIBRATION_STEP_KCAL,
   GOAL_FACTOR,
   isWithinLimits,
   LIMITS,
@@ -14,14 +16,18 @@ export { draftFromProfile, draftsEqual, draftToInput, emptyDraft } from './lib/d
 export { activityOptions, goalOptions, sexOptions } from './lib/options';
 export type { ProfileInput } from './lib/profile';
 export {
+  applyCalibration,
   loadProfile,
   nextProfile,
   recordWeight,
+  resetCalibration,
   resetTargetToCalculated,
   saveProfile,
   setManualTarget,
   withCalculatedTarget,
+  withCalibration,
   withManualTarget,
+  withoutCalibration,
   withWeight,
 } from './lib/profile';
 export { default as ProfileFields } from './ui/ProfileFields.vue';

@@ -68,6 +68,8 @@ export interface Profile {
   goal: Goal;
   targetKcal: number;
   targetOverridden: boolean;
+  tdeeCorrectionKcal?: number;
+  calibratedAt?: number;
   createdAt: number;
   updatedAt: number;
 }

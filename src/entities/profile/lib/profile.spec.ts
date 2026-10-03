@@ -1,7 +1,7 @@
 import type { ProfileInput } from './profile';
 import type { Profile } from '@/shared/db';
 import { calcTarget } from './calories';
-import { nextProfile, withCalculatedTarget, withManualTarget, withWeight } from './profile';
+import { nextProfile, withCalculatedTarget, withCalibration, withManualTarget, withoutCalibration, withWeight } from './profile';
 
 const input: ProfileInput = {
   sex: 'male',
@@ -63,6 +63,41 @@ describe('withCalculatedTarget', () => {
 
     expect(restored.targetKcal).toBe(calcTarget(input).target);
     expect(restored.targetOverridden).toBe(false);
+  });
+});
+
+describe('withCalibration', () => {
+  it('поправляет расход и считает норму от него', () => {
+    const calibrated = withCalibration(nextProfile(undefined, input, NOW), -216, NOW + 1);
+
+    expect(calibrated.targetKcal).toBe(calcTarget({ ...input, tdeeCorrectionKcal: -216 }).target);
+    expect(calibrated.calibratedAt).toBe(NOW + 1);
+  });
+
+  it('возвращает норму из ручного режима в расчётный', () => {
+    const manual = withManualTarget(nextProfile(undefined, input, NOW), 2000, NOW);
+
+    expect(withCalibration(manual, -216, NOW + 1).targetOverridden).toBe(false);
+  });
+
+  it('поправка переживает новый вес, и норма продолжает пересчитываться', () => {
+    const calibrated = withCalibration(nextProfile(undefined, input, NOW), -216, NOW + 1);
+    const updated = nextProfile(calibrated, withWeight(calibrated, 80), NOW + 2);
+
+    expect(updated.tdeeCorrectionKcal).toBe(-216);
+    expect(updated.calibratedAt).toBe(NOW + 1);
+    expect(updated.targetKcal).toBe(calcTarget({ ...input, weightKg: 80, tdeeCorrectionKcal: -216 }).target);
+  });
+});
+
+describe('withoutCalibration', () => {
+  it('убирает поправку и возвращает норму по формуле', () => {
+    const calibrated = withCalibration(nextProfile(undefined, input, NOW), -216, NOW + 1);
+    const reset = withoutCalibration(calibrated, NOW + 2);
+
+    expect(reset.targetKcal).toBe(calcTarget(input).target);
+    expect(reset).not.toHaveProperty('tdeeCorrectionKcal');
+    expect(reset).not.toHaveProperty('calibratedAt');
   });
 });
 

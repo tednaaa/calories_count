@@ -1,5 +1,5 @@
 import type { CalcInput } from './calories';
-import { calcBmr, calcTarget, calcTdee, isWithinLimits, SAFE_MINIMUM_KCAL } from './calories';
+import { calcBmr, calcTarget, calcTdee, calibrateTarget, isWithinLimits, SAFE_MINIMUM_KCAL } from './calories';
 
 const man: CalcInput = {
   sex: 'male',
@@ -90,5 +90,31 @@ describe('isWithinLimits', () => {
     expect(isWithinLimits({ ...man, age: 12 })).toBe(false);
     expect(isWithinLimits({ ...man, heightCm: 250 })).toBe(false);
     expect(isWithinLimits({ ...man, weightKg: 15 })).toBe(false);
+  });
+});
+
+describe('calibrateTarget', () => {
+  const profile = { ...man, targetKcal: 2410 };
+
+  it('считает норму под цель от реального расхода', () => {
+    expect(calibrateTarget(profile, 2620)).toMatchObject({ ideal: 2230, next: 2230 });
+  });
+
+  it('сдвигает норму за раз не больше чем на 250 ккал', () => {
+    expect(calibrateTarget(profile, 2200)).toMatchObject({ ideal: 1870, next: 2160 });
+    expect(calibrateTarget(profile, 3500)).toMatchObject({ ideal: 2980, next: 2660 });
+  });
+
+  it('выражает уточнение поправкой к расходу, а не готовой нормой', () => {
+    const { next, tdeeCorrectionKcal } = calibrateTarget(profile, 2620);
+
+    expect(tdeeCorrectionKcal).toBe(Math.round(2620 - calcTdee(man)));
+    expect(calcTarget({ ...man, tdeeCorrectionKcal }).target).toBe(next);
+  });
+
+  it('не опускает норму ниже безопасного минимума', () => {
+    const woman = { ...man, sex: 'female', weightKg: 60, goal: 'cut', targetKcal: 1300 } as const;
+
+    expect(calibrateTarget(woman, 1400)).toMatchObject({ ideal: 1200, next: 1200 });
   });
 });

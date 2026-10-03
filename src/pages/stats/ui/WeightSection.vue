@@ -3,12 +3,14 @@ import type { Entry, Profile, WeightRecord } from '@/shared/db';
 import { Button } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { entriesFrom, totalsByDate } from '@/entities/entry';
-import { calcTdee, loadProfile } from '@/entities/profile';
+import { calcTarget, loadProfile } from '@/entities/profile';
 import { lastWeight, weightsFrom } from '@/entities/weight';
 import { formatDayLabel, formatKg, lastDateKeys, useLiveQuery, useToday } from '@/shared/lib';
 import { WeighInDialog } from '@/widgets/weigh-in';
+import { offerCalibration } from '../lib/calibration';
 import { analyzeImpact, fitTrend, IMPACT_WINDOW_DAYS, toPoints } from '../lib/impact';
 import DietImpact from './DietImpact.vue';
+import NormCalibration from './NormCalibration.vue';
 import WeightChart from './WeightChart.vue';
 
 const today = useToday();
@@ -21,14 +23,22 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
 
 const points = computed(() => toPoints(weights.value, days.value));
 const trend = computed(() => fitTrend(points.value));
-const formulaTdee = computed(() => (profile.value ? calcTdee(profile.value) : 0));
+const estimatedTdee = computed(() => (profile.value ? calcTarget(profile.value).tdee : 0));
 
 const impact = computed(() => analyzeImpact({
   days: days.value,
   totals: totalsByDate(entries.value),
   weights: weights.value,
-  formulaTdee: formulaTdee.value,
+  estimatedTdee: estimatedTdee.value,
 }));
+
+const calibration = computed(() => {
+  const result = impact.value;
+
+  return result.ready && profile.value
+    ? { impact: result.impact, offer: offerCalibration(result.impact, profile.value, today.value) }
+    : null;
+});
 
 const weighing = ref(false);
 </script>
@@ -68,7 +78,19 @@ const weighing = ref(false);
     <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
       Как питание влияет на вес
     </h3>
-    <DietImpact v-if="profile" :result="impact" :formula-tdee="formulaTdee" />
+    <DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" />
+
+    <template v-if="calibration && profile">
+      <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        Уточнить норму
+      </h3>
+      <NormCalibration
+        :offer="calibration.offer"
+        :impact="calibration.impact"
+        :estimated-tdee="estimatedTdee"
+        :goal="profile.goal"
+      />
+    </template>
 
     <WeighInDialog v-model:open="weighing" :last-kg="latest?.kg" />
   </section>

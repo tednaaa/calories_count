@@ -2,7 +2,7 @@
 import type { Profile } from '@/shared/db';
 import { Button, Input, toast } from 'shonk-ui';
 import { computed, ref, watch } from 'vue';
-import { calcTarget, resetTargetToCalculated, setManualTarget } from '@/entities/profile';
+import { calcTarget, resetCalibration, resetTargetToCalculated, setManualTarget } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
 
 const props = defineProps<{ profile: Profile }>();
@@ -16,6 +16,21 @@ watch(() => props.profile.targetKcal, (next) => {
 });
 
 const calculated = computed(() => calcTarget(props.profile).target);
+
+const origin = computed(() => {
+  if (props.profile.targetOverridden) {
+    return 'Задана вручную';
+  }
+
+  return props.profile.calibratedAt ? 'Посчитана по профилю и уточнена по весу' : 'Посчитана по профилю';
+});
+
+const correctionNote = computed(() => {
+  const correction = props.profile.tdeeCorrectionKcal ?? 0;
+  const direction = correction < 0 ? 'ниже' : 'выше';
+
+  return `Ваш расход по весу на ${formatNumber(Math.abs(correction))} ккал ${direction} формулы, это учтено в расчёте.`;
+});
 
 const entered = computed(() => {
   const value = Number(manual.value);
@@ -34,6 +49,11 @@ async function apply() {
   toast('Норма задана вручную');
 }
 
+async function forgetCalibration() {
+  await resetCalibration();
+  toast('Уточнение сброшено');
+}
+
 async function reset() {
   await resetTargetToCalculated();
   toast('Вернули расчётную норму');
@@ -48,8 +68,11 @@ async function reset() {
     </p>
 
     <p class="text-xs text-muted-foreground">
-      {{ props.profile.targetOverridden ? 'Задана вручную' : 'Посчитана по профилю' }}.
-      Расчёт по профилю сейчас даёт {{ formatNumber(calculated) }} ккал.
+      {{ origin }}. Расчёт по профилю сейчас даёт {{ formatNumber(calculated) }} ккал.
+    </p>
+
+    <p v-if="props.profile.calibratedAt" class="text-xs text-muted-foreground">
+      {{ correctionNote }}
     </p>
 
     <div class="flex items-end gap-2">
@@ -70,6 +93,15 @@ async function reset() {
       @click="reset"
     >
       Вернуть расчётную
+    </Button>
+
+    <Button
+      v-if="props.profile.calibratedAt"
+      type="button"
+      variant="secondary"
+      @click="forgetCalibration"
+    >
+      Сбросить уточнение
     </Button>
   </div>
 </template>

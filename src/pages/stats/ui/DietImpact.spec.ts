@@ -16,7 +16,7 @@ const impact: Impact = {
 };
 
 function mountReady(overrides: Partial<Impact> = {}) {
-  return mount(DietImpact, { props: { result: { ready: true, impact: { ...impact, ...overrides } }, formulaTdee: 2836 } });
+  return mount(DietImpact, { props: { result: { ready: true, impact: { ...impact, ...overrides } }, estimatedTdee: 2836 } });
 }
 
 describe('вывод о влиянии питания', () => {
@@ -46,7 +46,7 @@ describe('вывод о влиянии питания', () => {
 
   it('без данных перечисляет, чего не хватает', () => {
     const text = mount(DietImpact, {
-      props: { result: { ready: false, shortfall: { weighIns: 2, spanDays: 0, trackedDays: 5 } }, formulaTdee: 2836 },
+      props: { result: { ready: false, shortfall: { weighIns: 2, spanDays: 0, trackedDays: 5 } }, estimatedTdee: 2836 },
     }).text();
 
     expect(text).toContain('2 взвешивания');

@@ -6,7 +6,7 @@ import { formatKcal, formatRate, SOLID_COVERAGE } from '../lib/impact';
 
 const props = defineProps<{
   result: ImpactResult;
-  formulaTdee: number;
+  estimatedTdee: number;
 }>();
 
 const precisionNote = computed(() => {
@@ -53,10 +53,10 @@ const precisionNote = computed(() => {
       </div>
       <div>
         <dt class="text-xs text-muted-foreground">
-          По формуле
+          По расчёту
         </dt>
         <dd class="text-lg tabular-nums text-foreground">
-          {{ formatKcal(props.formulaTdee) }} ккал
+          {{ formatKcal(props.estimatedTdee) }} ккал
         </dd>
       </div>
     </dl>

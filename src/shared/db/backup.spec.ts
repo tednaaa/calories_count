@@ -162,6 +162,12 @@ describe('readBackup', () => {
     expect(readBackup(JSON.stringify(backup()))).toMatchObject({ ok: true });
   });
 
+  it('отвергает поправку расхода строкой', () => {
+    const broken = JSON.stringify(backup({ profile: { ...profile, tdeeCorrectionKcal: '-200' } as never }));
+
+    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Профиль в файле повреждён' });
+  });
+
   it('не тащит в базу посторонние поля файла', () => {
     const result = readBackup(JSON.stringify({ ...backup(), сюрприз: true }));
 

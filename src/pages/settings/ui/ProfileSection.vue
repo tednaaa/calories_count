@@ -21,7 +21,9 @@ watch(() => props.profile, (next) => {
 });
 
 const measurements = computed(() => draftToInput(form));
-const breakdown = computed(() => (measurements.value ? calcTarget(measurements.value) : null));
+const breakdown = computed(() => (
+  measurements.value ? calcTarget({ ...measurements.value, tdeeCorrectionKcal: props.profile.tdeeCorrectionKcal }) : null
+));
 const edited = computed(() => !draftsEqual(form, draftFromProfile(props.profile)));
 
 const saving = ref(false);

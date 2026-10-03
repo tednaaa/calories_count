@@ -5,13 +5,23 @@ import { logWeight } from './weight-log';
 
 export type ProfileInput = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg' | 'activity' | 'goal'>;
 
+type Calibration = Pick<Profile, 'tdeeCorrectionKcal' | 'calibratedAt'>;
+
+function calibrationOf(profile: Profile | undefined): Calibration {
+  return profile?.calibratedAt
+    ? { tdeeCorrectionKcal: profile.tdeeCorrectionKcal, calibratedAt: profile.calibratedAt }
+    : {};
+}
+
 export function nextProfile(current: Profile | undefined, input: ProfileInput, now: number): Profile {
   const keepsManualTarget = current?.targetOverridden === true;
+  const calibration = calibrationOf(current);
 
   return {
     id: PROFILE_ID,
     ...input,
-    targetKcal: keepsManualTarget ? current.targetKcal : calcTarget(input).target,
+    ...calibration,
+    targetKcal: keepsManualTarget ? current.targetKcal : calcTarget({ ...input, ...calibration }).target,
     targetOverridden: keepsManualTarget,
     createdAt: current?.createdAt ?? now,
     updatedAt: now,
@@ -29,6 +39,19 @@ export function withCalculatedTarget(profile: Profile, now: number): Profile {
     targetOverridden: false,
     updatedAt: now,
   };
+}
+
+export function withCalibration(profile: Profile, tdeeCorrectionKcal: number, now: number): Profile {
+  const calibrated = { ...profile, tdeeCorrectionKcal, calibratedAt: now };
+
+  return { ...calibrated, targetKcal: calcTarget(calibrated).target, targetOverridden: false, updatedAt: now };
+}
+
+export function withoutCalibration(profile: Profile, now: number): Profile {
+  const { tdeeCorrectionKcal: _correction, calibratedAt: _calibratedAt, ...rest } = profile;
+  const targetKcal = rest.targetOverridden ? rest.targetKcal : calcTarget(rest).target;
+
+  return { ...rest, targetKcal, updatedAt: now };
 }
 
 export function loadProfile(): Promise<Profile | undefined> {
@@ -54,6 +77,22 @@ export async function setManualTarget(targetKcal: number): Promise<void> {
 
   if (current) {
     await db.profile.put(withManualTarget(current, targetKcal, Date.now()));
+  }
+}
+
+export async function applyCalibration(tdeeCorrectionKcal: number): Promise<void> {
+  const current = await loadProfile();
+
+  if (current) {
+    await db.profile.put(withCalibration(current, tdeeCorrectionKcal, Date.now()));
+  }
+}
+
+export async function resetCalibration(): Promise<void> {
+  const current = await loadProfile();
+
+  if (current) {
+    await db.profile.put(withoutCalibration(current, Date.now()));
   }
 }
 

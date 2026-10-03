@@ -22,6 +22,8 @@ export const SAFE_MINIMUM_KCAL: Record<Sex, number> = {
   female: 1200,
 };
 
+export const CALIBRATION_STEP_KCAL = 250;
+
 export const LIMITS = {
   age: { min: 14, max: 100 },
   heightCm: { min: 120, max: 230 },
@@ -29,7 +31,13 @@ export const LIMITS = {
 } as const;
 
 export type Measurements = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg'>;
-export type CalcInput = Measurements & Pick<Profile, 'activity' | 'goal'>;
+export type CalcInput = Measurements & Pick<Profile, 'activity' | 'goal' | 'tdeeCorrectionKcal'>;
+
+export interface Calibration {
+  ideal: number;
+  next: number;
+  tdeeCorrectionKcal: number;
+}
 
 export interface TargetBreakdown {
   bmr: number;
@@ -37,6 +45,10 @@ export interface TargetBreakdown {
   raw: number;
   target: number;
   clampedToMinimum: boolean;
+}
+
+function roundToTens(kcal: number): number {
+  return Math.round(kcal / 10) * 10;
 }
 
 export function calcBmr({ sex, age, heightCm, weightKg }: Measurements): number {
@@ -51,10 +63,10 @@ export function calcTdee(input: Measurements & Pick<Profile, 'activity'>): numbe
 
 export function calcTarget(input: CalcInput): TargetBreakdown {
   const bmr = calcBmr(input);
-  const tdee = calcTdee(input);
+  const tdee = calcTdee(input) + (input.tdeeCorrectionKcal ?? 0);
   const raw = tdee * GOAL_FACTOR[input.goal];
   const minimum = SAFE_MINIMUM_KCAL[input.sex];
-  const rounded = Math.round(raw / 10) * 10;
+  const rounded = roundToTens(raw);
 
   return {
     bmr,
@@ -69,4 +81,23 @@ export function isWithinLimits({ age, heightCm, weightKg }: Measurements): boole
   return age >= LIMITS.age.min && age <= LIMITS.age.max
     && heightCm >= LIMITS.heightCm.min && heightCm <= LIMITS.heightCm.max
     && weightKg >= LIMITS.weightKg.min && weightKg <= LIMITS.weightKg.max;
+}
+
+function correctionFor(profile: CalcInput & Pick<Profile, 'targetKcal'>, realTdee: number, ideal: number): number {
+  const shift = ideal - profile.targetKcal;
+
+  if (Math.abs(shift) <= CALIBRATION_STEP_KCAL) {
+    return realTdee - calcTdee(profile);
+  }
+
+  const reachable = profile.targetKcal + Math.sign(shift) * CALIBRATION_STEP_KCAL;
+
+  return reachable / GOAL_FACTOR[profile.goal] - calcTdee(profile);
+}
+
+export function calibrateTarget(profile: CalcInput & Pick<Profile, 'targetKcal'>, realTdee: number): Calibration {
+  const ideal = calcTarget({ ...profile, tdeeCorrectionKcal: realTdee - calcTdee(profile) }).target;
+  const tdeeCorrectionKcal = Math.round(correctionFor(profile, realTdee, ideal));
+
+  return { ideal, next: calcTarget({ ...profile, tdeeCorrectionKcal }).target, tdeeCorrectionKcal };
 }

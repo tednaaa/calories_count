@@ -58,7 +58,7 @@ export interface ImpactInput {
   days: DateKey[];
   totals: Map<DateKey, number>;
   weights: WeightRecord[];
-  formulaTdee: number;
+  estimatedTdee: number;
 }
 
 export function toPoints(weights: WeightRecord[], days: DateKey[]): WeightPoint[] {
@@ -127,7 +127,7 @@ function findShortfall(points: WeightPoint[], trackedDays: number): Shortfall {
   };
 }
 
-export function analyzeImpact({ days, totals, weights, formulaTdee }: ImpactInput): ImpactResult {
+export function analyzeImpact({ days, totals, weights, estimatedTdee }: ImpactInput): ImpactResult {
   const finishedDays = days.slice(0, -1);
   const intakes = finishedDays.map(date => totals.get(date) ?? 0).filter(kcal => kcal > 0);
   const points = toPoints(weights, days);
@@ -149,7 +149,7 @@ export function analyzeImpact({ days, totals, weights, formulaTdee }: ImpactInpu
       countedDays: finishedDays.length,
       coverage: intakes.length / finishedDays.length,
       averageIntake,
-      expectedPerWeek: (averageIntake - formulaTdee) * 7 / KCAL_PER_KG,
+      expectedPerWeek: (averageIntake - estimatedTdee) * 7 / KCAL_PER_KG,
       actualPerWeek: trend.slope * 7,
       realTdee: averageIntake - trend.slope * KCAL_PER_KG,
       realTdeeError,

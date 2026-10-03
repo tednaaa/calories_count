@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { downloadBlob, toast } from 'shonk-ui';
 import { ref } from 'vue';
 import { useCustomFoods } from '@/entities/food';
-import { resetTargetToCalculated, saveProfile, setManualTarget } from '@/entities/profile';
+import { resetCalibration, resetTargetToCalculated, saveProfile, setManualTarget } from '@/entities/profile';
 import { applyBackup, BACKUP_VERSION, collectBackup, wipeAllData } from '@/shared/db';
 import { useLiveQuery } from '@/shared/lib';
 import SettingsView from './index.vue';
@@ -28,6 +28,7 @@ vi.mock('@/entities/profile', async importOriginal => ({
   saveProfile: vi.fn(),
   setManualTarget: vi.fn(),
   resetTargetToCalculated: vi.fn(),
+  resetCalibration: vi.fn(),
 }));
 
 vi.mock('@/shared/db', async importOriginal => ({
@@ -149,6 +150,19 @@ describe('экран настроек', () => {
     await wrapper.findElementByText('button', 'Вернуть расчётную').trigger('click');
 
     expect(resetTargetToCalculated).toHaveBeenCalled();
+  });
+
+  it('после уточнения по весу показывает поправку и даёт её сбросить', async () => {
+    profile.value = saved({ tdeeCorrectionKcal: -330, calibratedAt: 1_755_600_000_000 });
+    const wrapper = mount(SettingsView);
+
+    expect(wrapper.text()).toContain('Посчитана по профилю и уточнена по весу');
+    expect(wrapper.text()).toContain('на 330 ккал ниже формулы');
+    expect(wrapper.text()).not.toContain('Задана вручную');
+
+    await wrapper.findElementByText('button', 'Сбросить уточнение').trigger('click');
+
+    expect(resetCalibration).toHaveBeenCalled();
   });
 
   it('выгружает копию файлом', async () => {

@@ -18,7 +18,7 @@ function input(overrides: Partial<ImpactInput> = {}): ImpactInput {
     days,
     totals: eaten(2400),
     weights: weighIns([0, 3, 7, 10, 14, 17, 21, 24, 27], day => 86 - day * 0.2 / 7),
-    formulaTdee: 2840,
+    estimatedTdee: 2840,
     ...overrides,
   };
 }

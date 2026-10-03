@@ -98,7 +98,9 @@ function isProfile(value: unknown): value is Profile {
     && typeof profile.age === 'number'
     && typeof profile.heightCm === 'number'
     && typeof profile.weightKg === 'number'
-    && typeof profile.targetKcal === 'number';
+    && typeof profile.targetKcal === 'number'
+    && (profile.tdeeCorrectionKcal === undefined || typeof profile.tdeeCorrectionKcal === 'number')
+    && (profile.calibratedAt === undefined || typeof profile.calibratedAt === 'number');
 }
 
 export function backupFileName(date: Date = new Date()): string {
