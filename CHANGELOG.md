@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.6.0 (2026-10-03)
+
+- feat(stats): lead the weight tab with real energy burn and hide the details [`44b0df38`](https://github.com/tednaaa/calories_count/commit/44b0df3848684d8ca5f4919579f93359757db907)
+- feat(stats): split statistics into calories and weight tabs [`ceed2764`](https://github.com/tednaaa/calories_count/commit/ceed2764f70be02f6131d337c087c7b2fe61b33c)
+- feat(settings): split settings into a short list of sections [`1d64c4e8`](https://github.com/tednaaa/calories_count/commit/1d64c4e8fd4e506ea48ef9395cb8ca3e3875b70d)
+- feat(stats): show calories as a month calendar you can page back through [`f608ffe6`](https://github.com/tednaaa/calories_count/commit/f608ffe6300aa3e638e653098bb997ee262501e5)
+- feat(today): gently remind to weigh in after two days [`8f8c8ef7`](https://github.com/tednaaa/calories_count/commit/8f8c8ef72182cad051411f143e425651b9d286fd)
+- feat(profile): show BMI and healthy weight range for height [`17c7000b`](https://github.com/tednaaa/calories_count/commit/17c7000bb57dcacb71d5cee38911ddf02796d3d9)
+- feat(profile): set a target weight without a deadline [`e42bb97e`](https://github.com/tednaaa/calories_count/commit/e42bb97e9b56561555aeff3c8489f05752df34db)
+- feat(stats): suggest a calorie target from real energy burn [`1d550a45`](https://github.com/tednaaa/calories_count/commit/1d550a45460a9f37eba04a0189fe1a20031d2113)
+- feat(stats): show how eating moved weight over four weeks [`e2202a22`](https://github.com/tednaaa/calories_count/commit/e2202a220c99bcb0cdf1d0343b0527482e78aed2)
+- feat(stats): log today's weight from the week screen [`db3afcce`](https://github.com/tednaaa/calories_count/commit/db3afcce27d5e1a1c85f5705e488fca64125223a)
+- feat(profile): enter weight with tenths of a kilogram [`ca4019fb`](https://github.com/tednaaa/calories_count/commit/ca4019fb61face5da2323cfad12195eeaf1b0290)
+- feat: migrate calories-count to shonk-ui 0.7.0 [`efd44418`](https://github.com/tednaaa/calories_count/commit/efd44418f58532b79bfb3596cb2735a4318df6c9)
+
 ## v0.5.4 (2026-09-07)
 
 - refactor(entry-row): swipe to delete with the shonk-ui SwipeAction [`9bcf33e2`](https://github.com/tednaaa/calories_count/commit/9bcf33e2ed810800727ebfa4b34c290ae75171ab)
