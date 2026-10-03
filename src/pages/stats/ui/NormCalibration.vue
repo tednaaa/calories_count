@@ -17,6 +17,13 @@ const props = defineProps<{
 
 const goalName = computed(() => goalOptions.find(option => option.id === props.goal)?.name ?? '');
 
+const headline = computed(() => {
+  const gap = props.impact.realTdee - props.estimatedTdee;
+  const direction = gap < 0 ? 'меньше' : 'больше';
+
+  return `Вес показывает, что вы тратите на ${formatKcal(Math.abs(gap))} ккал ${direction}, чем по расчёту. Норму можно уточнить.`;
+});
+
 const waitNote = computed(() => {
   switch (props.offer.kind) {
     case 'early':
@@ -45,22 +52,9 @@ async function apply(tdeeCorrectionKcal: number) {
 <template>
   <div class="flex flex-col gap-3">
     <template v-if="props.offer.kind === 'offer'">
-      <ul class="flex flex-col gap-1 text-sm text-foreground">
-        <li>
-          Вы ели в среднем {{ formatKcal(props.impact.averageIntake) }} ккал, вес шёл {{ formatRate(props.impact.actualPerWeek) }},
-          а расчёт ждал {{ formatRate(props.impact.expectedPerWeek) }}.
-        </li>
-        <li>
-          Значит, ваш реальный расход ≈ {{ formatKcal(props.impact.realTdee) }} ккал, а не {{ formatKcal(props.estimatedTdee) }}, как считалось.
-        </li>
-        <li>
-          Для цели «{{ goalName }}» норма — {{ formatNumber(props.offer.ideal) }} ккал. Уточнять можно раз в месяц.
-        </li>
-        <li v-if="props.offer.next !== props.offer.ideal" class="text-muted-foreground">
-          За раз норма сдвигается не больше чем на {{ CALIBRATION_STEP_KCAL }} ккал — сейчас {{ formatNumber(props.offer.next) }},
-          остальное при следующем уточнении.
-        </li>
-      </ul>
+      <p class="text-sm text-foreground">
+        {{ headline }}
+      </p>
 
       <Button type="button" @click="apply(props.offer.tdeeCorrectionKcal)">
         Поставить {{ formatNumber(props.offer.next) }} ккал
@@ -76,6 +70,22 @@ async function apply(tdeeCorrectionKcal: number) {
         Почему это работает
       </summary>
       <div class="flex flex-col gap-2 pt-2">
+        <ul v-if="props.offer.kind === 'offer'" class="flex flex-col gap-1 text-foreground">
+          <li>
+            Вы ели в среднем {{ formatKcal(props.impact.averageIntake) }} ккал, вес шёл {{ formatRate(props.impact.actualPerWeek) }},
+            а расчёт ждал {{ formatRate(props.impact.expectedPerWeek) }}.
+          </li>
+          <li>
+            Значит, ваш реальный расход ≈ {{ formatKcal(props.impact.realTdee) }} ккал, а не {{ formatKcal(props.estimatedTdee) }}, как считалось.
+          </li>
+          <li>
+            Для цели «{{ goalName }}» норма — {{ formatNumber(props.offer.ideal) }} ккал. Уточнять можно раз в месяц.
+          </li>
+          <li v-if="props.offer.next !== props.offer.ideal">
+            За раз норма сдвигается не больше чем на {{ CALIBRATION_STEP_KCAL }} ккал — сейчас {{ formatNumber(props.offer.next) }},
+            остальное при следующем уточнении.
+          </li>
+        </ul>
         <p>
           Килограмм жира — около 7700 ккал. Если вес идёт медленнее, чем обещает съеденное, значит, вы тратите меньше,
           чем думает формула, и наоборот. Формула угадывает расход по полу, возрасту и активности, а вес показывает, что происходит на самом деле.

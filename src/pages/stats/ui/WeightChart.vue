@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Trend, WeightPoint } from '../lib/impact';
+import type { DateKey } from '@/shared/lib';
 import { computed } from 'vue';
-import { formatKg } from '@/shared/lib';
+import { formatDayLabel, formatKg } from '@/shared/lib';
 
 const props = defineProps<{
   points: WeightPoint[];
   trend: Trend | null;
-  windowDays: number;
+  days: DateKey[];
 }>();
 
 const WIDTH = 300;
@@ -14,7 +15,7 @@ const HEIGHT = 120;
 const PADDING = 8;
 const HEADROOM_KG = 0.5;
 
-const lastDay = computed(() => props.windowDays - 1);
+const lastDay = computed(() => props.days.length - 1);
 
 const trendEnds = computed(() => {
   const trend = props.trend;
@@ -65,8 +66,13 @@ function y(kg: number): number {
     <span class="absolute top-0 left-0 text-[11px] text-muted-foreground tabular-nums">
       {{ formatKg(range.max) }}
     </span>
-    <span class="absolute bottom-0 left-0 text-[11px] text-muted-foreground tabular-nums">
+    <span class="absolute bottom-5 left-0 text-[11px] text-muted-foreground tabular-nums">
       {{ formatKg(range.min) }}
     </span>
+
+    <div class="flex justify-between pt-1 text-[11px] text-muted-foreground">
+      <span>{{ formatDayLabel(props.days[0]) }}</span>
+      <span>{{ formatDayLabel(props.days[lastDay]) }}</span>
+    </div>
   </div>
 </template>

@@ -8,7 +8,7 @@ import { lastWeight, useWeighInReminder, weightsFrom } from '@/entities/weight';
 import { formatDayLabel, formatKg, lastDateKeys, useLiveQuery, useToday } from '@/shared/lib';
 import { WeighInDialog } from '@/widgets/weigh-in';
 import { offerCalibration } from '../lib/calibration';
-import { analyzeImpact, fitTrend, IMPACT_WINDOW_DAYS, toPoints } from '../lib/impact';
+import { analyzeImpact, fitTrend, formatRate, IMPACT_WINDOW_DAYS, toPoints } from '../lib/impact';
 import DietImpact from './DietImpact.vue';
 import NormCalibration from './NormCalibration.vue';
 import WeightChart from './WeightChart.vue';
@@ -70,11 +70,14 @@ const weighing = ref(false);
   <section>
     <div class="flex items-end justify-between gap-4">
       <div v-if="latest">
-        <p class="text-lg tabular-nums text-foreground">
-          {{ formatKg(latest.kg) }} кг
+        <p class="text-3xl font-semibold tabular-nums text-foreground">
+          {{ formatKg(latest.kg) }}
+          <span class="text-base font-normal text-muted-foreground">кг</span>
         </p>
         <p class="text-xs text-muted-foreground">
-          {{ formatDayLabel(latest.date) }}
+          {{ formatDayLabel(latest.date) }}<template v-if="impact.ready">
+            · тренд {{ formatRate(impact.impact.actualPerWeek) }}
+          </template>
         </p>
       </div>
       <p v-else class="text-sm text-muted-foreground">
@@ -97,20 +100,21 @@ const weighing = ref(false);
       v-if="points.length"
       :points="points"
       :trend="trend"
-      :window-days="IMPACT_WINDOW_DAYS"
+      :days="days"
       class="mt-6"
     />
 
     <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-      Как питание влияет на вес
+      Расход по весу
     </h3>
     <DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" :reminds="reminds" />
 
     <template v-if="calibration && profile">
-      <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <h3 v-if="calibration.offer.kind === 'offer'" class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
         Уточнить норму
       </h3>
       <NormCalibration
+        :class="{ 'pt-6': calibration.offer.kind !== 'offer' }"
         :offer="calibration.offer"
         :impact="calibration.impact"
         :estimated-tdee="estimatedTdee"

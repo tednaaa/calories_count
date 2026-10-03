@@ -25,58 +25,48 @@ const precisionNote = computed(() => {
 </script>
 
 <template>
-  <div v-if="props.result.ready" class="flex flex-col gap-4">
-    <dl class="grid grid-cols-2 gap-4">
-      <div>
-        <dt class="text-xs text-muted-foreground">
-          По съеденному ждали
-        </dt>
-        <dd class="text-lg tabular-nums text-foreground">
-          {{ formatRate(props.result.impact.expectedPerWeek) }}
-        </dd>
-      </div>
-      <div>
-        <dt class="text-xs text-muted-foreground">
-          На самом деле
-        </dt>
-        <dd class="text-lg tabular-nums text-foreground">
-          {{ formatRate(props.result.impact.actualPerWeek) }}
-        </dd>
-      </div>
-      <div>
-        <dt class="text-xs text-muted-foreground">
-          Реальный расход
-        </dt>
-        <dd class="text-lg tabular-nums text-foreground">
-          ≈ {{ formatKcal(props.result.impact.realTdee) }}
-          <span class="text-sm text-muted-foreground">± {{ formatKcal(props.result.impact.realTdeeError) }} ккал</span>
-        </dd>
-      </div>
-      <div>
-        <dt class="text-xs text-muted-foreground">
-          По расчёту
-        </dt>
-        <dd class="text-lg tabular-nums text-foreground">
-          {{ formatKcal(props.estimatedTdee) }} ккал
-        </dd>
-      </div>
-    </dl>
-
-    <p class="text-xs text-muted-foreground">
-      {{ precisionNote }}
-    </p>
+  <div v-if="props.result.ready" class="flex flex-col gap-3">
+    <div>
+      <p class="text-2xl font-semibold tabular-nums text-foreground">
+        ≈ {{ formatKcal(props.result.impact.realTdee) }}
+        <span class="text-sm font-normal text-muted-foreground">± {{ formatKcal(props.result.impact.realTdeeError) }} ккал</span>
+      </p>
+      <p class="text-sm text-muted-foreground">
+        В день. По формуле — {{ formatKcal(props.estimatedTdee) }} ккал.
+      </p>
+    </div>
 
     <p v-if="props.result.impact.coverage < SOLID_COVERAGE" class="text-xs text-warning">
       Еда записана меньше чем за 70 % дней. Недописанные дни занижают съеденное, и расход выходит ниже настоящего.
     </p>
 
-    <p class="text-xs text-muted-foreground">
-      Вес за день гуляет на ±0,7 кг из-за воды и еды. Чем чаще взвешивания, тем точнее расход.
-    </p>
+    <details class="text-xs text-muted-foreground">
+      <summary class="cursor-pointer text-foreground">
+        Подробнее
+      </summary>
+      <div class="flex flex-col gap-3 pt-3">
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt>По съеденному ждали</dt>
+            <dd class="text-base tabular-nums text-foreground">
+              {{ formatRate(props.result.impact.expectedPerWeek) }}
+            </dd>
+          </div>
+          <div>
+            <dt>На самом деле</dt>
+            <dd class="text-base tabular-nums text-foreground">
+              {{ formatRate(props.result.impact.actualPerWeek) }}
+            </dd>
+          </div>
+        </dl>
 
-    <p v-if="props.reminds" class="text-xs text-muted-foreground">
-      Приложение напомнит, если вы не взвешивались 2 дня, — этого хватает для точности ± 200 ккал.
-    </p>
+        <p>{{ precisionNote }}</p>
+        <p>Вес за день гуляет на ±0,7 кг из-за воды и еды. Чем чаще взвешивания, тем точнее расход.</p>
+        <p v-if="props.reminds">
+          Приложение напомнит, если вы не взвешивались 2 дня, — этого хватает для точности ± 200 ккал.
+        </p>
+      </div>
+    </details>
   </div>
 
   <div v-else class="flex flex-col gap-2 text-sm text-muted-foreground">

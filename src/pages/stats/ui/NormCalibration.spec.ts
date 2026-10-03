@@ -36,6 +36,11 @@ describe('уточнение нормы', () => {
     expect(text).not.toContain('За раз норма сдвигается');
   });
 
+  it('коротко называет разницу с расчётом', () => {
+    expect(mountOffer({ kind: 'offer', ideal: 2230, next: 2230, tdeeCorrectionKcal: -216 }).text())
+      .toContain('вы тратите на 220 ккал меньше, чем по расчёту');
+  });
+
   it('говорит, что большой сдвиг делится на несколько раз', () => {
     expect(mountOffer({ kind: 'offer', ideal: 1870, next: 2160, tdeeCorrectionKcal: -295 }).text()).toContain('сейчас 2 160, остальное при следующем уточнении');
   });
