@@ -19,6 +19,7 @@ export {
 export {
   addCustomEntry,
   addEntries,
+  entriesBetween,
   entriesFrom,
   entriesOfDay,
   frequentFoodIds,

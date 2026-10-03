@@ -33,5 +33,5 @@ export {
   withWeight,
 } from './lib/profile';
 export type { WeightToGo } from './lib/weight-goal';
-export { targetConflict, weightToGo } from './lib/weight-goal';
+export { isGainingGoal, targetConflict, weightToGo } from './lib/weight-goal';
 export { default as ProfileFields } from './ui/ProfileFields.vue';

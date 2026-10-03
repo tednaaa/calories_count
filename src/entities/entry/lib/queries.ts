@@ -13,6 +13,10 @@ export function entriesFrom(date: DateKey): Promise<Entry[]> {
   return db.entries.where('date').aboveOrEqual(date).toArray();
 }
 
+export function entriesBetween(from: DateKey, to: DateKey): Promise<Entry[]> {
+  return db.entries.where('date').between(from, to, true, true).toArray();
+}
+
 export async function addEntries(date: DateKey, items: CartItem[]): Promise<void> {
   await db.entries.bulkAdd(buildEntries(date, items, Date.now()));
 }

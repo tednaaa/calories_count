@@ -1,12 +1,28 @@
 import type { Entry, Profile } from '@/shared/db';
 import { mount } from '@vue/test-utils';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { useLiveQuery } from '@/shared/lib';
 import StatsView from './index.vue';
 
-const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+const { push, route } = vi.hoisted(() => ({
+  push: vi.fn(),
+  route: { query: {} as Record<string, unknown> },
+}));
 
-vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }));
+vi.mock('vue-router', async () => {
+  const { reactive } = await import('vue');
+  const reactiveRoute = reactive(route);
+
+  return {
+    useRoute: () => reactiveRoute,
+    useRouter: () => ({
+      push,
+      replace: (to: { query?: Record<string, unknown> }) => {
+        reactiveRoute.query = to.query ?? {};
+      },
+    }),
+  };
+});
 
 vi.mock('@/entities/profile', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/profile')>(),
@@ -37,8 +53,9 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2026, 7, 19, 12, 0));
 
+  route.query = {};
   entries.value = [];
-  profile.value = { targetKcal: 2400 } as Profile;
+  profile.value = { targetKcal: 2400, goal: 'cutMild' } as Profile;
 
   vi.mocked(useLiveQuery).mockImplementation(
     (_querier, initial) => (Array.isArray(initial) ? entries : profile) as never,
@@ -53,13 +70,30 @@ function mountStats() {
   return mount(StatsView, { global: { stubs: { WeightSection: true } } });
 }
 
+function dayButton(wrapper: ReturnType<typeof mountStats>, day: number) {
+  return wrapper.findAll('section button').find(button => button.find('span').text() === String(day))!;
+}
+
 describe('экран статистики', () => {
-  it('рисует столбик на каждый день окна', () => {
-    expect(mountStats().findAll('button')).toHaveLength(7);
+  it('рисует клетку на каждый день месяца', () => {
+    expect(mountStats().findAll('section button')).toHaveLength(31);
+  });
+
+  it('будущие дни нельзя открыть', () => {
+    const wrapper = mountStats();
+
+    expect(dayButton(wrapper, 20).attributes('disabled')).toBeDefined();
+    expect(dayButton(wrapper, 19).attributes('disabled')).toBeUndefined();
   });
 
   it('без записей показывает пустое состояние', () => {
-    expect(mountStats().text()).toContain('За эту неделю записей пока нет');
+    expect(mountStats().text()).toContain('За этот месяц записей нет');
+  });
+
+  it('в клетке дня видны калории', () => {
+    entries.value = [entry('2026-08-18', 1850)];
+
+    expect(dayButton(mountStats(), 18).text()).toContain('1 850');
   });
 
   it('среднее считает только по дням с записями', () => {
@@ -72,31 +106,55 @@ describe('экран статистики', () => {
     expect(text).toContain('2 дня с записями');
   });
 
-  it('отклонение считает от цели за прожитые дни', () => {
+  it('отклонение считает от цели за дни с записями', () => {
     entries.value = [entry('2026-08-19', 2000)];
 
     expect(mountStats().text()).toContain('дефицит 400 ккал ≈ 0,05 кг');
   });
 
-  it('не берёт в расчёт дни за пределами окна', () => {
-    entries.value = [entry('2026-08-01', 5000), entry('2026-08-19', 2400)];
+  it('не берёт в расчёт дни другого месяца', () => {
+    entries.value = [entry('2026-07-31', 5000), entry('2026-08-19', 2400)];
 
     expect(mountStats().text()).toContain('1 день с записями');
   });
 
-  it('столбик выше цели окрашен иначе', () => {
-    entries.value = [entry('2026-08-19', 3000)];
+  it('день заметно выше цели окрашен иначе', () => {
+    entries.value = [entry('2026-08-18', 2450), entry('2026-08-19', 3000)];
 
-    const bars = mountStats().findAll('button span');
+    const wrapper = mountStats();
 
-    expect(bars[6].classes()).toContain('bg-destructive');
-    expect(bars[5].classes()).toContain('bg-primary');
+    expect(dayButton(wrapper, 19).classes()).toContain('bg-destructive/15');
+    expect(dayButton(wrapper, 18).classes()).toContain('bg-primary/15');
   });
 
-  it('тап по столбику открывает этот день', async () => {
-    const wrapper = mountStats();
-    await wrapper.findAll('button')[0].trigger('click');
+  it('сегодня отмечено для скринридера', () => {
+    expect(dayButton(mountStats(), 19).attributes('aria-current')).toBe('date');
+    expect(dayButton(mountStats(), 18).attributes('aria-current')).toBeUndefined();
+  });
+
+  it('тап по дню открывает этот день', async () => {
+    await dayButton(mountStats(), 13).trigger('click');
 
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-13' } });
+  });
+
+  it('листает на прошлый месяц и обратно', async () => {
+    const wrapper = mountStats();
+
+    await wrapper.get('[aria-label="Предыдущий месяц"]').trigger('click');
+    await nextTick();
+
+    expect(route.query).toEqual({ month: '2026-07' });
+    expect(wrapper.text()).toContain('Июль 2026');
+
+    await wrapper.get('[aria-label="Следующий месяц"]').trigger('click');
+    await nextTick();
+
+    expect(route.query).toEqual({});
+    expect(wrapper.text()).toContain('Август 2026');
+  });
+
+  it('в будущее не листает', () => {
+    expect(mountStats().get('[aria-label="Следующий месяц"]').attributes('disabled')).toBeDefined();
   });
 });

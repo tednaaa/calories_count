@@ -4,6 +4,10 @@ const LOSING: Goal[] = ['cut', 'cutMild'];
 const GAINING: Goal[] = ['bulkMild', 'bulk'];
 const MAINTAIN_TOLERANCE_KG = 1;
 
+export function isGainingGoal(goal: Goal): boolean {
+  return GAINING.includes(goal);
+}
+
 export type WeightToGo = { reached: true } | { reached: false; kg: number };
 
 export function targetConflict(goal: Goal, weightKg: number, targetWeightKg: number): string | null {
