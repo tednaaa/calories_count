@@ -49,6 +49,8 @@ vi.mock('@/entities/profile', async importOriginal => ({
   loadProfile: vi.fn(),
 }));
 
+vi.mock('@/widgets/weigh-in', () => ({ WeighInReminder: { template: '<div />' } }));
+
 vi.mock('@/shared/lib', async importOriginal => ({
   ...await importOriginal<typeof import('@/shared/lib')>(),
   useLiveQuery: vi.fn(),

@@ -4,7 +4,7 @@ import { Button } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { entriesFrom, totalsByDate } from '@/entities/entry';
 import { calcTarget, describeBmi, loadProfile, weightToGo } from '@/entities/profile';
-import { lastWeight, weightsFrom } from '@/entities/weight';
+import { lastWeight, useWeighInReminder, weightsFrom } from '@/entities/weight';
 import { formatDayLabel, formatKg, lastDateKeys, useLiveQuery, useToday } from '@/shared/lib';
 import { WeighInDialog } from '@/widgets/weigh-in';
 import { offerCalibration } from '../lib/calibration';
@@ -61,6 +61,8 @@ const bmiNote = computed(() => {
   return current ? describeBmi({ ...current, weightKg: latest.value?.kg ?? current.weightKg }) : null;
 });
 
+const { enabled: reminds } = useWeighInReminder();
+
 const weighing = ref(false);
 </script>
 
@@ -106,7 +108,7 @@ const weighing = ref(false);
     <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
       Как питание влияет на вес
     </h3>
-    <DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" />
+    <DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" :reminds="reminds" />
 
     <template v-if="calibration && profile">
       <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">

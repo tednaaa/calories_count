@@ -15,8 +15,8 @@ const impact: Impact = {
   projection: { weighIns: 13, error: 192 },
 };
 
-function mountReady(overrides: Partial<Impact> = {}) {
-  return mount(DietImpact, { props: { result: { ready: true, impact: { ...impact, ...overrides } }, estimatedTdee: 2836 } });
+function mountReady(overrides: Partial<Impact> = {}, reminds = true) {
+  return mount(DietImpact, { props: { result: { ready: true, impact: { ...impact, ...overrides } }, estimatedTdee: 2836, reminds } });
 }
 
 describe('вывод о влиянии питания', () => {
@@ -44,9 +44,14 @@ describe('вывод о влиянии питания', () => {
     expect(mountReady({ coverage: 0.5 }).text()).toContain('меньше чем за 70 %');
   });
 
+  it('обещает напоминание, только если оно включено', () => {
+    expect(mountReady().text()).toContain('Приложение напомнит');
+    expect(mountReady({}, false).text()).not.toContain('Приложение напомнит');
+  });
+
   it('без данных перечисляет, чего не хватает', () => {
     const text = mount(DietImpact, {
-      props: { result: { ready: false, shortfall: { weighIns: 2, spanDays: 0, trackedDays: 5 } }, estimatedTdee: 2836 },
+      props: { result: { ready: false, shortfall: { weighIns: 2, spanDays: 0, trackedDays: 5 } }, estimatedTdee: 2836, reminds: true },
     }).text();
 
     expect(text).toContain('2 взвешивания');

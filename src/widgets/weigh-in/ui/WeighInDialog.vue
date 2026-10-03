@@ -14,11 +14,14 @@ import {
 } from 'shonk-ui';
 import { computed, ref, watch } from 'vue';
 import { recordWeight } from '@/entities/profile';
+import { useWeighInReminder } from '@/entities/weight';
 import { formatKg, parseKg, WEIGHT_LIMITS } from '@/shared/lib';
 
 const props = defineProps<{ lastKg?: number }>();
 
 const open = defineModel<boolean>('open', { required: true });
+
+const { postpone } = useWeighInReminder();
 
 const entered = ref('');
 const saving = ref(false);
@@ -48,6 +51,10 @@ async function save() {
     saving.value = false;
   }
 }
+function postponeWeighIn() {
+  postpone();
+  open.value = false;
+}
 </script>
 
 <template>
@@ -74,7 +81,7 @@ async function save() {
         </DialogBody>
 
         <DialogFooter>
-          <Button type="button" variant="secondary" @click="open = false">
+          <Button type="button" variant="secondary" @click="postponeWeighIn">
             Взвешусь завтра
           </Button>
           <Button type="submit" :disabled="kg === null" :loading="saving">

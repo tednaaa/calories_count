@@ -7,6 +7,7 @@ import { formatKcal, formatRate, SOLID_COVERAGE } from '../lib/impact';
 const props = defineProps<{
   result: ImpactResult;
   estimatedTdee: number;
+  reminds: boolean;
 }>();
 
 const precisionNote = computed(() => {
@@ -71,6 +72,10 @@ const precisionNote = computed(() => {
 
     <p class="text-xs text-muted-foreground">
       Вес за день гуляет на ±0,7 кг из-за воды и еды. Чем чаще взвешивания, тем точнее расход.
+    </p>
+
+    <p v-if="props.reminds" class="text-xs text-muted-foreground">
+      Приложение напомнит, если вы не взвешивались 2 дня, — этого хватает для точности ± 200 ккал.
     </p>
   </div>
 

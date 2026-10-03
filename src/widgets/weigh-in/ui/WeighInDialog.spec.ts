@@ -1,5 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { recordWeight } from '@/entities/profile';
+import { toDateKey } from '@/shared/lib';
 import WeighInDialog from './WeighInDialog.vue';
 
 vi.mock('@/entities/profile', async importOriginal => ({
@@ -73,5 +74,6 @@ describe('диалог взвешивания', () => {
 
     expect(recordWeight).not.toHaveBeenCalled();
     expect(wrapper.emitted('update:open')).toEqual([[false]]);
+    expect(localStorage.getItem('weigh-in-postponed-on')).toBe(toDateKey());
   });
 });

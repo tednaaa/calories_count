@@ -103,6 +103,15 @@ describe('экран настроек', () => {
     expect((wrapper.find('#weight').element as HTMLInputElement).value).toBe('85');
   });
 
+  it('выключает напоминание взвеситься', async () => {
+    localStorage.clear();
+    const wrapper = mount(SettingsView);
+
+    await wrapper.find('#weigh-in-reminder').trigger('click');
+
+    expect(localStorage.getItem('weigh-in-reminder')).toBe('false');
+  });
+
   it('не даёт сохранить профиль, пока ничего не изменилось', () => {
     const wrapper = mount(SettingsView);
 

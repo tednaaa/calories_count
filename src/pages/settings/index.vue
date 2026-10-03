@@ -6,6 +6,7 @@ import AboutSection from './ui/AboutSection.vue';
 import CustomFoodsSection from './ui/CustomFoodsSection.vue';
 import DataSection from './ui/DataSection.vue';
 import ProfileSection from './ui/ProfileSection.vue';
+import ReminderSection from './ui/ReminderSection.vue';
 import TargetSection from './ui/TargetSection.vue';
 
 const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined);
@@ -30,6 +31,13 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
           Профиль
         </h2>
         <ProfileSection :profile="profile" />
+      </section>
+
+      <section class="pt-8">
+        <h2 class="pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          Взвешивание
+        </h2>
+        <ReminderSection />
       </section>
     </template>
 

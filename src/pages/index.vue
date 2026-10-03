@@ -19,6 +19,7 @@ import { isToday, requestedDateKey, useLiveQuery } from '@/shared/lib';
 import { DayProgress } from '@/widgets/day-progress';
 import { DayQuality } from '@/widgets/day-quality';
 import { WeekStrip } from '@/widgets/week-strip';
+import { WeighInReminder } from '@/widgets/weigh-in';
 import { nextCompact } from './compact';
 
 const route = useRoute();
@@ -110,6 +111,8 @@ function editEntry(entry: Entry) {
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto pb-6" @scroll="trackScroll">
+      <WeighInReminder v-if="showsToday" />
+
       <ul v-if="entries.length">
         <EntryRow
           v-for="entry in entries"
