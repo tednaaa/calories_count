@@ -16,10 +16,12 @@ export type { ProfileInput } from './lib/profile';
 export {
   loadProfile,
   nextProfile,
+  recordWeight,
   resetTargetToCalculated,
   saveProfile,
   setManualTarget,
   withCalculatedTarget,
   withManualTarget,
+  withWeight,
 } from './lib/profile';
 export { default as ProfileFields } from './ui/ProfileFields.vue';

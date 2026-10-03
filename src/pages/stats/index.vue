@@ -8,6 +8,7 @@ import { loadProfile } from '@/entities/profile';
 import { formatNumber, lastDateKeys, pluralize, useLiveQuery } from '@/shared/lib';
 import { formatDeviation, summarizeWeek, weekTotals } from './lib/week';
 import WeekChart from './ui/WeekChart.vue';
+import WeightSection from './ui/WeightSection.vue';
 
 const WINDOW_DAYS = 7;
 
@@ -71,5 +72,7 @@ function showDay(date: DateKey) {
     <p v-else class="pt-8 text-center text-sm text-muted-foreground">
       За эту неделю записей пока нет
     </p>
+
+    <WeightSection class="pt-10" />
   </main>
 </template>

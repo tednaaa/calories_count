@@ -49,19 +49,23 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+function mountStats() {
+  return mount(StatsView, { global: { stubs: { WeightSection: true } } });
+}
+
 describe('экран статистики', () => {
   it('рисует столбик на каждый день окна', () => {
-    expect(mount(StatsView).findAll('button')).toHaveLength(7);
+    expect(mountStats().findAll('button')).toHaveLength(7);
   });
 
   it('без записей показывает пустое состояние', () => {
-    expect(mount(StatsView).text()).toContain('За эту неделю записей пока нет');
+    expect(mountStats().text()).toContain('За эту неделю записей пока нет');
   });
 
   it('среднее считает только по дням с записями', () => {
     entries.value = [entry('2026-08-18', 2000), entry('2026-08-19', 3000)];
 
-    const text = mount(StatsView).text();
+    const text = mountStats().text();
 
     expect(text).toContain('2 500 ккал');
     expect(text).toContain('5 000 ккал');
@@ -71,26 +75,26 @@ describe('экран статистики', () => {
   it('отклонение считает от цели за прожитые дни', () => {
     entries.value = [entry('2026-08-19', 2000)];
 
-    expect(mount(StatsView).text()).toContain('дефицит 400 ккал ≈ 0,05 кг');
+    expect(mountStats().text()).toContain('дефицит 400 ккал ≈ 0,05 кг');
   });
 
   it('не берёт в расчёт дни за пределами окна', () => {
     entries.value = [entry('2026-08-01', 5000), entry('2026-08-19', 2400)];
 
-    expect(mount(StatsView).text()).toContain('1 день с записями');
+    expect(mountStats().text()).toContain('1 день с записями');
   });
 
   it('столбик выше цели окрашен иначе', () => {
     entries.value = [entry('2026-08-19', 3000)];
 
-    const bars = mount(StatsView).findAll('button span');
+    const bars = mountStats().findAll('button span');
 
     expect(bars[6].classes()).toContain('bg-destructive');
     expect(bars[5].classes()).toContain('bg-primary');
   });
 
   it('тап по столбику открывает этот день', async () => {
-    const wrapper = mount(StatsView);
+    const wrapper = mountStats();
     await wrapper.findAll('button')[0].trigger('click');
 
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-13' } });

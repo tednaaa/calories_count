@@ -1,7 +1,7 @@
 import type { ProfileInput } from './profile';
 import type { Profile } from '@/shared/db';
 import { calcTarget } from './calories';
-import { nextProfile, withCalculatedTarget, withManualTarget } from './profile';
+import { nextProfile, withCalculatedTarget, withManualTarget, withWeight } from './profile';
 
 const input: ProfileInput = {
   sex: 'male',
@@ -63,5 +63,20 @@ describe('withCalculatedTarget', () => {
 
     expect(restored.targetKcal).toBe(calcTarget(input).target);
     expect(restored.targetOverridden).toBe(false);
+  });
+});
+
+describe('withWeight', () => {
+  it('берёт из профиля всё, кроме веса', () => {
+    const profile = nextProfile(undefined, input, NOW);
+
+    expect(withWeight(profile, 83.4)).toEqual({ ...input, weightKg: 83.4 });
+  });
+
+  it('пересчитывает норму от нового веса', () => {
+    const profile = nextProfile(undefined, input, NOW);
+    const updated = nextProfile(profile, withWeight(profile, 75), NOW + 1);
+
+    expect(updated.targetKcal).toBe(calcTarget({ ...input, weightKg: 75 }).target);
   });
 });

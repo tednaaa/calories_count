@@ -64,3 +64,23 @@ export async function resetTargetToCalculated(): Promise<void> {
     await db.profile.put(withCalculatedTarget(current, Date.now()));
   }
 }
+
+export function withWeight(profile: Profile, weightKg: number): ProfileInput {
+  const { sex, age, heightCm, activity, goal } = profile;
+
+  return { sex, age, heightCm, weightKg, activity, goal };
+}
+
+export async function recordWeight(kg: number): Promise<void> {
+  const now = Date.now();
+
+  await db.transaction('rw', db.profile, db.weightLog, async () => {
+    const current = await loadProfile();
+
+    if (current) {
+      await db.profile.put(nextProfile(current, withWeight(current, kg), now));
+    }
+
+    await logWeight(kg, now);
+  });
+}
