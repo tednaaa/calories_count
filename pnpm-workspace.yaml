@@ -1,4 +1,5 @@
 allowBuilds:
+  lefthook: false
   vue-demi: false
 minimumReleaseAgeExclude:
   - shonk-ui@0.7.0

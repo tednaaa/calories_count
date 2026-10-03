@@ -1,0 +1,14 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "{src,scripts,.github}/**/*.{js,ts,vue,json,yaml,yml,md}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+
+    typecheck:
+      glob: "*.{ts,vue}"
+      run: pnpm typecheck
+
+    test:
+      glob: "src/**/*.{ts,vue}"
+      run: pnpm exec vitest related --run --project=unit --passWithNoTests {staged_files}
