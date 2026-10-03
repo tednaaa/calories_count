@@ -1,41 +1,17 @@
 import type { CustomFood, Profile } from '@/shared/db';
-import { flushPromises, mount } from '@vue/test-utils';
-import { downloadBlob, toast } from 'shonk-ui';
+import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import { useCustomFoods } from '@/entities/food';
-import { resetCalibration, resetTargetToCalculated, saveProfile, setManualTarget } from '@/entities/profile';
-import { applyBackup, BACKUP_VERSION, collectBackup, wipeAllData } from '@/shared/db';
 import { useLiveQuery } from '@/shared/lib';
 import SettingsView from './index.vue';
 
-const { push, requireConfirm } = vi.hoisted(() => ({ push: vi.fn(), requireConfirm: vi.fn() }));
-
 vi.mock('vue-router', () => ({
   RouterLink: { template: '<a><slot /></a>' },
-  useRouter: () => ({ push }),
-}));
-
-vi.mock('shonk-ui', async importOriginal => ({
-  ...await importOriginal<typeof import('shonk-ui')>(),
-  toast: vi.fn(),
-  downloadBlob: vi.fn(),
-  useConfirm: () => ({ require: requireConfirm }),
 }));
 
 vi.mock('@/entities/profile', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/profile')>(),
   loadProfile: vi.fn(),
-  saveProfile: vi.fn(),
-  setManualTarget: vi.fn(),
-  resetTargetToCalculated: vi.fn(),
-  resetCalibration: vi.fn(),
-}));
-
-vi.mock('@/shared/db', async importOriginal => ({
-  ...await importOriginal<typeof import('@/shared/db')>(),
-  collectBackup: vi.fn(),
-  applyBackup: vi.fn(),
-  wipeAllData: vi.fn(),
 }));
 
 vi.mock('@/entities/food', async importOriginal => ({
@@ -68,26 +44,6 @@ function saved(overrides: Partial<Profile> = {}): Profile {
   };
 }
 
-function backupJson(entries: unknown[] = []) {
-  return JSON.stringify({
-    version: BACKUP_VERSION,
-    exportedAt: '2026-08-19T12:00:00.000Z',
-    profile: null,
-    entries,
-    customFoods: [],
-    weightLog: [],
-  });
-}
-
-async function chooseFile(wrapper: ReturnType<typeof mount>, contents: string) {
-  const input = wrapper.find('input[type="file"]');
-  const file = new File([contents], 'backup.json', { type: 'application/json' });
-
-  Object.defineProperty(input.element, 'files', { value: [file], configurable: true });
-  await input.trigger('change');
-  await flushPromises();
-}
-
 beforeEach(() => {
   profile.value = saved();
   customFoods.value = [];
@@ -96,11 +52,15 @@ beforeEach(() => {
 });
 
 describe('экран настроек', () => {
-  it('показывает сохранённую норму и профиль', () => {
-    const wrapper = mount(SettingsView);
+  it('показывает норму и откуда она взялась', () => {
+    const text = mount(SettingsView).text();
 
-    expect(wrapper.text()).toContain('2 410');
-    expect((wrapper.find('#weight').element as HTMLInputElement).value).toBe('85');
+    expect(text).toContain('2 410 ккал');
+    expect(text).toContain('Посчитана по профилю');
+  });
+
+  it('сводит профиль в одну строку', () => {
+    expect(mount(SettingsView).text()).toContain('Мягкое похудение · 30 лет · 180 см · 85 кг');
   });
 
   it('выключает напоминание взвеситься', async () => {
@@ -112,145 +72,7 @@ describe('экран настроек', () => {
     expect(localStorage.getItem('weigh-in-reminder')).toBe('false');
   });
 
-  it('не даёт сохранить профиль, пока ничего не изменилось', () => {
-    const wrapper = mount(SettingsView);
-
-    expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
-  });
-
-  it('сохраняет изменённый вес', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.find('#weight').setValue('82');
-    await wrapper.find('form').trigger('submit');
-
-    expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ weightKg: 82 }));
-  });
-
-  it('ошибку в целевом весе не выдаёт за ошибку роста или веса', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.find('#target-weight').setValue('500');
-
-    expect(wrapper.text()).toContain('Целевой вес — число от 30 до 300 кг');
-    expect(wrapper.text()).not.toContain('выходят за разумные границы');
-    expect(wrapper.text()).toContain('Расчётная норма');
-    expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
-  });
-
-  it('показывает, как изменится расчётная норма', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.find('#weight').setValue('75');
-
-    expect(wrapper.text()).toContain('Расчётная норма');
-  });
-
-  it('задаёт норму вручную', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.find('#target').setValue('2000');
-    await wrapper.findElementByText('button', 'Задать').trigger('click');
-
-    expect(setManualTarget).toHaveBeenCalledWith(2000);
-  });
-
-  it('не принимает норму за пределами разумного', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.find('#target').setValue('120');
-
-    expect(wrapper.findElementByText('button', 'Задать').attributes('disabled')).toBeDefined();
-    expect(wrapper.text()).toContain('от 800 до 6 000');
-  });
-
-  it('вернуть расчётную предлагает только при ручной норме', async () => {
-    const wrapper = mount(SettingsView);
-
-    expect(wrapper.findElementByText('button', 'Вернуть расчётную')).toBeUndefined();
-
-    profile.value = saved({ targetOverridden: true });
-    await wrapper.vm.$nextTick();
-    await wrapper.findElementByText('button', 'Вернуть расчётную').trigger('click');
-
-    expect(resetTargetToCalculated).toHaveBeenCalled();
-  });
-
-  it('после уточнения по весу показывает поправку и даёт её сбросить', async () => {
-    profile.value = saved({ tdeeCorrectionKcal: -330, calibratedAt: 1_755_600_000_000 });
-    const wrapper = mount(SettingsView);
-
-    expect(wrapper.text()).toContain('Посчитана по профилю и уточнена по весу');
-    expect(wrapper.text()).toContain('на 330 ккал ниже формулы');
-    expect(wrapper.text()).not.toContain('Задана вручную');
-
-    await wrapper.findElementByText('button', 'Сбросить уточнение').trigger('click');
-
-    expect(resetCalibration).toHaveBeenCalled();
-  });
-
-  it('выгружает копию файлом', async () => {
-    vi.mocked(collectBackup).mockResolvedValue({
-      version: BACKUP_VERSION,
-      exportedAt: '',
-      profile: null,
-      entries: [],
-      customFoods: [],
-      weightLog: [],
-    });
-
-    const wrapper = mount(SettingsView);
-    await wrapper.findElementByText('button', 'Выгрузить копию').trigger('click');
-    await flushPromises();
-
-    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^calories-count-\d{4}-\d{2}-\d{2}\.json$/));
-  });
-
-  it('объясняет, почему файл не подошёл', async () => {
-    const wrapper = mount(SettingsView);
-    await chooseFile(wrapper, 'не json');
-
-    expect(toast).toHaveBeenCalledWith('Файл не похож на JSON');
-    expect(wrapper.text()).not.toContain('Заменить всё');
-  });
-
-  it('перед загрузкой копии показывает, что внутри', async () => {
-    const wrapper = mount(SettingsView);
-    await chooseFile(wrapper, backupJson([{
-      id: 'entry-1',
-      date: '2026-08-19',
-      createdAt: 1,
-      foodId: 'apple',
-      qty: 1,
-      kcalPerPortion: 80,
-      name: 'Яблоко',
-    }]));
-
-    expect(wrapper.text()).toContain('записей: 1, своих блюд: 0, профиль: нет, замеров веса: 0');
-  });
-
-  it('загружает копию выбранным способом', async () => {
-    const wrapper = mount(SettingsView);
-    await chooseFile(wrapper, backupJson());
-    await wrapper.findElementByText('button', 'Дополнить').trigger('click');
-    await flushPromises();
-
-    expect(applyBackup).toHaveBeenCalledWith(expect.objectContaining({ entries: [] }), 'merge');
-    expect(wrapper.text()).not.toContain('Дополнить');
-  });
-
-  it('стирает данные только после подтверждения', async () => {
-    const wrapper = mount(SettingsView);
-    await wrapper.findElementByText('button', 'Стереть все данные').trigger('click');
-
-    expect(wipeAllData).not.toHaveBeenCalled();
-
-    const options = requireConfirm.mock.calls[0][0] as { acceptButtonText: string; accept: () => void };
-    expect(options.acceptButtonText).toBe('Стереть');
-
-    options.accept();
-    await flushPromises();
-
-    expect(wipeAllData).toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith('/');
-  });
-
-  it('рассказывает, как поставить на iPhone', () => {
-    expect(mount(SettingsView).text()).toContain('На экран „Домой“');
+  it('не показывает подсказку про iPhone на других телефонах', () => {
+    expect(mount(SettingsView).text()).not.toContain('На экран „Домой“');
   });
 });

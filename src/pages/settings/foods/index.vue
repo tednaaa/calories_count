@@ -1,27 +1,16 @@
 <script setup lang="ts">
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@lucide/vue';
+import { ChevronRightIcon, PlusIcon } from '@lucide/vue';
 import { Button } from 'shonk-ui';
 import { RouterLink } from 'vue-router';
 import { FoodThumb, formatServing, useCustomFoods } from '@/entities/food';
+import SettingsHeader from '../ui/SettingsHeader.vue';
 
 const customFoods = useCustomFoods();
 </script>
 
 <template>
   <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
-    <header class="flex items-center gap-1">
-      <RouterLink
-        to="/settings"
-        class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
-        aria-label="Назад к настройкам"
-      >
-        <ChevronLeftIcon class="size-5" />
-      </RouterLink>
-
-      <h1 class="text-xl font-semibold text-foreground">
-        Свои блюда
-      </h1>
-    </header>
+    <SettingsHeader title="Свои блюда" />
 
     <p class="mt-1 text-sm text-muted-foreground">
       Заводятся прямо с телефона и живут только на нём. В сетке «Добавить» лежат отдельным блоком «Своё».

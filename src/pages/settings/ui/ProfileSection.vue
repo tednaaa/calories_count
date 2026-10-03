@@ -4,7 +4,6 @@ import { Button, toast } from 'shonk-ui';
 import { computed, reactive, ref, watch } from 'vue';
 import {
   calcTarget,
-  describeBmi,
   draftFromProfile,
   draftsEqual,
   draftToInput,
@@ -65,11 +64,7 @@ async function submit() {
       <span v-if="props.profile.targetOverridden"> — сейчас не применяется, норма задана вручную</span>
     </p>
 
-    <p v-if="measurements" class="text-sm text-muted-foreground">
-      {{ describeBmi(measurements) }}
-    </p>
-
-    <p v-else class="text-sm text-warning">
+    <p v-if="!measurements" class="text-sm text-warning">
       Возраст, рост или вес выходят за разумные границы.
     </p>
 

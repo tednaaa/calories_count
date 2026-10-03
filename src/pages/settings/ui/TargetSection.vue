@@ -2,7 +2,7 @@
 import type { Profile } from '@/shared/db';
 import { Button, Input, toast } from 'shonk-ui';
 import { computed, ref, watch } from 'vue';
-import { calcTarget, resetCalibration, resetTargetToCalculated, setManualTarget } from '@/entities/profile';
+import { calcTarget, GOAL_FACTOR, goalOptions, resetCalibration, resetTargetToCalculated, setManualTarget } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
 
 const props = defineProps<{ profile: Profile }>();
@@ -10,12 +10,25 @@ const MIN_TARGET = 800;
 const MAX_TARGET = 6000;
 
 const manual = ref(String(props.profile.targetKcal));
+const editing = ref(false);
 
 watch(() => props.profile.targetKcal, (next) => {
   manual.value = String(next);
 });
 
-const calculated = computed(() => calcTarget(props.profile).target);
+const breakdown = computed(() => calcTarget(props.profile));
+const calculated = computed(() => breakdown.value.target);
+
+function roundedKcal(kcal: number): string {
+  return `${formatNumber(Math.round(kcal / 10) * 10)} ккал`;
+}
+
+const goalStep = computed(() => {
+  const name = goalOptions.find(option => option.id === props.profile.goal)?.name;
+  const percent = Math.round((GOAL_FACTOR[props.profile.goal] - 1) * 100);
+
+  return { name, change: percent === 0 ? 'без поправки' : `${percent > 0 ? '+' : '−'}${Math.abs(percent)} %` };
+});
 
 const origin = computed(() => {
   if (props.profile.targetOverridden) {
@@ -46,6 +59,7 @@ async function apply() {
   }
 
   await setManualTarget(entered.value);
+  editing.value = false;
   toast('Норма задана вручную');
 }
 
@@ -67,24 +81,71 @@ async function reset() {
       <span class="text-base font-normal text-muted-foreground">ккал в день</span>
     </p>
 
-    <p class="text-xs text-muted-foreground">
-      {{ origin }}. Расчёт по профилю сейчас даёт {{ formatNumber(calculated) }} ккал.
+    <p class="text-sm text-muted-foreground">
+      {{ origin }}
     </p>
 
-    <p v-if="props.profile.calibratedAt" class="text-xs text-muted-foreground">
+    <p v-if="props.profile.calibratedAt" class="text-sm text-muted-foreground">
       {{ correctionNote }}
     </p>
 
-    <div class="flex items-end gap-2">
-      <Input id="target" v-model="manual" inputmode="numeric" :invalid="entered === null" class="flex-1" />
-      <Button type="button" :disabled="!changed" @click="apply">
-        Задать
-      </Button>
-    </div>
+    <dl class="flex flex-col gap-2 rounded-lg border border-border px-4 py-3 text-sm">
+      <div class="flex justify-between gap-4">
+        <dt class="text-muted-foreground">
+          Обмен в покое
+        </dt>
+        <dd class="tabular-nums text-foreground">
+          {{ roundedKcal(breakdown.bmr) }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-muted-foreground">
+          Расход с активностью
+        </dt>
+        <dd class="tabular-nums text-foreground">
+          {{ roundedKcal(breakdown.tdee) }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-muted-foreground">
+          {{ goalStep.name }}
+        </dt>
+        <dd class="tabular-nums text-foreground">
+          {{ goalStep.change }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4 border-t border-border pt-2">
+        <dt class="text-muted-foreground">
+          {{ breakdown.clampedToMinimum ? 'Поднята до безопасного минимума' : 'По профилю' }}
+        </dt>
+        <dd class="tabular-nums text-foreground">
+          {{ formatNumber(calculated) }} ккал
+        </dd>
+      </div>
+    </dl>
 
-    <p v-if="entered === null" class="text-xs text-warning">
-      Норма должна быть целым числом от {{ formatNumber(MIN_TARGET) }} до {{ formatNumber(MAX_TARGET) }} ккал.
-    </p>
+    <template v-if="editing">
+      <div class="flex items-end gap-2 pt-3">
+        <Input id="target" v-model="manual" inputmode="numeric" :invalid="entered === null" class="flex-1" />
+        <Button type="button" :disabled="!changed" @click="apply">
+          Задать
+        </Button>
+      </div>
+
+      <p v-if="entered === null" class="text-xs text-warning">
+        Норма должна быть целым числом от {{ formatNumber(MIN_TARGET) }} до {{ formatNumber(MAX_TARGET) }} ккал.
+      </p>
+    </template>
+
+    <Button
+      v-else
+      type="button"
+      variant="secondary"
+      class="mt-3"
+      @click="editing = true"
+    >
+      Задать вручную
+    </Button>
 
     <Button
       v-if="props.profile.targetOverridden"

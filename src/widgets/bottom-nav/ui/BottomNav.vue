@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 import { ChartColumnIcon, HouseIcon, PlusIcon, SettingsIcon } from '@lucide/vue';
 import { cn } from 'shonk-ui';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 
 interface NavItem {
   to: string;
@@ -17,18 +17,25 @@ const items: NavItem[] = [
   { to: '/stats', label: 'Статистика', icon: ChartColumnIcon },
   { to: '/settings', label: 'Настройки', icon: SettingsIcon },
 ];
+
+const route = useRoute();
+
+function isCurrent(item: NavItem): boolean {
+  return route.path === item.to || (item.to !== '/' && route.path.startsWith(`${item.to}/`));
+}
 </script>
 
 <template>
   <nav class="border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
     <ul class="grid grid-cols-4">
       <li v-for="item in items" :key="item.to">
-        <RouterLink #default="{ href, navigate, isExactActive }" :to="item.to" custom>
+        <RouterLink #default="{ href, navigate }" :to="item.to" custom>
           <a
             :href="href"
+            :aria-current="isCurrent(item) ? 'page' : undefined"
             :class="cn(
               'flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] transition-colors',
-              isExactActive ? 'text-primary' : 'text-muted-foreground',
+              isCurrent(item) ? 'text-primary' : 'text-muted-foreground',
             )"
             @click="navigate"
           >

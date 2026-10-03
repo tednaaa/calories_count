@@ -73,6 +73,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/about': RouteRecordInfo<
+      '/settings/about',
+      '/settings/about',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/data': RouteRecordInfo<
+      '/settings/data',
+      '/settings/data',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/foods/': RouteRecordInfo<
       '/settings/foods/',
       '/settings/foods',
@@ -90,6 +104,20 @@ declare module 'vue-router/auto-routes' {
     '/settings/foods/new': RouteRecordInfo<
       '/settings/foods/new',
       '/settings/foods/new',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/profile': RouteRecordInfo<
+      '/settings/profile',
+      '/settings/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/target': RouteRecordInfo<
+      '/settings/target',
+      '/settings/target',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -150,6 +178,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/settings/about.vue': {
+      routes:
+        | '/settings/about'
+      views:
+        | never
+    }
+    'src/pages/settings/data.vue': {
+      routes:
+        | '/settings/data'
+      views:
+        | never
+    }
     'src/pages/settings/foods/index.vue': {
       routes:
         | '/settings/foods/'
@@ -165,6 +205,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings/foods/new.vue': {
       routes:
         | '/settings/foods/new'
+      views:
+        | never
+    }
+    'src/pages/settings/profile.vue': {
+      routes:
+        | '/settings/profile'
+      views:
+        | never
+    }
+    'src/pages/settings/target.vue': {
+      routes:
+        | '/settings/target'
       views:
         | never
     }

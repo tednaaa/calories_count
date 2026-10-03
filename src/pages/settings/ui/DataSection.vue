@@ -83,6 +83,10 @@ function askToWipe() {
 
 <template>
   <div class="flex flex-col gap-3">
+    <p class="text-sm text-muted-foreground">
+      Всё хранится только на этом телефоне. Копия в файле нужна, чтобы перенести данные на другой телефон или не потерять их.
+    </p>
+
     <Button type="button" variant="secondary" @click="saveToFile">
       Выгрузить копию
     </Button>
@@ -121,7 +125,7 @@ function askToWipe() {
       </Button>
     </div>
 
-    <Button type="button" variant="destructive" @click="askToWipe">
+    <Button type="button" variant="ghost" class="mt-10 text-destructive" @click="askToWipe">
       Стереть все данные
     </Button>
   </div>
