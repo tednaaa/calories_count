@@ -3,7 +3,7 @@ import type { Entry, Profile, WeightRecord } from '@/shared/db';
 import { Button } from 'shonk-ui';
 import { computed, ref } from 'vue';
 import { entriesFrom, totalsByDate } from '@/entities/entry';
-import { calcTarget, loadProfile, weightToGo } from '@/entities/profile';
+import { calcTarget, describeBmi, loadProfile, weightToGo } from '@/entities/profile';
 import { lastWeight, weightsFrom } from '@/entities/weight';
 import { formatDayLabel, formatKg, lastDateKeys, useLiveQuery, useToday } from '@/shared/lib';
 import { WeighInDialog } from '@/widgets/weigh-in';
@@ -55,6 +55,12 @@ const goalProgress = computed(() => {
     : `До целевого веса ${formatKg(target)} кг осталось ${formatKg(toGo.kg)} кг`;
 });
 
+const bmiNote = computed(() => {
+  const current = profile.value;
+
+  return current ? describeBmi({ ...current, weightKg: latest.value?.kg ?? current.weightKg }) : null;
+});
+
 const weighing = ref(false);
 </script>
 
@@ -84,6 +90,9 @@ const weighing = ref(false);
 
     <p v-if="goalProgress" class="pt-2 text-sm text-muted-foreground">
       {{ goalProgress }}
+    </p>
+    <p v-if="bmiNote" class="pt-2 text-xs text-muted-foreground">
+      {{ bmiNote }}
     </p>
 
     <WeightChart

@@ -1,3 +1,5 @@
+export type { BmiCategory } from './lib/bmi';
+export { ADULT_AGE, bmiCategory, calcBmi, describeBmi, healthyWeightRange } from './lib/bmi';
 export type { CalcInput, Calibration, Measurements, TargetBreakdown } from './lib/calories';
 export {
   ACTIVITY_FACTOR,

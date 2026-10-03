@@ -2,7 +2,7 @@
 import { Button } from 'shonk-ui';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { calcTarget, draftToInput, emptyDraft, hasInvalidTargetWeight, ProfileFields, saveProfile } from '@/entities/profile';
+import { calcTarget, describeBmi, draftToInput, emptyDraft, hasInvalidTargetWeight, ProfileFields, saveProfile } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
 
 const router = useRouter();
@@ -55,6 +55,9 @@ async function submit() {
           <p class="mt-2 text-xs text-muted-foreground">
             Базовый обмен {{ formatNumber(Math.round(breakdown.bmr)) }},
             полный расход {{ formatNumber(Math.round(breakdown.tdee)) }} ккал
+          </p>
+          <p v-if="measurements" class="mt-2 text-xs text-muted-foreground">
+            {{ describeBmi(measurements) }}
           </p>
           <p v-if="breakdown.clampedToMinimum" class="mt-2 text-xs text-warning">
             Расчёт дал меньше безопасного минимума, норма поднята до {{ formatNumber(breakdown.target) }} ккал.

@@ -4,6 +4,7 @@ import { Button, toast } from 'shonk-ui';
 import { computed, reactive, ref, watch } from 'vue';
 import {
   calcTarget,
+  describeBmi,
   draftFromProfile,
   draftsEqual,
   draftToInput,
@@ -62,6 +63,10 @@ async function submit() {
     <p v-if="breakdown" class="text-sm text-muted-foreground">
       Расчётная норма: <span class="tabular-nums text-foreground">{{ formatNumber(breakdown.target) }} ккал</span>
       <span v-if="props.profile.targetOverridden"> — сейчас не применяется, норма задана вручную</span>
+    </p>
+
+    <p v-if="measurements" class="text-sm text-muted-foreground">
+      {{ describeBmi(measurements) }}
     </p>
 
     <p v-else class="text-sm text-warning">
