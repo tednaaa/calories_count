@@ -124,13 +124,13 @@ describe('stats screen', () => {
     expect(mountStats().text()).toContain('1 день с записями');
   });
 
-  it('colors a day well above target differently', () => {
+  it('tells screen readers whether a day stayed within target', () => {
     entries.value = [entry('2026-08-18', 2450), entry('2026-08-19', 3000)];
 
     const wrapper = mountStats();
 
-    expect(dayButton(wrapper, 19).classes()).toContain('bg-destructive/15');
-    expect(dayButton(wrapper, 18).classes()).toContain('bg-primary/15');
+    expect(dayButton(wrapper, 19).attributes('aria-label')).toMatch(/вне нормы$/);
+    expect(dayButton(wrapper, 18).attributes('aria-label')).toMatch(/в норме$/);
   });
 
   it('marks today for screen readers', () => {

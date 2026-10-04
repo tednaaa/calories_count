@@ -31,6 +31,12 @@ const VERDICT_TEXT: Record<DayVerdict, string> = {
   offTrack: 'text-destructive',
 };
 
+const VERDICT_LABEL: Record<DayVerdict, string> = {
+  empty: '',
+  onTrack: 'в норме',
+  offTrack: 'вне нормы',
+};
+
 const weeks = computed(() => calendarWeeks(props.month));
 const weekdays = computed(() => weekDateKeys(props.month).map(formatWeekday));
 
@@ -45,7 +51,9 @@ function verdictOf(date: DateKey): DayVerdict {
 function dayLabel(date: DateKey): string {
   const kcal = kcalOf(date);
 
-  return kcal ? `${formatDayLabel(date)}, ${formatNumber(kcal)} ккал` : `${formatDayLabel(date)}, записей нет`;
+  return kcal
+    ? `${formatDayLabel(date)}, ${formatNumber(kcal)} ккал, ${VERDICT_LABEL[verdictOf(date)]}`
+    : `${formatDayLabel(date)}, записей нет`;
 }
 </script>
 

@@ -7,6 +7,10 @@ function mountQuality(props: Partial<InstanceType<typeof DayQuality>['$props']> 
   });
 }
 
+function meterStatus(wrapper: ReturnType<typeof mountQuality>, name: string) {
+  return wrapper.get(`[role="meter"][aria-label="${name}"]`).attributes('aria-valuetext');
+}
+
 describe('day nutrients', () => {
   it('shows eaten next to target', () => {
     const wrapper = mountQuality({ nutrients: { protein: 54, sugars: 12 } });
@@ -19,22 +23,16 @@ describe('day nutrients', () => {
     expect(mountQuality({ nutrients: { protein: 54 } }).text()).toContain('по 1 записи из 3');
   });
 
-  it('highlights excess sugar', () => {
-    const wrapper = mountQuality({ nutrients: { sugars: 90 } });
-
-    expect(wrapper.find('.bg-destructive').exists()).toBe(true);
+  it('reports excess sugar as over the limit', () => {
+    expect(meterStatus(mountQuality({ nutrients: { sugars: 90 } }), 'Сахар')).toBe('90 / 60 г, больше нормы');
   });
 
-  it('does not warn about low protein', () => {
-    const wrapper = mountQuality({ nutrients: { protein: 10 } });
-
-    expect(wrapper.find('.bg-destructive').exists()).toBe(false);
+  it('reports low protein as not reached rather than over', () => {
+    expect(meterStatus(mountQuality({ nutrients: { protein: 10 } }), 'Белки')).toBe('10 / 136 г, норма не набрана');
   });
 
-  it('marks a reached target', () => {
-    const wrapper = mountQuality({ nutrients: { protein: 140 } });
-
-    expect(wrapper.find('.bg-success').exists()).toBe(true);
+  it('reports a reached target', () => {
+    expect(meterStatus(mountQuality({ nutrients: { protein: 140 } }), 'Белки')).toBe('140 / 136 г, норма набрана');
   });
 
   it('shows fat and carbs without targets', () => {

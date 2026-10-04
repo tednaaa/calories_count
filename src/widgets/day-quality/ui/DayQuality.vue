@@ -26,16 +26,24 @@ type Tone = 'done' | 'going' | 'over';
 
 const barTones: Record<Tone, string> = { done: 'bg-success', going: 'bg-primary', over: 'bg-destructive' };
 
+const statusLabels = {
+  reach: { met: 'норма набрана', missed: 'норма не набрана' },
+  limit: { met: 'в пределах нормы', missed: 'больше нормы' },
+} as const;
+
 const tracked = computed(() => nutrientTargets(props.weightKg, props.targetKcal).map((target) => {
   const amount = eaten.value[target.id] ?? 0;
   const met = meetsTarget(amount, target);
   const tone: Tone = target.goal === 'reach' ? (met ? 'done' : 'going') : (met ? 'going' : 'over');
+  const text = `${formatNutrient(amount).replace(' г', '')} / ${target.amount} г`;
 
   return {
     ...target,
+    eaten: amount,
     tone,
     fill: Math.min(targetRatio(amount, target), 1),
-    text: `${formatNutrient(amount).replace(' г', '')} / ${target.amount} г`,
+    text,
+    status: `${text}, ${statusLabels[target.goal][met ? 'met' : 'missed']}`,
   };
 }));
 
@@ -69,7 +77,15 @@ const coverage = computed(() => {
           </span>
         </div>
 
-        <div class="h-1 overflow-hidden rounded-full bg-muted">
+        <div
+          role="meter"
+          :aria-label="target.name"
+          aria-valuemin="0"
+          :aria-valuemax="target.amount"
+          :aria-valuenow="target.eaten"
+          :aria-valuetext="target.status"
+          class="h-1 overflow-hidden rounded-full bg-muted"
+        >
           <div
             :class="cn('h-full rounded-full transition-[width] duration-300', barTones[target.tone])"
             :style="{ width: `${target.fill * 100}%` }"
