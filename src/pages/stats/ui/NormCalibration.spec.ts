@@ -26,8 +26,8 @@ function mountOffer(offer: CalibrationOffer) {
   return mount(NormCalibration, { props: { offer, impact, estimatedTdee: 2836, goal: 'cutMild' } });
 }
 
-describe('уточнение нормы', () => {
-  it('объясняет, откуда взялась новая норма', () => {
+describe('target calibration', () => {
+  it('explains where the new target comes from', () => {
     const text = mountOffer({ kind: 'offer', ideal: 2230, next: 2230, tdeeCorrectionKcal: -217 }).text();
 
     expect(text).toContain('Вы ели в среднем 2 400 ккал, вес шёл −0,20 кг/нед');
@@ -36,16 +36,16 @@ describe('уточнение нормы', () => {
     expect(text).not.toContain('За раз норма сдвигается');
   });
 
-  it('коротко называет разницу с расчётом', () => {
+  it('states the difference from the estimate briefly', () => {
     expect(mountOffer({ kind: 'offer', ideal: 2230, next: 2230, tdeeCorrectionKcal: -216 }).text())
       .toContain('вы тратите на 220 ккал меньше, чем по расчёту');
   });
 
-  it('говорит, что большой сдвиг делится на несколько раз', () => {
+  it('says a large shift is split into several steps', () => {
     expect(mountOffer({ kind: 'offer', ideal: 1870, next: 2160, tdeeCorrectionKcal: -295 }).text()).toContain('сейчас 2 160, остальное при следующем уточнении');
   });
 
-  it('уточняет расход по кнопке', async () => {
+  it('applies the calibration on button press', async () => {
     const wrapper = mountOffer({ kind: 'offer', ideal: 2230, next: 2230, tdeeCorrectionKcal: -217 });
 
     await wrapper.findElementByText('button', 'Поставить 2 230 ккал').trigger('click');
@@ -54,21 +54,21 @@ describe('уточнение нормы', () => {
     expect(applyCalibration).toHaveBeenCalledWith(-217);
   });
 
-  it('вместо кнопки говорит, сколько взвешиваний осталось', () => {
+  it('shows remaining weigh-ins instead of the button', () => {
     const wrapper = mountOffer({ kind: 'fewWeighIns', missing: 3 });
 
     expect(wrapper.text()).toContain('Ещё 3 взвешивания — и можно уточнить норму');
     expect(wrapper.find('button').exists()).toBe(false);
   });
 
-  it('после уточнения говорит, когда будет следующее', () => {
+  it('tells when the next calibration is after one', () => {
     const wrapper = mountOffer({ kind: 'recent', daysLeft: 20 });
 
     expect(wrapper.text()).toContain('Следующее уточнение — через 20 дней');
     expect(wrapper.find('button').exists()).toBe(false);
   });
 
-  it('всегда даёт прочитать, почему это работает', () => {
+  it('always links to why it works', () => {
     expect(mountOffer({ kind: 'precise' }).text()).toContain('Почему это работает');
   });
 });

@@ -12,15 +12,15 @@ const man: CalcInput = {
 };
 
 describe('calcBmr', () => {
-  it('считает по Mifflin-St Jeor для мужчин', () => {
+  it('applies Mifflin-St Jeor for men', () => {
     expect(calcBmr(man)).toBe(1830);
   });
 
-  it('считает по Mifflin-St Jeor для женщин', () => {
+  it('applies Mifflin-St Jeor for women', () => {
     expect(calcBmr({ sex: 'female', birthDate: yearsBefore(toDateKey(), 30), heightCm: 165, weightKg: 60 })).toBe(1320.25);
   });
 
-  it('разница между полами — константа формулы', () => {
+  it('differs between sexes by the formula constant', () => {
     const measurements = { birthDate: yearsBefore(toDateKey(), 30), heightCm: 170, weightKg: 70 };
 
     expect(calcBmr({ ...measurements, sex: 'male' }) - calcBmr({ ...measurements, sex: 'female' })).toBe(166);
@@ -28,11 +28,11 @@ describe('calcBmr', () => {
 });
 
 describe('calcTdee', () => {
-  it('умножает базовый обмен на коэффициент активности', () => {
+  it('multiplies BMR by the activity factor', () => {
     expect(calcTdee(man)).toBeCloseTo(1830 * 1.55, 5);
   });
 
-  it('растёт вместе с активностью', () => {
+  it('grows with activity', () => {
     const sedentary = calcTdee({ ...man, activity: 'sedentary' });
     const veryHigh = calcTdee({ ...man, activity: 'veryHigh' });
 
@@ -41,28 +41,28 @@ describe('calcTdee', () => {
 });
 
 describe('calcTarget', () => {
-  it('применяет поправку цели и округляет до десятков', () => {
+  it('applies the goal adjustment and rounds to tens', () => {
     expect(calcTarget(man).target).toBe(2410);
   });
 
-  it('поддержание веса равно полному расходу', () => {
+  it('equals full expenditure when maintaining weight', () => {
     const { target, tdee } = calcTarget({ ...man, goal: 'maintain' });
 
     expect(target).toBe(Math.round(tdee / 10) * 10);
   });
 
-  it('дефицит ниже поддержания, профицит выше', () => {
+  it('puts deficit below maintenance and surplus above', () => {
     const maintain = calcTarget({ ...man, goal: 'maintain' }).target;
 
     expect(calcTarget({ ...man, goal: 'cut' }).target).toBeLessThan(maintain);
     expect(calcTarget({ ...man, goal: 'bulk' }).target).toBeGreaterThan(maintain);
   });
 
-  it('всегда кратно десяти', () => {
+  it('is always a multiple of ten', () => {
     expect(calcTarget(man).target % 10).toBe(0);
   });
 
-  it('не опускается ниже безопасного минимума', () => {
+  it('does not drop below the safe minimum', () => {
     const light = calcTarget({
       sex: 'female',
       birthDate: yearsBefore(toDateKey(), 30),
@@ -77,17 +77,17 @@ describe('calcTarget', () => {
     expect(light.clampedToMinimum).toBe(true);
   });
 
-  it('не помечает обычный расчёт как упёршийся в минимум', () => {
+  it('does not flag a regular result as clamped to the minimum', () => {
     expect(calcTarget(man).clampedToMinimum).toBe(false);
   });
 });
 
 describe('isWithinLimits', () => {
-  it('пропускает обычные значения', () => {
+  it('accepts regular values', () => {
     expect(isWithinLimits(man)).toBe(true);
   });
 
-  it('отсекает выход за границы', () => {
+  it('rejects out-of-range values', () => {
     expect(isWithinLimits({ ...man, birthDate: yearsBefore(toDateKey(), 12) })).toBe(false);
     expect(isWithinLimits({ ...man, heightCm: 250 })).toBe(false);
     expect(isWithinLimits({ ...man, weightKg: 15 })).toBe(false);
@@ -97,23 +97,23 @@ describe('isWithinLimits', () => {
 describe('calibrateTarget', () => {
   const profile = { ...man, targetKcal: 2410 };
 
-  it('считает норму под цель от реального расхода', () => {
+  it('computes the goal target from real expenditure', () => {
     expect(calibrateTarget(profile, 2620)).toMatchObject({ ideal: 2230, next: 2230 });
   });
 
-  it('сдвигает норму за раз не больше чем на 250 ккал', () => {
+  it('shifts the target by at most 250 kcal at a time', () => {
     expect(calibrateTarget(profile, 2200)).toMatchObject({ ideal: 1870, next: 2160 });
     expect(calibrateTarget(profile, 3500)).toMatchObject({ ideal: 2980, next: 2660 });
   });
 
-  it('выражает уточнение поправкой к расходу, а не готовой нормой', () => {
+  it('expresses calibration as an expenditure correction, not a fixed target', () => {
     const { next, tdeeCorrectionKcal } = calibrateTarget(profile, 2620);
 
     expect(tdeeCorrectionKcal).toBe(Math.round(2620 - calcTdee(man)));
     expect(calcTarget({ ...man, tdeeCorrectionKcal }).target).toBe(next);
   });
 
-  it('не опускает норму ниже безопасного минимума', () => {
+  it('does not lower the target below the safe minimum', () => {
     const woman = { ...man, sex: 'female', weightKg: 60, goal: 'cut', targetKcal: 1300 } as const;
 
     expect(calibrateTarget(woman, 1400)).toMatchObject({ ideal: 1200, next: 1200 });

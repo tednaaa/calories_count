@@ -20,7 +20,7 @@ function profile(overrides: Partial<Profile> = {}): Profile {
 }
 
 describe('draftFromProfile', () => {
-  it('переводит числа профиля в строки полей ввода', () => {
+  it('converts profile numbers to input strings', () => {
     expect(draftFromProfile(profile())).toEqual({
       sex: 'male',
       birthDate: yearsBefore(toDateKey(), 30),
@@ -32,13 +32,13 @@ describe('draftFromProfile', () => {
     });
   });
 
-  it('пишет дробный вес через запятую', () => {
+  it('writes fractional weight with a comma', () => {
     expect(draftFromProfile(profile({ weightKg: 85.4 })).weightKg).toBe('85,4');
   });
 });
 
 describe('draftToInput', () => {
-  it('собирает данные для расчёта из заполненной формы', () => {
+  it('builds calculation input from a filled form', () => {
     expect(draftToInput(draftFromProfile(profile()))).toEqual({
       sex: 'male',
       birthDate: yearsBefore(toDateKey(), 30),
@@ -49,11 +49,11 @@ describe('draftToInput', () => {
     });
   });
 
-  it('пустая форма ничего не даёт', () => {
+  it('returns null for an empty form', () => {
     expect(draftToInput(emptyDraft())).toBeNull();
   });
 
-  it('отвергает значения за пределами разумного', () => {
+  it('rejects values out of range', () => {
     const draft = draftFromProfile(profile());
 
     expect(draftToInput({ ...draft, birthDate: yearsBefore(toDateKey(), 7) })).toBeNull();
@@ -61,19 +61,19 @@ describe('draftToInput', () => {
     expect(draftToInput({ ...draft, weightKg: '5' })).toBeNull();
   });
 
-  it('понимает вес с запятой', () => {
+  it('accepts weight with a comma', () => {
     expect(draftToInput({ ...draftFromProfile(profile()), weightKg: '85,4' })?.weightKg).toBe(85.4);
   });
 
-  it('целевой вес необязателен', () => {
+  it('treats target weight as optional', () => {
     expect(draftToInput(draftFromProfile(profile()))).not.toHaveProperty('targetWeightKg');
   });
 
-  it('берёт целевой вес с запятой', () => {
+  it('accepts target weight with a comma', () => {
     expect(draftToInput({ ...draftFromProfile(profile()), targetWeightKg: '78,5' })?.targetWeightKg).toBe(78.5);
   });
 
-  it('целевой вес вне пределов не ломает расчёт нормы, но и не сохраняется', () => {
+  it('drops out-of-range target weight without breaking the calculation', () => {
     const draft = { ...draftFromProfile(profile()), targetWeightKg: '12' };
 
     expect(draftToInput(draft)).not.toHaveProperty('targetWeightKg');
@@ -81,21 +81,21 @@ describe('draftToInput', () => {
     expect(hasInvalidTargetWeight(draft)).toBe(true);
   });
 
-  it('пустой целевой вес — не ошибка', () => {
+  it('does not treat empty target weight as invalid', () => {
     expect(hasInvalidTargetWeight(draftFromProfile(profile()))).toBe(false);
   });
 
-  it('отвергает нечисловой ввод', () => {
+  it('rejects non-numeric input', () => {
     expect(draftToInput({ ...draftFromProfile(profile()), weightKg: 'много' })).toBeNull();
   });
 });
 
 describe('draftsEqual', () => {
-  it('одинаковые формы считает одинаковыми', () => {
+  it('treats identical forms as equal', () => {
     expect(draftsEqual(draftFromProfile(profile()), draftFromProfile(profile()))).toBe(true);
   });
 
-  it('замечает изменение любого поля', () => {
+  it('detects a change in any field', () => {
     const draft = draftFromProfile(profile());
 
     expect(draftsEqual(draft, { ...draft, weightKg: '84' })).toBe(false);

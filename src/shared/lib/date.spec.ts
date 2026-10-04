@@ -19,25 +19,25 @@ import {
 } from './date';
 
 describe('toDateKey', () => {
-  it('форматирует дату по локальному времени', () => {
+  it('formats the date in local time', () => {
     expect(toDateKey(new Date(2026, 7, 19, 12, 0))).toBe('2026-08-19');
   });
 
-  it('дополняет месяц и день нулями', () => {
+  it('zero-pads month and day', () => {
     expect(toDateKey(new Date(2026, 0, 5, 12, 0))).toBe('2026-01-05');
   });
 
-  it('не уезжает на следующий день поздним вечером', () => {
+  it('stays on the same day late in the evening', () => {
     expect(toDateKey(new Date(2026, 7, 19, 23, 59))).toBe('2026-08-19');
   });
 
-  it('не уезжает на предыдущий день ранним утром', () => {
+  it('stays on the same day early in the morning', () => {
     expect(toDateKey(new Date(2026, 7, 19, 0, 1))).toBe('2026-08-19');
   });
 });
 
 describe('fromDateKey', () => {
-  it('разбирает ключ в локальную полночь', () => {
+  it('parses the key to local midnight', () => {
     const date = fromDateKey('2026-08-19');
 
     expect(date.getFullYear()).toBe(2026);
@@ -46,48 +46,48 @@ describe('fromDateKey', () => {
     expect(date.getHours()).toBe(0);
   });
 
-  it('обратен toDateKey', () => {
+  it('is the inverse of toDateKey', () => {
     expect(toDateKey(fromDateKey('2026-02-28'))).toBe('2026-02-28');
   });
 });
 
 describe('shiftDateKey', () => {
-  it('сдвигает вперёд и назад', () => {
+  it('shifts forward and backward', () => {
     expect(shiftDateKey('2026-08-19', 1)).toBe('2026-08-20');
     expect(shiftDateKey('2026-08-19', -1)).toBe('2026-08-18');
   });
 
-  it('переходит через границу месяца', () => {
+  it('crosses a month boundary', () => {
     expect(shiftDateKey('2026-08-31', 1)).toBe('2026-09-01');
     expect(shiftDateKey('2026-09-01', -1)).toBe('2026-08-31');
   });
 
-  it('переходит через границу года', () => {
+  it('crosses a year boundary', () => {
     expect(shiftDateKey('2026-12-31', 1)).toBe('2027-01-01');
   });
 
-  it('учитывает високосный год', () => {
+  it('handles leap years', () => {
     expect(shiftDateKey('2028-02-28', 1)).toBe('2028-02-29');
     expect(shiftDateKey('2026-02-28', 1)).toBe('2026-03-01');
   });
 });
 
 describe('isDateKey', () => {
-  it('принимает ключ, полученный из toDateKey', () => {
+  it('accepts a key produced by toDateKey', () => {
     expect(isDateKey(toDateKey(new Date(2026, 7, 19)))).toBe(true);
   });
 
-  it('отвергает несуществующий день', () => {
+  it('rejects a nonexistent day', () => {
     expect(isDateKey('2026-02-30')).toBe(false);
   });
 
-  it('отвергает чужой формат и мусор', () => {
+  it('rejects other formats and garbage', () => {
     expect(isDateKey('19.08.2026')).toBe(false);
     expect(isDateKey('2026-8-19')).toBe(false);
     expect(isDateKey('завтра')).toBe(false);
   });
 
-  it('отвергает всё, что не строка', () => {
+  it('rejects non-strings', () => {
     expect(isDateKey(undefined)).toBe(false);
     expect(isDateKey(null)).toBe(false);
     expect(isDateKey(['2026-08-19'])).toBe(false);
@@ -104,12 +104,12 @@ describe('isToday / isFuture', () => {
     vi.useRealTimers();
   });
 
-  it('распознаёт сегодня', () => {
+  it('detects today', () => {
     expect(isToday('2026-08-19')).toBe(true);
     expect(isToday('2026-08-18')).toBe(false);
   });
 
-  it('распознаёт будущее', () => {
+  it('detects the future', () => {
     expect(isFuture('2026-08-20')).toBe(true);
     expect(isFuture('2026-08-19')).toBe(false);
     expect(isFuture('2026-08-18')).toBe(false);
@@ -117,21 +117,21 @@ describe('isToday / isFuture', () => {
 });
 
 describe('startOfWeek', () => {
-  it('отматывает к понедельнику этой недели', () => {
+  it('rewinds to Monday of this week', () => {
     expect(startOfWeek('2026-08-19')).toBe('2026-08-17');
   });
 
-  it('оставляет понедельник на месте', () => {
+  it('keeps Monday as is', () => {
     expect(startOfWeek('2026-08-17')).toBe('2026-08-17');
   });
 
-  it('воскресенье относит к уходящей неделе', () => {
+  it('assigns Sunday to the ending week', () => {
     expect(startOfWeek('2026-08-23')).toBe('2026-08-17');
   });
 });
 
 describe('weekDateKeys', () => {
-  it('возвращает неделю с понедельника по воскресенье', () => {
+  it('returns the week from Monday to Sunday', () => {
     expect(weekDateKeys('2026-08-19')).toEqual([
       '2026-08-17',
       '2026-08-18',
@@ -143,11 +143,11 @@ describe('weekDateKeys', () => {
     ]);
   });
 
-  it('одинакова для любого дня одной недели', () => {
+  it('is the same for any day of the week', () => {
     expect(weekDateKeys('2026-08-17')).toEqual(weekDateKeys('2026-08-23'));
   });
 
-  it('переходит через границу месяца', () => {
+  it('crosses a month boundary', () => {
     expect(weekDateKeys('2026-09-01')).toEqual([
       '2026-08-31',
       '2026-09-01',
@@ -161,7 +161,7 @@ describe('weekDateKeys', () => {
 });
 
 describe('dayNumber', () => {
-  it('возвращает число месяца без ведущего нуля', () => {
+  it('returns the day of month without a leading zero', () => {
     expect(dayNumber('2026-08-05')).toBe(5);
     expect(dayNumber('2026-08-19')).toBe(19);
   });
@@ -177,16 +177,16 @@ describe('lastDateKeys', () => {
     vi.useRealTimers();
   });
 
-  it('возвращает окно от старого к новому, включая сегодня', () => {
+  it('returns the window oldest first, including today', () => {
     expect(lastDateKeys(3)).toEqual(['2026-08-17', '2026-08-18', '2026-08-19']);
   });
 
-  it('строит неделю из семи дней', () => {
+  it('builds a seven-day week', () => {
     expect(lastDateKeys(7)).toHaveLength(7);
     expect(lastDateKeys(7).at(-1)).toBe('2026-08-19');
   });
 
-  it('принимает произвольную конечную дату', () => {
+  it('accepts a custom end date', () => {
     expect(lastDateKeys(2, '2026-01-01')).toEqual(['2025-12-31', '2026-01-01']);
   });
 });
@@ -201,26 +201,26 @@ describe('formatDayLabel', () => {
     vi.useRealTimers();
   });
 
-  it('называет сегодня и вчера словами', () => {
+  it('names today and yesterday in words', () => {
     expect(formatDayLabel('2026-08-19')).toBe('Сегодня');
     expect(formatDayLabel('2026-08-18')).toBe('Вчера');
   });
 
-  it('остальные дни — числом и месяцем', () => {
+  it('shows other days as day and month', () => {
     expect(formatDayLabel('2026-08-17')).toContain('17');
     expect(formatDayLabel('2026-08-17')).toContain('август');
   });
 });
 
 describe('formatWeekday', () => {
-  it('возвращает короткое название дня недели', () => {
-    // 19 августа 2026 — среда
+  it('returns the short weekday name', () => {
+    // 2026-08-19 is a Wednesday
     expect(formatWeekday('2026-08-19').toLowerCase()).toContain('ср');
   });
 });
 
 describe('formatFullDate', () => {
-  it('называет день недели, число и месяц', () => {
+  it('includes weekday, day and month', () => {
     const label = formatFullDate('2026-08-19');
 
     expect(label).toContain('среда');
@@ -230,32 +230,32 @@ describe('formatFullDate', () => {
 });
 
 describe('formatTime', () => {
-  it('показывает часы и минуты локального времени', () => {
+  it('shows local hours and minutes', () => {
     expect(formatTime(new Date(2026, 7, 19, 9, 5).getTime())).toBe('09:05');
   });
 
-  it('использует 24-часовой формат', () => {
+  it('uses 24-hour format', () => {
     expect(formatTime(new Date(2026, 7, 19, 21, 30).getTime())).toBe('21:30');
   });
 });
 
 describe('daysBetween', () => {
-  it('считает календарные дни между датами', () => {
+  it('counts calendar days between dates', () => {
     expect(daysBetween('2026-09-28', '2026-10-03')).toBe(5);
   });
 
-  it('даёт ноль для одной даты и минус для обратного порядка', () => {
+  it('returns zero for the same date and negative for reverse order', () => {
     expect(daysBetween('2026-10-03', '2026-10-03')).toBe(0);
     expect(daysBetween('2026-10-03', '2026-10-01')).toBe(-2);
   });
 
-  it('не сбивается на переходе на зимнее время', () => {
+  it('stays correct across the DST change', () => {
     expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
   });
 });
 
 describe('fullYearsBetween', () => {
-  it('считает только полные годы', () => {
+  it('counts only full years', () => {
     expect(fullYearsBetween('1996-10-04', '2026-10-04')).toBe(30);
     expect(fullYearsBetween('1996-10-05', '2026-10-04')).toBe(29);
     expect(fullYearsBetween('1996-12-31', '2026-01-01')).toBe(29);
@@ -263,11 +263,11 @@ describe('fullYearsBetween', () => {
 });
 
 describe('yearsBefore', () => {
-  it('отступает назад на целые годы', () => {
+  it('steps back by whole years', () => {
     expect(yearsBefore('2026-10-04', 30)).toBe('1996-10-04');
   });
 
-  it('29 февраля в невисокосный год переносит на 1 марта', () => {
+  it('moves February 29 to March 1 in a non-leap year', () => {
     expect(yearsBefore('2028-02-29', 1)).toBe('2027-03-01');
   });
 });

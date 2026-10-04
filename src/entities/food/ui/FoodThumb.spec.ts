@@ -9,16 +9,16 @@ function zoomedPhoto() {
   return document.querySelector('[data-slot="dialog-content"] img');
 }
 
-describe('превью блюда', () => {
+describe('food thumbnail', () => {
   afterEach(() => {
     document.body.innerHTML = '';
   });
 
-  it('без фото показывает первую букву названия', () => {
+  it('shows the first letter of the name without a photo', () => {
     expect(mountThumb({ name: 'конфета' }).text()).toBe('К');
   });
 
-  it('тап по фото открывает его крупно', async () => {
+  it('opens the photo enlarged on tap', async () => {
     const wrapper = mountThumb({ name: 'Кебаб', photo: 'data:image/webp;base64,photo', zoomable: true });
 
     await wrapper.find('img').trigger('click');
@@ -27,7 +27,7 @@ describe('превью блюда', () => {
     expect(zoomedPhoto()?.getAttribute('src')).toBe('data:image/webp;base64,photo');
   });
 
-  it('берёт фото из каталога', async () => {
+  it('takes the photo from the catalog', async () => {
     const wrapper = mountThumb({ name: 'Ангус-кебаб', foodId: 'angus-kebab', zoomable: true });
 
     await wrapper.find('img').trigger('click');
@@ -36,7 +36,7 @@ describe('превью блюда', () => {
     expect(zoomedPhoto()?.getAttribute('src')).toBe('/foods/angus-kebab.webp');
   });
 
-  it('без разрешения на увеличение остаётся картинкой', async () => {
+  it('stays a plain image when zoom is not allowed', async () => {
     const wrapper = mountThumb({ name: 'Кебаб', photo: 'data:image/webp;base64,photo' });
 
     await wrapper.find('img').trigger('click');
@@ -45,7 +45,7 @@ describe('превью блюда', () => {
     expect(zoomedPhoto()).toBeNull();
   });
 
-  it('заглушку без фото не увеличивает', async () => {
+  it('does not enlarge the placeholder without a photo', async () => {
     const wrapper = mountThumb({ name: 'Конфета', zoomable: true });
 
     await wrapper.find('div').trigger('click');

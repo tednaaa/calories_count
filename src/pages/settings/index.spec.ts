@@ -51,19 +51,19 @@ beforeEach(() => {
   vi.mocked(useLiveQuery).mockImplementation(() => profile as never);
 });
 
-describe('экран настроек', () => {
-  it('показывает норму и откуда она взялась', () => {
+describe('settings screen', () => {
+  it('shows the target and where it came from', () => {
     const text = mount(SettingsView).text();
 
     expect(text).toContain('2 410 ккал');
     expect(text).toContain('Посчитана по профилю');
   });
 
-  it('сводит профиль в одну строку', () => {
+  it('summarizes the profile in one line', () => {
     expect(mount(SettingsView).text()).toContain('Мягкое похудение · 30 лет · 180 см · 85 кг');
   });
 
-  it('выключает напоминание взвеситься', async () => {
+  it('disables the weigh-in reminder', async () => {
     localStorage.clear();
     const wrapper = mount(SettingsView);
 
@@ -72,7 +72,7 @@ describe('экран настроек', () => {
     expect(localStorage.getItem('weigh-in-reminder')).toBe('false');
   });
 
-  it('не показывает подсказку про iPhone на других телефонах', () => {
+  it('hides the iPhone hint on other phones', () => {
     expect(mount(SettingsView).text()).not.toContain('На экран „Домой“');
   });
 });

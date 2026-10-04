@@ -19,15 +19,15 @@ function mountReady(overrides: Partial<Impact> = {}, reminds = true) {
   return mount(DietImpact, { props: { result: { ready: true, impact: { ...impact, ...overrides } }, estimatedTdee: 2836, reminds } });
 }
 
-describe('вывод о влиянии питания', () => {
-  it('сравнивает ожидаемый темп с фактическим', () => {
+describe('diet impact summary', () => {
+  it('compares expected and actual weekly rate', () => {
     const text = mountReady().text();
 
     expect(text).toContain('−0,40 кг/нед');
     expect(text).toContain('−0,20 кг/нед');
   });
 
-  it('показывает реальный расход с погрешностью рядом с формульным', () => {
+  it('shows real energy burn with its error next to the formula estimate', () => {
     const text = mountReady().text();
 
     expect(text).toContain('≈ 2 620');
@@ -35,21 +35,21 @@ describe('вывод о влиянии питания', () => {
     expect(text).toContain('2 840 ккал');
   });
 
-  it('говорит, на чём держится точность и что даст ещё пара взвешиваний', () => {
+  it('explains what the accuracy rests on and what more weigh-ins would give', () => {
     expect(mountReady().text()).toContain('По 9 взвешиваниям; при 13 будет ± 190 ккал. Еда записана за 27 из 27 дней.');
   });
 
-  it('предупреждает о дырявых записях еды', () => {
+  it('warns about gaps in the food log', () => {
     expect(mountReady().text()).not.toContain('меньше чем за 70 %');
     expect(mountReady({ coverage: 0.5 }).text()).toContain('меньше чем за 70 %');
   });
 
-  it('обещает напоминание, только если оно включено', () => {
+  it('promises a reminder only when it is enabled', () => {
     expect(mountReady().text()).toContain('Приложение напомнит');
     expect(mountReady({}, false).text()).not.toContain('Приложение напомнит');
   });
 
-  it('без данных перечисляет, чего не хватает', () => {
+  it('lists what is missing when data is insufficient', () => {
     const text = mount(DietImpact, {
       props: { result: { ready: false, shortfall: { weighIns: 2, spanDays: 0, trackedDays: 5 } }, estimatedTdee: 2836, reminds: true },
     }).text();

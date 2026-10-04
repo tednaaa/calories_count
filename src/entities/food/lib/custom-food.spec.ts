@@ -13,7 +13,7 @@ const stored: CustomFood = {
 };
 
 describe('buildCustomFood', () => {
-  it('заводит блюдо с собственным идентификатором', () => {
+  it('creates a food with its own id', () => {
     const food = buildCustomFood({ name: 'Пирог', kcal: 350 }, NOW);
 
     expect(food.id).not.toBe('');
@@ -23,7 +23,7 @@ describe('buildCustomFood', () => {
     expect(food.updatedAt).toBe(NOW);
   });
 
-  it('два блюда с одним названием остаются разными', () => {
+  it('keeps two foods with the same name distinct', () => {
     const first = buildCustomFood({ name: 'Пирог', kcal: 350 }, NOW);
     const second = buildCustomFood({ name: 'Пирог', kcal: 350 }, NOW);
 
@@ -32,7 +32,7 @@ describe('buildCustomFood', () => {
 });
 
 describe('nextCustomFood', () => {
-  it('сохраняет идентификатор и дату заведения', () => {
+  it('keeps id and creation date', () => {
     const next = nextCustomFood(stored, { name: 'Пирог', kcal: 400 }, NOW + 1000);
 
     expect(next.id).toBe(stored.id);
@@ -40,7 +40,7 @@ describe('nextCustomFood', () => {
     expect(next.updatedAt).toBe(NOW + 1000);
   });
 
-  it('снятая граммовка действительно пропадает', () => {
+  it('drops a removed amount', () => {
     const weighed: CustomFood = { ...stored, kcal: 351, amount: 130, basis: { amount: 100, kcal: 270 } };
     const next = nextCustomFood(weighed, { name: weighed.name, kcal: 350 }, NOW);
 
@@ -48,23 +48,23 @@ describe('nextCustomFood', () => {
     expect(next.basis).toBeUndefined();
   });
 
-  it('снятое фото действительно пропадает', () => {
+  it('drops a removed photo', () => {
     expect(nextCustomFood(stored, { name: stored.name, kcal: stored.kcal }, NOW).photo).toBeUndefined();
   });
 });
 
 describe('photosById', () => {
-  it('находит фото по идентификатору блюда', () => {
+  it('finds a photo by food id', () => {
     expect(photosById([stored]).get('pie')).toBe('data:image/jpeg;base64,zzz');
   });
 
-  it('о блюде без фото знает, что фото нет', () => {
+  it('returns nothing for a food without a photo', () => {
     const photos = photosById([{ ...stored, photo: undefined }]);
 
     expect(photos.get('pie')).toBeUndefined();
   });
 
-  it('чужой идентификатор ничего не находит', () => {
+  it('returns nothing for an unknown id', () => {
     expect(photosById([stored]).get('coffee-black')).toBeUndefined();
   });
 });

@@ -44,8 +44,8 @@ async function chooseFile(wrapper: ReturnType<typeof mount>, contents: string) {
   await flushPromises();
 }
 
-describe('экран «Данные»', () => {
-  it('выгружает копию файлом', async () => {
+describe('data screen', () => {
+  it('exports a backup file', async () => {
     vi.mocked(collectBackup).mockResolvedValue({
       version: BACKUP_VERSION,
       exportedAt: '',
@@ -62,7 +62,7 @@ describe('экран «Данные»', () => {
     expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/^calories-count-\d{4}-\d{2}-\d{2}\.json$/));
   });
 
-  it('объясняет, почему файл не подошёл', async () => {
+  it('explains why the file was rejected', async () => {
     const wrapper = mount(DataView);
     await chooseFile(wrapper, 'не json');
 
@@ -70,7 +70,7 @@ describe('экран «Данные»', () => {
     expect(wrapper.text()).not.toContain('Заменить всё');
   });
 
-  it('перед загрузкой копии показывает, что внутри', async () => {
+  it('shows the backup contents before importing', async () => {
     const wrapper = mount(DataView);
     await chooseFile(wrapper, backupJson([{
       id: 'entry-1',
@@ -85,7 +85,7 @@ describe('экран «Данные»', () => {
     expect(wrapper.text()).toContain('записей: 1, своих блюд: 0, профиль: нет, замеров веса: 0');
   });
 
-  it('загружает копию выбранным способом', async () => {
+  it('imports the backup in the chosen mode', async () => {
     const wrapper = mount(DataView);
     await chooseFile(wrapper, backupJson());
     await wrapper.findElementByText('button', 'Дополнить').trigger('click');
@@ -95,7 +95,7 @@ describe('экран «Данные»', () => {
     expect(wrapper.text()).not.toContain('Дополнить');
   });
 
-  it('стирает данные только после подтверждения', async () => {
+  it('wipes data only after confirmation', async () => {
     const wrapper = mount(DataView);
     await wrapper.findElementByText('button', 'Стереть все данные').trigger('click');
 

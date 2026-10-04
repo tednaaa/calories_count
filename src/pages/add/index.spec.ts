@@ -101,14 +101,14 @@ async function plus(wrapper: ReturnType<typeof mount>, index: number) {
   await cards(wrapper)[index].find('button[aria-label^="Добавить"]').trigger('click');
 }
 
-describe('экран «Добавить»', () => {
-  it('показывает весь каталог', () => {
+describe('add screen', () => {
+  it('shows the whole catalog', () => {
     const wrapper = mount(AddView);
 
     expect(cards(wrapper)).toHaveLength(activeFoods.length);
   });
 
-  it('фильтрует по названию', async () => {
+  it('filters by name', async () => {
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('кофе');
 
@@ -118,28 +118,28 @@ describe('экран «Добавить»', () => {
     ]);
   });
 
-  it('фильтрует по тегу', async () => {
+  it('filters by tag', async () => {
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('фрукт');
 
     expect(cards(wrapper)).toHaveLength(2);
   });
 
-  it('фильтрует по категории', async () => {
+  it('filters by category', async () => {
     const wrapper = mount(AddView);
     await wrapper.findElementByText('button', 'Напитки').trigger('click');
 
     expect(cards(wrapper)).toHaveLength(3);
   });
 
-  it('сообщает, когда ничего не нашлось', async () => {
+  it('says when nothing is found', async () => {
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('лобстер');
 
     expect(wrapper.text()).toContain('Ничего не нашлось');
   });
 
-  it('показывает блок «Часто» поверх каталога', () => {
+  it('shows frequent section above the catalog', () => {
     frequentIds.value = ['coffee-black'];
     const wrapper = mount(AddView);
 
@@ -147,7 +147,7 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(activeFoods.length + 1);
   });
 
-  it('прячет блок «Часто» при поиске', async () => {
+  it('hides frequent section while searching', async () => {
     frequentIds.value = ['coffee-black'];
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('кофе');
@@ -155,7 +155,7 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).not.toContain('Часто');
   });
 
-  it('показывает свои блюда отдельным блоком', () => {
+  it('shows custom foods in a separate section', () => {
     customFoods.value = [customFood()];
     const wrapper = mount(AddView);
 
@@ -163,7 +163,7 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(activeFoods.length + 1);
   });
 
-  it('чипс «Своё» оставляет только свои блюда', async () => {
+  it('custom chip leaves only custom foods', async () => {
     customFoods.value = [customFood()];
     const wrapper = mount(AddView);
     await wrapper.findElementByText('button', 'Своё').trigger('click');
@@ -173,7 +173,7 @@ describe('экран «Добавить»', () => {
     ]);
   });
 
-  it('ищет и по своим блюдам', async () => {
+  it('searches custom foods too', async () => {
     customFoods.value = [customFood()];
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('пирог');
@@ -181,14 +181,14 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(1);
   });
 
-  it('говорит, что своих блюд ещё нет', async () => {
+  it('says there are no custom foods yet', async () => {
     const wrapper = mount(AddView);
     await wrapper.findElementByText('button', 'Своё').trigger('click');
 
     expect(wrapper.text()).toContain('Своих блюд пока нет');
   });
 
-  it('своё блюдо кладётся в корзину как обычное', async () => {
+  it('adds custom food to the cart like a regular one', async () => {
     customFoods.value = [customFood()];
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
@@ -200,7 +200,7 @@ describe('экран «Добавить»', () => {
     ]);
   });
 
-  it('своё блюдо попадает в «Часто»', () => {
+  it('shows custom food in the frequent section', () => {
     customFoods.value = [customFood()];
     frequentIds.value = ['pie'];
     const wrapper = mount(AddView);
@@ -209,14 +209,14 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(activeFoods.length + 2);
   });
 
-  it('по умолчанию показывает карточки', () => {
+  it('shows cards by default', () => {
     const wrapper = mount(AddView);
 
     expect(cards(wrapper)).toHaveLength(activeFoods.length);
     expect(wrapper.findAllComponents(FoodRow)).toHaveLength(0);
   });
 
-  it('крупный вид оставляет карточки, но меняет сетку', () => {
+  it('large view keeps cards but changes the grid', () => {
     localStorage.setItem(VIEW_MODE_KEY, 'large');
     const wrapper = mount(AddView);
 
@@ -224,7 +224,7 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(activeFoods.length);
   });
 
-  it('список показывает строки вместо карточек', () => {
+  it('list view shows rows instead of cards', () => {
     localStorage.setItem(VIEW_MODE_KEY, 'list');
     const wrapper = mount(AddView);
 
@@ -232,14 +232,14 @@ describe('экран «Добавить»', () => {
     expect(cards(wrapper)).toHaveLength(0);
   });
 
-  it('незнакомый вид из хранилища не ломает экран', () => {
+  it('falls back on unknown stored view mode', () => {
     localStorage.setItem(VIEW_MODE_KEY, 'карточки');
     const wrapper = mount(AddView);
 
     expect(cards(wrapper)).toHaveLength(activeFoods.length);
   });
 
-  it('в списке блюдо кладётся в корзину тапом по строке', async () => {
+  it('adds food to the cart by tapping a list row', async () => {
     localStorage.setItem(VIEW_MODE_KEY, 'list');
     const wrapper = mount(AddView);
     await wrapper.findAllComponents(FoodRow)[0].find('button').trigger('click');
@@ -247,26 +247,26 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).toContain('1 позиция · 5 ккал');
   });
 
-  it('кнопка вида называет текущий', () => {
+  it('view button names the current mode', () => {
     localStorage.setItem(VIEW_MODE_KEY, 'list');
 
     expect(mount(AddView).find('button[aria-label="Вид: Список"]').exists()).toBe(true);
   });
 
-  it('до первого выбора корзины нет', () => {
+  it('shows no cart before the first pick', () => {
     const wrapper = mount(AddView);
 
     expect(wrapper.text()).not.toContain('Подтвердить');
   });
 
-  it('тап по карточке кладёт блюдо в корзину', async () => {
+  it('adds food to the cart on card tap', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
 
     expect(wrapper.text()).toContain('1 позиция · 5 ккал');
   });
 
-  it('повторный тап убирает блюдо из корзины', async () => {
+  it('removes food from the cart on second tap', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
     await tap(wrapper, 0);
@@ -274,7 +274,7 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).not.toContain('Подтвердить');
   });
 
-  it('плюс увеличивает количество', async () => {
+  it('plus increases quantity', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
     await plus(wrapper, 0);
@@ -282,7 +282,7 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).toContain('1 позиция · 10 ккал');
   });
 
-  it('разные блюда становятся разными позициями', async () => {
+  it('keeps different foods as separate items', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
     await tap(wrapper, 1);
@@ -290,7 +290,7 @@ describe('экран «Добавить»', () => {
     expect(wrapper.text()).toContain('2 позиции · 65 ккал');
   });
 
-  it('подтверждение сохраняет корзину за сегодня и уводит на главную', async () => {
+  it('saves the cart for today and goes home on confirm', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
     await plus(wrapper, 0);
@@ -303,7 +303,7 @@ describe('экран «Добавить»', () => {
     expect(push).toHaveBeenCalledWith({ path: '/', query: {} });
   });
 
-  it('пишет записи в дату из адреса', async () => {
+  it('writes entries to the date from the URL', async () => {
     route.query = { date: '2026-08-17' };
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
@@ -314,13 +314,13 @@ describe('экран «Добавить»', () => {
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-17' } });
   });
 
-  it('предупреждает, что запись идёт задним числом', () => {
+  it('warns about backdated entry', () => {
     route.query = { date: '2026-08-17' };
 
     expect(mount(AddView).text()).toContain('запись задним числом');
   });
 
-  it('игнорирует несуществующую дату в адресе', async () => {
+  it('ignores a nonexistent date in the URL', async () => {
     route.query = { date: '2026-02-30' };
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
@@ -330,7 +330,7 @@ describe('экран «Добавить»', () => {
     expect(addEntries).toHaveBeenCalledWith(toDateKey(), expect.anything());
   });
 
-  it('игнорирует будущую дату в адресе', async () => {
+  it('ignores a future date in the URL', async () => {
     route.query = { date: '2999-01-01' };
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
@@ -340,7 +340,7 @@ describe('экран «Добавить»', () => {
     expect(addEntries).toHaveBeenCalledWith(toDateKey(), expect.anything());
   });
 
-  it('при ошибке записи оставляет корзину и даёт повторить', async () => {
+  it('keeps the cart and allows retry on save error', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(addEntries).mockRejectedValueOnce(new Error('quota'));
 
@@ -358,7 +358,7 @@ describe('экран «Добавить»', () => {
     expect(addEntries).toHaveBeenCalledTimes(2);
   });
 
-  it('не сохраняет корзину дважды по двойному нажатию', async () => {
+  it('does not save the cart twice on double tap', async () => {
     const wrapper = mount(AddView);
     await tap(wrapper, 0);
 

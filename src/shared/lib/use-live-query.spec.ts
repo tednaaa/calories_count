@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 
 describe('useLiveQuery', () => {
-  it('подписывается сразу и отдаёт начальное значение', () => {
+  it('subscribes immediately and returns the initial value', () => {
     const scope = effectScope();
     const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
 
@@ -27,7 +27,7 @@ describe('useLiveQuery', () => {
     scope.stop();
   });
 
-  it('обновляет значение при новом результате', () => {
+  it('updates the value on a new result', () => {
     const scope = effectScope();
     const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
 
@@ -38,7 +38,7 @@ describe('useLiveQuery', () => {
     scope.stop();
   });
 
-  it('пересоздаёт подписку при изменении зависимости', async () => {
+  it('resubscribes when a dependency changes', async () => {
     const scope = effectScope();
     const date = ref('2026-08-19');
 
@@ -54,7 +54,7 @@ describe('useLiveQuery', () => {
     scope.stop();
   });
 
-  it('без зависимостей подписку не пересоздаёт', async () => {
+  it('does not resubscribe without dependencies', async () => {
     const scope = effectScope();
     const unrelated = ref(1);
 
@@ -67,7 +67,7 @@ describe('useLiveQuery', () => {
     scope.stop();
   });
 
-  it('отписывается при остановке области видимости', () => {
+  it('unsubscribes when the effect scope stops', () => {
     const scope = effectScope();
     scope.run(() => useLiveQuery(() => 'значение', ''));
 

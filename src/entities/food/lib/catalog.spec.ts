@@ -22,38 +22,38 @@ const apple: Food = {
   tags: ['фрукт'],
 };
 
-describe('целостность каталога', () => {
-  it('идентификаторы уникальны', () => {
+describe('catalog integrity', () => {
+  it('has unique ids', () => {
     const ids = foods.map(food => food.id);
 
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('идентификаторы записаны слагом', () => {
+  it('writes ids as slugs', () => {
     const invalid = foods.filter(food => !SLUG.test(food.id));
 
     expect(invalid.map(food => food.id)).toEqual([]);
   });
 
-  it('калорийность — целое положительное число', () => {
+  it('has positive integer kcal', () => {
     const invalid = foods.filter(food => !Number.isInteger(food.kcal) || food.kcal <= 0);
 
     expect(invalid.map(food => food.id)).toEqual([]);
   });
 
-  it('категории существуют', () => {
+  it('references existing categories', () => {
     const invalid = foods.filter(food => !categoryIds.has(food.category));
 
     expect(invalid.map(food => food.id)).toEqual([]);
   });
 
-  it('имя файла фотографии совпадает с идентификатором', () => {
+  it('names photo files after ids', () => {
     const invalid = foods.filter(food => food.photo !== undefined && food.photo !== `${food.id}.webp`);
 
     expect(invalid.map(food => food.id)).toEqual([]);
   });
 
-  it('названия не пустые', () => {
+  it('has no empty names', () => {
     const invalid = foods.filter(food => food.name.trim() === '');
 
     expect(invalid.map(food => food.id)).toEqual([]);
@@ -61,61 +61,61 @@ describe('целостность каталога', () => {
 });
 
 describe('foodById', () => {
-  it('находит каждое блюдо каталога', () => {
+  it('finds every catalog food', () => {
     const missing = foods.filter(food => foodById(food.id) !== food);
 
     expect(missing.map(food => food.id)).toEqual([]);
   });
 
-  it('возвращает undefined для удалённого блюда', () => {
+  it('returns undefined for a deleted food', () => {
     expect(foodById('was-deleted-long-ago')).toBeUndefined();
   });
 });
 
 describe('activeFoods', () => {
-  it('не содержит заархивированных', () => {
+  it('excludes archived foods', () => {
     expect(activeFoods.every(food => !food.archived)).toBe(true);
   });
 });
 
 describe('matchesQuery', () => {
-  it('без запроса подходит любое блюдо', () => {
+  it('matches any food without a query', () => {
     expect(matchesQuery(coffee, '')).toBe(true);
   });
 
-  it('ищет по названию без учёта регистра', () => {
+  it('matches name case-insensitively', () => {
     expect(matchesQuery(coffee, 'КОФЕ')).toBe(true);
   });
 
-  it('ищет по вхождению подстроки', () => {
+  it('matches a substring', () => {
     expect(matchesQuery(coffee, 'молок')).toBe(true);
   });
 
-  it('не замечает пробелов вокруг запроса', () => {
+  it('ignores whitespace around the query', () => {
     expect(matchesQuery(coffee, '  кофе  ')).toBe(true);
   });
 
-  it('ищет по тегам', () => {
+  it('matches tags', () => {
     expect(matchesQuery(apple, 'фрукт')).toBe(true);
   });
 
-  it('не находит постороннее', () => {
+  it('rejects unrelated queries', () => {
     expect(matchesQuery(apple, 'лобстер')).toBe(false);
   });
 });
 
 describe('searchFoods', () => {
-  it('без запроса возвращает весь активный каталог', () => {
+  it('returns the whole active catalog without a query', () => {
     expect(searchFoods('')).toEqual(activeFoods);
   });
 
-  it('оставляет только выбранную категорию', () => {
+  it('keeps only the selected category', () => {
     expect(searchFoods('', 'drinks')).toEqual(activeFoods.filter(food => food.category === 'drinks'));
   });
 });
 
 describe('photoUrl', () => {
-  it('ведёт в public/foods', () => {
+  it('points to public/foods', () => {
     expect(photoUrl(apple)).toBe('/foods/apple.webp');
   });
 });

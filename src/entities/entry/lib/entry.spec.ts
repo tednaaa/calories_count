@@ -40,17 +40,17 @@ function entry(overrides: Partial<Entry> = {}): Entry {
 }
 
 describe('buildEntries', () => {
-  it('создаёт по записи на позицию корзины', () => {
+  it('creates one entry per cart item', () => {
     expect(buildEntries('2026-08-19', cart, NOW)).toHaveLength(2);
   });
 
-  it('количество уходит в qty, а не размножает записи', () => {
+  it('puts quantity into qty instead of duplicating entries', () => {
     const [, eggs] = buildEntries('2026-08-19', cart, NOW);
 
     expect(eggs.qty).toBe(2);
   });
 
-  it('копирует название и калорийность снапшотом', () => {
+  it('snapshots name and calories', () => {
     const [coffee] = buildEntries('2026-08-19', cart, NOW);
 
     expect(coffee.name).toBe('Кофе чёрный');
@@ -58,31 +58,31 @@ describe('buildEntries', () => {
     expect(coffee.foodId).toBe('coffee-black');
   });
 
-  it('копирует граммовку снапшотом', () => {
+  it('snapshots the portion weight', () => {
     const [, eggs] = buildEntries('2026-08-19', cart, NOW);
 
     expect(eggs.amount).toBe(50);
   });
 
-  it('выдаёт уникальные идентификаторы', () => {
+  it('assigns unique ids', () => {
     const ids = buildEntries('2026-08-19', cart, NOW).map(item => item.id);
 
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('сохраняет порядок корзины при одинаковом времени подтверждения', () => {
+  it('keeps cart order when confirmed at the same time', () => {
     const [first, second] = buildEntries('2026-08-19', cart, NOW);
 
     expect(second.createdAt).toBeGreaterThan(first.createdAt);
   });
 
-  it('проставляет переданную дату', () => {
+  it('sets the given date', () => {
     expect(buildEntries('2026-08-01', cart, NOW).every(item => item.date === '2026-08-01')).toBe(true);
   });
 });
 
 describe('buildCustomEntry', () => {
-  it('создаёт одну запись без блюда из каталога', () => {
+  it('creates a single entry without a catalog food', () => {
     const custom = buildCustomEntry('2026-08-19', { name: 'Пирог', kcalPerPortion: 350 }, NOW);
 
     expect(custom.foodId).toBeUndefined();
@@ -92,13 +92,13 @@ describe('buildCustomEntry', () => {
     expect(custom.date).toBe('2026-08-19');
   });
 
-  it('переносит граммовку порции в запись', () => {
+  it('carries the portion weight into the entry', () => {
     const custom = buildCustomEntry('2026-08-19', { name: 'Овсянка', kcalPerPortion: 350, amount: 100 }, NOW);
 
     expect(custom.amount).toBe(100);
   });
 
-  it('хранит фото рядом с записью', () => {
+  it('stores the photo with the entry', () => {
     const custom = buildCustomEntry(
       '2026-08-19',
       { name: 'Пирог', kcalPerPortion: 350, photo: 'data:image/jpeg;base64,zzz' },
@@ -110,35 +110,35 @@ describe('buildCustomEntry', () => {
 });
 
 describe('increaseQty', () => {
-  it('с половины поднимает до целой порции', () => {
+  it('raises a half to a whole portion', () => {
     expect(increaseQty(0.5)).toBe(1);
   });
 
-  it('дальше считает целыми', () => {
+  it('counts in whole portions after that', () => {
     expect(increaseQty(1)).toBe(2);
     expect(increaseQty(2)).toBe(3);
   });
 
-  it('первое нажатие даёт целую порцию', () => {
+  it('gives a whole portion on first press', () => {
     expect(increaseQty(0)).toBe(1);
   });
 });
 
 describe('decreaseQty', () => {
-  it('с целой порции опускает до половины', () => {
+  it('lowers a whole portion to a half', () => {
     expect(decreaseQty(1)).toBe(0.5);
   });
 
-  it('с половины уводит в ноль', () => {
+  it('lowers a half to zero', () => {
     expect(decreaseQty(0.5)).toBe(0);
   });
 
-  it('выше целой считает целыми', () => {
+  it('counts in whole portions above one', () => {
     expect(decreaseQty(3)).toBe(2);
     expect(decreaseQty(2)).toBe(1);
   });
 
-  it('половина появляется только между нулём и единицей', () => {
+  it('yields a half only between zero and one', () => {
     const steps = [];
     let qty = 3;
 
@@ -152,50 +152,50 @@ describe('decreaseQty', () => {
 });
 
 describe('toggleQty', () => {
-  it('из пустого кладёт целую порцию', () => {
+  it('adds a whole portion when empty', () => {
     expect(toggleQty(0)).toBe(1);
   });
 
-  it('выбранное убирает целиком', () => {
+  it('removes a selected item entirely', () => {
     expect(toggleQty(1)).toBe(0);
     expect(toggleQty(3)).toBe(0);
   });
 
-  it('половину тоже убирает целиком', () => {
+  it('removes a half entirely too', () => {
     expect(toggleQty(0.5)).toBe(0);
   });
 });
 
 describe('entryKcal', () => {
-  it('умножает порцию на количество', () => {
+  it('multiplies portion by quantity', () => {
     expect(entryKcal(entry({ qty: 2, kcalPerPortion: 78 }))).toBe(156);
   });
 
-  it('половина порции считается половиной калорий', () => {
+  it('counts a half portion as half the calories', () => {
     expect(entryKcal(entry({ qty: 0.5, kcalPerPortion: 230 }))).toBe(115);
   });
 });
 
 describe('entryAmount', () => {
-  it('умножает вес порции на количество', () => {
+  it('multiplies portion weight by quantity', () => {
     expect(entryAmount(entry({ qty: 2, amount: 100 }))).toBe(200);
   });
 
-  it('половина порции весит половину', () => {
+  it('weighs a half portion as half', () => {
     expect(entryAmount(entry({ qty: 0.5, amount: 30 }))).toBe(15);
   });
 
-  it('о записи без граммовки ничего не выдумывает', () => {
+  it('returns undefined for an entry without weight', () => {
     expect(entryAmount(entry({ qty: 2 }))).toBeUndefined();
   });
 });
 
 describe('totalNutrients', () => {
-  it('умножает состав порции на количество', () => {
+  it('multiplies portion nutrients by quantity', () => {
     expect(totalNutrients([entry({ qty: 2, nutrients: { sugars: 12 } })])).toEqual({ sugars: 24 });
   });
 
-  it('складывает записи с составом и пропускает остальные', () => {
+  it('sums entries with nutrients and skips the rest', () => {
     const day = [
       entry({ nutrients: { sugars: 54, protein: 0 } }),
       entry({ id: 'kebab', name: 'Ангус-кебаб', kcalPerPortion: 850 }),
@@ -205,32 +205,32 @@ describe('totalNutrients', () => {
     expect(totalNutrients(day)).toEqual({ protein: 22, sugars: 54 });
   });
 
-  it('за день без состава молчит', () => {
+  it('returns undefined for a day without nutrients', () => {
     expect(totalNutrients([entry()])).toBeUndefined();
   });
 });
 
 describe('countMeasured', () => {
-  it('считает записи, у которых состав известен', () => {
+  it('counts entries with known nutrients', () => {
     expect(countMeasured([entry({ nutrients: { sugars: 1 } }), entry({ id: 'kebab' })])).toBe(1);
   });
 });
 
 describe('totalKcal', () => {
-  it('складывает записи', () => {
+  it('sums entries', () => {
     expect(totalKcal([
       entry({ qty: 1, kcalPerPortion: 5 }),
       entry({ qty: 2, kcalPerPortion: 78 }),
     ])).toBe(161);
   });
 
-  it('на пустом дне возвращает ноль', () => {
+  it('returns zero for an empty day', () => {
     expect(totalKcal([])).toBe(0);
   });
 });
 
 describe('totalsByDate', () => {
-  it('группирует калории по дням', () => {
+  it('groups calories by day', () => {
     const totals = totalsByDate([
       entry({ date: '2026-08-18', qty: 1, kcalPerPortion: 100 }),
       entry({ date: '2026-08-18', qty: 2, kcalPerPortion: 100 }),
@@ -241,13 +241,13 @@ describe('totalsByDate', () => {
     expect(totals.get('2026-08-19')).toBe(50);
   });
 
-  it('день без записей отсутствует в результате', () => {
+  it('omits days without entries', () => {
     expect(totalsByDate([]).size).toBe(0);
   });
 });
 
 describe('rankFoodIdsByFrequency', () => {
-  it('сортирует по числу записей', () => {
+  it('sorts by entry count', () => {
     const ranked = rankFoodIdsByFrequency([
       entry({ foodId: 'apple' }),
       entry({ foodId: 'coffee-black' }),
@@ -257,7 +257,7 @@ describe('rankFoodIdsByFrequency', () => {
     expect(ranked[0]).toBe('coffee-black');
   });
 
-  it('не считает разовые записи, у которых нет блюда', () => {
+  it('ignores one-off entries without a food', () => {
     const ranked = rankFoodIdsByFrequency([
       entry({ foodId: undefined }),
       entry({ foodId: undefined }),
@@ -267,7 +267,7 @@ describe('rankFoodIdsByFrequency', () => {
     expect(ranked).toEqual(['apple']);
   });
 
-  it('при равном счёте выше то, что ели позже', () => {
+  it('ranks the more recently eaten food higher on a tie', () => {
     const ranked = rankFoodIdsByFrequency([
       entry({ foodId: 'apple', createdAt: NOW }),
       entry({ foodId: 'banana', createdAt: NOW + 5000 }),
@@ -276,7 +276,7 @@ describe('rankFoodIdsByFrequency', () => {
     expect(ranked[0]).toBe('banana');
   });
 
-  it('учитывает количество записей, а не порций', () => {
+  it('counts entries, not portions', () => {
     const ranked = rankFoodIdsByFrequency([
       entry({ foodId: 'egg-boiled', qty: 10, createdAt: NOW }),
       entry({ foodId: 'apple', createdAt: NOW + 1 }),
@@ -286,7 +286,7 @@ describe('rankFoodIdsByFrequency', () => {
     expect(ranked[0]).toBe('apple');
   });
 
-  it('обрезает по лимиту', () => {
+  it('truncates to the limit', () => {
     const ranked = rankFoodIdsByFrequency([
       entry({ foodId: 'apple' }),
       entry({ foodId: 'banana' }),
@@ -296,7 +296,7 @@ describe('rankFoodIdsByFrequency', () => {
     expect(ranked).toHaveLength(2);
   });
 
-  it('на пустом дневнике возвращает пустой список', () => {
+  it('returns an empty list for an empty diary', () => {
     expect(rankFoodIdsByFrequency([], 8)).toEqual([]);
   });
 });
@@ -306,7 +306,7 @@ function draft(overrides: Partial<CustomDraft> = {}): CustomDraft {
 }
 
 describe('draftFromEntry', () => {
-  it('раскладывает запись по полям формы', () => {
+  it('maps the entry to form fields', () => {
     expect(draftFromEntry(entry({ photo: 'data:image/jpeg;base64,zzz' }))).toEqual({
       name: 'Кофе чёрный',
       serving: 'portion',
@@ -318,11 +318,11 @@ describe('draftFromEntry', () => {
     });
   });
 
-  it('без своего снимка отдаёт пустую строку', () => {
+  it('returns an empty string without a photo', () => {
     expect(draftFromEntry(entry()).photo).toBe('');
   });
 
-  it('открывает запись на том же табе граммовки', () => {
+  it('opens the entry on the same serving tab', () => {
     const oatmeal = entry({ kcalPerPortion: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
 
     expect(draftFromEntry(oatmeal)).toMatchObject({ serving: 'hundred', amount: '100', kcal: '270', portion: '130' });
@@ -330,7 +330,7 @@ describe('draftFromEntry', () => {
 });
 
 describe('draftToEntry', () => {
-  it('собирает правку записи', () => {
+  it('builds the entry edit', () => {
     expect(draftToEntry(draft({ name: '  Пирог  ' }))).toEqual({
       name: 'Пирог',
       kcalPerPortion: 350,
@@ -340,13 +340,13 @@ describe('draftToEntry', () => {
     });
   });
 
-  it('переносит граммовку и вес порции в правку', () => {
+  it('carries serving basis and portion weight into the edit', () => {
     const edited = draftToEntry(draft({ serving: 'hundred', kcal: '270', portion: '130' }));
 
     expect(edited).toMatchObject({ kcalPerPortion: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
   });
 
-  it('проверяет поля так же, как форма своего блюда', () => {
+  it('validates fields like the custom food form', () => {
     expect(draftToEntry(draft({ name: '' }))).toBeNull();
     expect(draftToEntry(draft({ kcal: '90.5' }))).toBeNull();
     expect(draftToEntry(draft({ serving: 'custom' }))).toBeNull();
@@ -354,7 +354,7 @@ describe('draftToEntry', () => {
 });
 
 describe('nextEntry', () => {
-  it('меняет только правленые поля и количество', () => {
+  it('changes only edited fields and quantity', () => {
     const current = entry();
 
     expect(nextEntry(current, { name: 'Кофе с молоком', kcalPerPortion: 40 }, 2)).toEqual({
@@ -365,7 +365,7 @@ describe('nextEntry', () => {
     });
   });
 
-  it('снятая граммовка действительно пропадает', () => {
+  it('drops a removed portion weight', () => {
     const weighed = entry({ amount: 100, basis: { amount: 100, kcal: 5 } });
     const next = nextEntry(weighed, { name: 'Кофе', kcalPerPortion: 5 }, 1);
 
@@ -373,7 +373,7 @@ describe('nextEntry', () => {
     expect(next.basis).toBeUndefined();
   });
 
-  it('оставляет запись при своём блюде', () => {
+  it('keeps the entry linked to its food', () => {
     expect(nextEntry(entry(), { name: 'Кофе', kcalPerPortion: 5 }, 1).foodId).toBe('coffee-black');
   });
 });

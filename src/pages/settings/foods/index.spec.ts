@@ -31,8 +31,8 @@ beforeEach(() => {
   vi.mocked(useCustomFoods).mockReturnValue(customFoods);
 });
 
-describe('экран «Свои блюда»', () => {
-  it('перечисляет заведённые блюда с калорийностью', () => {
+describe('custom foods screen', () => {
+  it('lists custom foods with their calories', () => {
     customFoods.value = [customFood()];
 
     const text = mount(FoodsView).text();
@@ -41,11 +41,11 @@ describe('экран «Свои блюда»', () => {
     expect(text).toContain('350 ккал');
   });
 
-  it('на пустом списке рассказывает, откуда берутся блюда', () => {
+  it('explains where foods come from when the list is empty', () => {
     expect(mount(FoodsView).text()).toContain('Пока пусто');
   });
 
-  it('ведёт на правку каждого блюда', () => {
+  it('links to editing each food', () => {
     customFoods.value = [customFood(), customFood({ id: 'soup', name: 'Суп у мамы' })];
 
     const links = mount(FoodsView).findAll('li a');

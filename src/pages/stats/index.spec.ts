@@ -74,29 +74,29 @@ function dayButton(wrapper: ReturnType<typeof mountStats>, day: number) {
   return wrapper.findAll('section button').find(button => button.find('span').text() === String(day))!;
 }
 
-describe('экран статистики', () => {
-  it('рисует клетку на каждый день месяца', () => {
+describe('stats screen', () => {
+  it('renders a cell for every day of the month', () => {
     expect(mountStats().findAll('section button')).toHaveLength(31);
   });
 
-  it('будущие дни нельзя открыть', () => {
+  it('disables future days', () => {
     const wrapper = mountStats();
 
     expect(dayButton(wrapper, 20).attributes('disabled')).toBeDefined();
     expect(dayButton(wrapper, 19).attributes('disabled')).toBeUndefined();
   });
 
-  it('без записей показывает пустое состояние', () => {
+  it('shows an empty state without entries', () => {
     expect(mountStats().text()).toContain('За этот месяц записей нет');
   });
 
-  it('в клетке дня видны калории', () => {
+  it('shows kcal in the day cell', () => {
     entries.value = [entry('2026-08-18', 1850)];
 
     expect(dayButton(mountStats(), 18).text()).toContain('1 850');
   });
 
-  it('среднее считает только по дням с записями', () => {
+  it('averages only over days with entries', () => {
     entries.value = [entry('2026-08-18', 2000), entry('2026-08-19', 3000)];
 
     const text = mountStats().text();
@@ -106,25 +106,25 @@ describe('экран статистики', () => {
     expect(text).toContain('2 дня с записями');
   });
 
-  it('отклонение считает от цели за дни с записями', () => {
+  it('computes deviation from target over days with entries', () => {
     entries.value = [13, 14, 15, 16, 17, 18, 19].map(day => entry(`2026-08-${day}`, 2000));
 
     expect(mountStats().text()).toContain('дефицит 2 800 ккал ≈ 0,36 кг');
   });
 
-  it('за пару дней отклонение от цели не показывает', () => {
+  it('hides deviation from target for just a couple of days', () => {
     entries.value = [entry('2026-08-19', 2000)];
 
     expect(mountStats().text()).not.toContain('дефицит');
   });
 
-  it('не берёт в расчёт дни другого месяца', () => {
+  it('ignores days of another month', () => {
     entries.value = [entry('2026-07-31', 5000), entry('2026-08-19', 2400)];
 
     expect(mountStats().text()).toContain('1 день с записями');
   });
 
-  it('день заметно выше цели окрашен иначе', () => {
+  it('colors a day well above target differently', () => {
     entries.value = [entry('2026-08-18', 2450), entry('2026-08-19', 3000)];
 
     const wrapper = mountStats();
@@ -133,18 +133,18 @@ describe('экран статистики', () => {
     expect(dayButton(wrapper, 18).classes()).toContain('bg-primary/15');
   });
 
-  it('сегодня отмечено для скринридера', () => {
+  it('marks today for screen readers', () => {
     expect(dayButton(mountStats(), 19).attributes('aria-current')).toBe('date');
     expect(dayButton(mountStats(), 18).attributes('aria-current')).toBeUndefined();
   });
 
-  it('тап по дню открывает этот день', async () => {
+  it('opens the day on tap', async () => {
     await dayButton(mountStats(), 13).trigger('click');
 
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-13' } });
   });
 
-  it('листает на прошлый месяц и обратно', async () => {
+  it('pages to the previous month and back', async () => {
     const wrapper = mountStats();
 
     await wrapper.get('[aria-label="Предыдущий месяц"]').trigger('click');
@@ -160,11 +160,11 @@ describe('экран статистики', () => {
     expect(wrapper.text()).toContain('Август 2026');
   });
 
-  it('по умолчанию открывает калории', () => {
+  it('opens the calories tab by default', () => {
     expect(mountStats().find('weight-section-stub').exists()).toBe(false);
   });
 
-  it('вес открывается отдельной вкладкой', () => {
+  it('opens weight in a separate tab', () => {
     route.query = { tab: 'weight' };
     const wrapper = mountStats();
 
@@ -172,7 +172,7 @@ describe('экран статистики', () => {
     expect(wrapper.findAll('section button')).toHaveLength(0);
   });
 
-  it('листая месяцы, остаётся на своей вкладке', async () => {
+  it('stays on the current tab when paging months', async () => {
     route.query = { tab: 'kcal' };
     const wrapper = mountStats();
 
@@ -181,7 +181,7 @@ describe('экран статистики', () => {
     expect(route.query).toEqual({ tab: 'kcal', month: '2026-07' });
   });
 
-  it('в будущее не листает', () => {
+  it('does not page into the future', () => {
     expect(mountStats().get('[aria-label="Следующий месяц"]').attributes('disabled')).toBeDefined();
   });
 });

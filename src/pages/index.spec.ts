@@ -106,22 +106,22 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('экран «Сегодня»', () => {
-  it('показывает пустой день', () => {
+describe('today screen', () => {
+  it('shows an empty day', () => {
     const wrapper = mount(TodayView);
 
     expect(wrapper.text()).toContain('Сегодня');
     expect(wrapper.text()).toContain('Сегодня пока пусто');
   });
 
-  it('складывает калории записей', () => {
+  it('sums entry calories', () => {
     entries.value = [entry({ qty: 2, kcalPerPortion: 78 }), entry({ id: 'entry-2' })];
     const wrapper = mount(TodayView);
 
     expect(wrapper.text()).toContain('161');
   });
 
-  it('спрашивает подтверждение и без него ничего не удаляет', async () => {
+  it('asks for confirmation and removes nothing without it', async () => {
     const removed = entry();
     entries.value = [removed];
     const wrapper = mount(TodayView);
@@ -135,7 +135,7 @@ describe('экран «Сегодня»', () => {
     expect(options.message).toContain('Кофе чёрный');
   });
 
-  it('удаление предлагает вернуть запись', async () => {
+  it('offers to undo a removal', async () => {
     const removed = entry();
     entries.value = [removed];
     const wrapper = mount(TodayView);
@@ -147,7 +147,7 @@ describe('экран «Сегодня»', () => {
     expect(toast).toHaveBeenCalledWith('Запись удалена', expect.anything());
   });
 
-  it('нажатие «Вернуть» восстанавливает запись целиком', async () => {
+  it('undo restores the whole entry', async () => {
     const removed = entry();
     entries.value = [removed];
     const wrapper = mount(TodayView);
@@ -161,7 +161,7 @@ describe('экран «Сегодня»', () => {
     expect(restoreEntry).toHaveBeenCalledWith(removed);
   });
 
-  it('открывает запись по тапу', async () => {
+  it('opens an entry on tap', async () => {
     const edited = entry();
     entries.value = [edited];
     const wrapper = mount(TodayView);
@@ -171,7 +171,7 @@ describe('экран «Сегодня»', () => {
     expect(push).toHaveBeenCalledWith('/entry/entry-1');
   });
 
-  it('тап по фото не открывает запись', async () => {
+  it('does not open an entry on photo tap', async () => {
     entries.value = [entry({ photo: 'data:image/webp;base64,photo' })];
     const wrapper = mount(TodayView);
 
@@ -180,7 +180,7 @@ describe('экран «Сегодня»', () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it('открывает день, выбранный в ленте, и возвращается к сегодня', async () => {
+  it('opens the day picked in the strip and returns to today', async () => {
     const wrapper = mount(TodayView);
 
     await currentWeekButtons(wrapper)[1].trigger('click');
@@ -191,7 +191,7 @@ describe('экран «Сегодня»', () => {
     expect(wrapper.text()).toContain('Сегодня пока пусто');
   });
 
-  it('открывает день, указанный в адресе', () => {
+  it('opens the day from the url', () => {
     useRouter().replace({ query: { date: '2026-08-17' } });
 
     const wrapper = mount(TodayView);
@@ -199,7 +199,7 @@ describe('экран «Сегодня»', () => {
     expect(wrapper.find('[aria-current="date"]').attributes('aria-label')).toContain('17 август');
   });
 
-  it('не пускает в будущее', () => {
+  it('disables future days', () => {
     const wrapper = mount(TodayView);
 
     expect(currentWeekButtons(wrapper)[3].attributes('disabled')).toBeDefined();

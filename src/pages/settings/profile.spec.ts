@@ -49,18 +49,18 @@ beforeEach(() => {
   vi.mocked(useLiveQuery).mockImplementation(() => profile as never);
 });
 
-describe('экран «Профиль»', () => {
-  it('показывает сохранённый профиль', () => {
+describe('profile screen', () => {
+  it('shows the saved profile', () => {
     expect((mount(ProfileView).find('#weight').element as HTMLInputElement).value).toBe('85');
   });
 
-  it('не даёт сохранить профиль, пока ничего не изменилось', () => {
+  it('disables saving until something changes', () => {
     const wrapper = mount(ProfileView);
 
     expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
   });
 
-  it('сохраняет изменённый вес', async () => {
+  it('saves the changed weight', async () => {
     const wrapper = mount(ProfileView);
     await wrapper.find('#weight').setValue('82');
     await wrapper.find('form').trigger('submit');
@@ -68,7 +68,7 @@ describe('экран «Профиль»', () => {
     expect(saveProfile).toHaveBeenCalledWith(expect.objectContaining({ weightKg: 82 }));
   });
 
-  it('ошибку в целевом весе не выдаёт за ошибку роста или веса', async () => {
+  it('reports a target weight error separately from height or weight errors', async () => {
     const wrapper = mount(ProfileView);
     await wrapper.find('#target-weight').setValue('500');
 
@@ -78,7 +78,7 @@ describe('экран «Профиль»', () => {
     expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
   });
 
-  it('показывает, как изменится расчётная норма', async () => {
+  it('shows how the calculated target changes', async () => {
     const wrapper = mount(ProfileView);
     await wrapper.find('#weight').setValue('75');
 

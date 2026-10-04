@@ -66,8 +66,8 @@ beforeEach(() => {
   vi.mocked(loadCustomFood).mockResolvedValue(undefined);
 });
 
-describe('правка записи', () => {
-  it('открывается на значениях записи', async () => {
+describe('entry editing', () => {
+  it('opens with the entry values', async () => {
     const wrapper = await open();
 
     expect((wrapper.find('#custom-name').element as HTMLInputElement).value).toBe('Кофе чёрный');
@@ -75,7 +75,7 @@ describe('правка записи', () => {
     expect(wrapper.text()).toContain('Итого 5 ккал');
   });
 
-  it('сохраняет правку и возвращает в день записи', async () => {
+  it('saves the edit and returns to the entry day', async () => {
     const wrapper = await open();
 
     await wrapper.find('#custom-name').setValue('Кофе с молоком');
@@ -89,7 +89,7 @@ describe('правка записи', () => {
     expect(push).toHaveBeenCalledWith(day);
   });
 
-  it('не сохраняет запись без названия', async () => {
+  it('does not save an entry without a name', async () => {
     const wrapper = await open();
 
     await wrapper.find('#custom-name').setValue('   ');
@@ -99,7 +99,7 @@ describe('правка записи', () => {
     expect(saveEntry).not.toHaveBeenCalled();
   });
 
-  it('не опускает количество ниже половины порции', async () => {
+  it('keeps quantity at half a portion or more', async () => {
     const wrapper = await open();
     const less = wrapper.find('[aria-label="Меньше"]');
 
@@ -109,20 +109,20 @@ describe('правка записи', () => {
     expect(less.attributes('disabled')).toBeDefined();
   });
 
-  it('удалять запись отсюда нельзя — только свайпом в ленте', async () => {
+  it('has no delete button, removal is by swipe in the list', async () => {
     const wrapper = await open();
 
     expect(wrapper.findAll('button').some(button => button.text().includes('Удалить'))).toBe(false);
   });
 
-  it('у каталожной записи переключателя «Сохранить в избранное» нет', async () => {
+  it('hides the save to favorites toggle for a catalog entry', async () => {
     const wrapper = await open();
 
     expect(wrapper.find('#entry-keeps').exists()).toBe(false);
     expect(wrapper.text()).not.toContain('Блюдо уже в избранном');
   });
 
-  it('у записи от своего блюда вместо флага ссылка на него', async () => {
+  it('shows a favorites note instead of the toggle for a custom food entry', async () => {
     vi.mocked(loadEntry).mockResolvedValue({ ...stored, foodId: 'pie' });
     vi.mocked(loadCustomFood).mockResolvedValue({
       id: 'pie',
@@ -138,7 +138,7 @@ describe('правка записи', () => {
     expect(wrapper.text()).toContain('Блюдо уже в избранном');
   });
 
-  it('с поднятым флагом заводит блюдо из разовой записи', async () => {
+  it('creates a food from a one-off entry when the toggle is on', async () => {
     vi.mocked(loadEntry).mockResolvedValue(once);
     const wrapper = await open();
 
@@ -155,7 +155,7 @@ describe('правка записи', () => {
     expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь в избранном');
   });
 
-  it('без флага разовая запись остаётся разовой', async () => {
+  it('keeps a one-off entry one-off when the toggle is off', async () => {
     vi.mocked(loadEntry).mockResolvedValue(once);
     const wrapper = await open();
 
@@ -166,7 +166,7 @@ describe('правка записи', () => {
     expect(keepEntryAsFood).not.toHaveBeenCalled();
   });
 
-  it('пропавшую запись возвращает в сегодня', async () => {
+  it('redirects to today when the entry is missing', async () => {
     vi.mocked(loadEntry).mockResolvedValue(undefined);
     await open();
 

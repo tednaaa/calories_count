@@ -27,52 +27,52 @@ function ready(overrides: Partial<ImpactInput> = {}) {
   const result = analyzeImpact(input(overrides));
 
   if (!result.ready) {
-    throw new Error('ожидался готовый вывод');
+    throw new Error('expected ready output');
   }
 
   return result.impact;
 }
 
 describe('fitTrend', () => {
-  it('находит наклон ровного ряда', () => {
+  it('finds the slope of a straight series', () => {
     const points: WeightPoint[] = [{ day: 0, kg: 86 }, { day: 7, kg: 85.8 }, { day: 14, kg: 85.6 }];
 
     expect(fitTrend(points)?.slope).toBeCloseTo(-0.2 / 7);
   });
 
-  it('не строит тренд по одной точке и по одному дню', () => {
+  it('builds no trend from one point or one day', () => {
     expect(fitTrend([{ day: 3, kg: 85 }])).toBeNull();
     expect(fitTrend([{ day: 3, kg: 85 }, { day: 3, kg: 86 }])).toBeNull();
   });
 
-  it('при малом числе замеров берёт типичный разброс веса', () => {
+  it('uses typical weight noise with few weigh-ins', () => {
     expect(fitTrend([{ day: 0, kg: 86 }, { day: 14, kg: 85.6 }])?.noise).toBe(0.7);
   });
 
-  it('не опускает разброс ниже полукилограмма даже на идеальной прямой', () => {
+  it('keeps noise at least half a kilogram even on a perfect line', () => {
     const points = [0, 4, 8, 12, 16, 20].map(day => ({ day, kg: 86 - day * 0.03 }));
 
     expect(fitTrend(points)?.noise).toBe(0.5);
   });
 
-  it('меряет разброс по отклонениям от линии, когда замеров хватает', () => {
+  it('measures noise from residuals when there are enough weigh-ins', () => {
     const points = [0, 4, 8, 12, 16, 20].map((day, index) => ({ day, kg: 86 + (index % 2 ? 1.2 : -1.2) }));
 
     expect(fitTrend(points)?.noise).toBeGreaterThan(1);
   });
 });
 
-describe('погрешность наклона', () => {
-  it('падает с числом замеров', () => {
+describe('slope error', () => {
+  it('decreases with more weigh-ins', () => {
     expect(evenSpreadError(0.7, 12, 28)).toBeLessThan(evenSpreadError(0.7, 8, 28));
     expect(evenSpreadError(0.7, 28, 28)).toBeLessThan(evenSpreadError(0.7, 12, 28));
   });
 
-  it('при 2–3 замерах в неделю даёт около ±200 ккал', () => {
+  it('gives about ±200 kcal at 2–3 weigh-ins per week', () => {
     expect(evenSpreadError(0.7, 12, 28) * 7700).toBeCloseTo(190, -1);
   });
 
-  it('замеры кучкой в начале окна точнее не делают', () => {
+  it('bunched weigh-ins at window start are no more precise', () => {
     const bunched = [0, 1, 2, 3, 4, 5, 6, 27].map(day => ({ day, kg: 86 }));
     const spread = [0, 4, 8, 12, 16, 20, 24, 27].map(day => ({ day, kg: 86 }));
 
@@ -81,7 +81,7 @@ describe('погрешность наклона', () => {
 });
 
 describe('toPoints', () => {
-  it('считает дни от начала окна и отбрасывает замеры за его пределами', () => {
+  it('counts days from window start and drops weigh-ins outside it', () => {
     const records: WeightRecord[] = [
       { date: '2026-09-20', kg: 90, createdAt: 0 },
       { date: days[0], kg: 86, createdAt: 0 },
@@ -93,77 +93,77 @@ describe('toPoints', () => {
 });
 
 describe('analyzeImpact', () => {
-  it('сравнивает ожидаемый по еде темп с фактическим', () => {
+  it('compares food-based expected rate with actual', () => {
     const impact = ready();
 
     expect(impact.expectedPerWeek).toBeCloseTo(-0.4, 2);
     expect(impact.actualPerWeek).toBeCloseTo(-0.2, 2);
   });
 
-  it('выводит реальный расход из съеденного и наклона веса', () => {
+  it('derives real TDEE from intake and weight slope', () => {
     expect(ready().realTdee).toBeCloseTo(2620, 0);
   });
 
-  it('не считает сегодняшний, ещё не законченный день', () => {
+  it('skips unfinished today', () => {
     const impact = ready({ totals: new Map([...eaten(2400), [days[27], 300]]) });
 
     expect(impact.averageIntake).toBe(2400);
     expect(impact.countedDays).toBe(27);
   });
 
-  it('пропуски в записях еды не считаются голодовкой', () => {
+  it('does not count untracked days as fasting', () => {
     const impact = ready({ totals: eaten(2400, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26]) });
 
     expect(impact.averageIntake).toBe(2400);
     expect(impact.trackedDays).toBe(14);
   });
 
-  it('показывает покрытие ниже 70 %, когда еда записана не за все дни', () => {
+  it('reports coverage below 70 % when food is not tracked every day', () => {
     const impact = ready({ totals: eaten(2400, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26]) });
 
     expect(impact.coverage).toBeCloseTo(14 / 27);
   });
 
-  it('обещает точность лучше при ещё четырёх замерах', () => {
+  it('projects better precision with four more weigh-ins', () => {
     const impact = ready();
 
     expect(impact.projection?.weighIns).toBe(13);
     expect(impact.projection!.error).toBeLessThan(impact.realTdeeError);
   });
 
-  it('не выдаёт вывод при двух замерах', () => {
+  it('gives no result with two weigh-ins', () => {
     const result = analyzeImpact(input({ weights: weighIns([0, 20], () => 86) }));
 
     expect(result).toEqual({ ready: false, shortfall: { weighIns: 1, spanDays: 0, trackedDays: 0 } });
   });
 
-  it('не выдаёт вывод, если замеры уложились в неделю', () => {
+  it('gives no result when weigh-ins span a week', () => {
     const result = analyzeImpact(input({ weights: weighIns([20, 23, 27], () => 86) }));
 
     expect(result).toEqual({ ready: false, shortfall: { weighIns: 0, spanDays: 7, trackedDays: 0 } });
   });
 
-  it('не выдаёт вывод при малом числе дней с едой', () => {
+  it('gives no result with few tracked food days', () => {
     const result = analyzeImpact(input({ totals: eaten(2400, [0, 1, 2, 3, 4]) }));
 
     expect(result).toEqual({ ready: false, shortfall: { weighIns: 0, spanDays: 0, trackedDays: 9 } });
   });
 
-  it('на пустых данных называет всё, чего не хватает', () => {
+  it('lists everything missing on empty data', () => {
     const result = analyzeImpact(input({ weights: [], totals: new Map() }));
 
     expect(result).toEqual({ ready: false, shortfall: { weighIns: 3, spanDays: 14, trackedDays: 14 } });
   });
 });
 
-describe('форматирование', () => {
-  it('пишет темп со знаком и запятой', () => {
+describe('formatting', () => {
+  it('writes rate with sign and decimal comma', () => {
     expect(formatRate(-0.2)).toBe('−0,20 кг/нед');
     expect(formatRate(0.35)).toBe('+0,35 кг/нед');
     expect(formatRate(0.001)).toBe('0,00 кг/нед');
   });
 
-  it('округляет калории до десятков', () => {
+  it('rounds calories to tens', () => {
     expect(formatKcal(2617.4)).toBe('2 620');
   });
 });

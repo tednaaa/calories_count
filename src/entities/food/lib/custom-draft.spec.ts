@@ -32,7 +32,7 @@ const cheese: CustomFood = {
 };
 
 describe('draftToCustomFood', () => {
-  it('собирает блюдо', () => {
+  it('builds the food', () => {
     expect(draftToCustomFood(draft())).toEqual({
       name: 'Пирог',
       kcal: 350,
@@ -42,52 +42,52 @@ describe('draftToCustomFood', () => {
     });
   });
 
-  it('обрезает пробелы вокруг названия', () => {
+  it('trims whitespace around the name', () => {
     expect(draftToCustomFood(draft({ name: '  Пирог  ' }))?.name).toBe('Пирог');
   });
 
-  it('прикладывает фото, когда оно выбрано', () => {
+  it('attaches the photo when selected', () => {
     expect(draftToCustomFood(draft({ photo: 'data:image/jpeg;base64,zzz' }))?.photo)
       .toBe('data:image/jpeg;base64,zzz');
   });
 
-  it('на пустой форме ничего не собирает', () => {
+  it('returns null for an empty form', () => {
     expect(draftToCustomFood(emptyCustomDraft())).toBeNull();
   });
 
-  it('требует название', () => {
+  it('requires a name', () => {
     expect(draftToCustomFood(draft({ name: '   ' }))).toBeNull();
   });
 
-  it('требует калорийность', () => {
+  it('requires calories', () => {
     expect(draftToCustomFood(draft({ kcal: '' }))).toBeNull();
   });
 
-  it('не принимает нечисловую калорийность', () => {
+  it('rejects non-numeric calories', () => {
     expect(draftToCustomFood(draft({ kcal: 'много' }))).toBeNull();
   });
 
-  it('не принимает дробную калорийность', () => {
+  it('rejects fractional calories', () => {
     expect(draftToCustomFood(draft({ kcal: '90.5' }))).toBeNull();
   });
 
-  it('не принимает ноль и отрицательные', () => {
+  it('rejects zero and negatives', () => {
     expect(draftToCustomFood(draft({ kcal: '0' }))).toBeNull();
     expect(draftToCustomFood(draft({ kcal: '-100' }))).toBeNull();
   });
 
-  it('отсекает опечатку в разряде', () => {
+  it('rejects calories over the limit', () => {
     expect(draftToCustomFood(draft({ kcal: String(MAX_KCAL + 1) }))).toBeNull();
   });
 
-  it('таб «Порция» оставляет блюдо без граммовки', () => {
+  it('leaves the food without weight on the portion tab', () => {
     const food = draftToCustomFood(draft({ serving: 'portion', amount: '30', portion: '130' }));
 
     expect(food?.amount).toBeUndefined();
     expect(food?.basis).toBeUndefined();
   });
 
-  it('без веса порции порция равна базе', () => {
+  it('uses the basis as the portion when portion weight is empty', () => {
     expect(draftToCustomFood(draft({ serving: 'hundred', kcal: '270' }))).toMatchObject({
       kcal: 270,
       amount: 100,
@@ -95,7 +95,7 @@ describe('draftToCustomFood', () => {
     });
   });
 
-  it('пересчитывает калорийность на вес порции', () => {
+  it('scales calories to the portion weight', () => {
     expect(draftToCustomFood(draft({ serving: 'hundred', kcal: '270', portion: '130' }))).toMatchObject({
       kcal: 351,
       amount: 130,
@@ -103,25 +103,25 @@ describe('draftToCustomFood', () => {
     });
   });
 
-  it('считает от своей базы, а не от сотни', () => {
+  it('scales from a custom basis, not from 100', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '30', kcal: '150', portion: '90' })))
       .toMatchObject({ kcal: 450, amount: 90, basis: { amount: 30, kcal: 150 } });
   });
 
-  it('округляет калорийность порции до целых', () => {
+  it('rounds portion calories to integers', () => {
     expect(draftToCustomFood(draft({ serving: 'hundred', kcal: '270', portion: '137' }))?.kcal).toBe(370);
   });
 
-  it('запоминает выбранную единицу', () => {
+  it('keeps the selected unit', () => {
     expect(draftToCustomFood(draft({ serving: 'hundred', unit: 'ml', kcal: '51', portion: '450' })))
       .toMatchObject({ kcal: 230, amount: 450, unit: 'ml', basis: { amount: 100, kcal: 51 } });
   });
 
-  it('порция без граммовки живёт без единицы', () => {
+  it('omits the unit for a portion without weight', () => {
     expect(draftToCustomFood(draft({ serving: 'portion', unit: 'ml' }))?.unit).toBeUndefined();
   });
 
-  it('пересчитывает состав вместе с порцией', () => {
+  it('scales nutrients with the portion', () => {
     const drink = draft({ serving: 'hundred', unit: 'ml', kcal: '50', portion: '450', nutrients: { sugars: 12 } });
 
     expect(draftToCustomFood(drink)).toMatchObject({
@@ -130,76 +130,76 @@ describe('draftToCustomFood', () => {
     });
   });
 
-  it('запоминает штрих-код за блюдом', () => {
+  it('keeps the barcode on the food', () => {
     expect(draftToCustomFood(draft({ barcode: '4607065608873' }))?.barcode).toBe('4607065608873');
   });
 
-  it('переносит бейджи как есть', () => {
+  it('carries grades as is', () => {
     const scored = draft({ serving: 'hundred', kcal: '50', grades: { nutriScore: 'e', nova: 4 } });
 
     expect(draftToCustomFood(scored)?.grades).toEqual({ nutriScore: 'e', nova: 4 });
   });
 
-  it('на своей базе требует базовый вес', () => {
+  it('requires basis weight on a custom basis', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '' }))).toBeNull();
   });
 
-  it('не принимает нечисловой и дробный базовый вес', () => {
+  it('rejects non-numeric and fractional basis weight', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: 'пачка' }))).toBeNull();
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '30.5' }))).toBeNull();
   });
 
-  it('не принимает ноль и отрицательный базовый вес', () => {
+  it('rejects zero and negative basis weight', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '0' }))).toBeNull();
     expect(draftToCustomFood(draft({ serving: 'custom', amount: '-30' }))).toBeNull();
   });
 
-  it('не принимает битый вес порции', () => {
+  it('rejects invalid portion weight', () => {
     expect(draftToCustomFood(draft({ serving: 'hundred', portion: 'пачка' }))).toBeNull();
     expect(draftToCustomFood(draft({ serving: 'hundred', portion: '130.5' }))).toBeNull();
     expect(draftToCustomFood(draft({ serving: 'hundred', portion: '0' }))).toBeNull();
   });
 
-  it('отсекает опечатку в весе', () => {
+  it('rejects weight over the limit', () => {
     expect(draftToCustomFood(draft({ serving: 'custom', amount: String(MAX_AMOUNT + 1) }))).toBeNull();
     expect(draftToCustomFood(draft({ serving: 'hundred', portion: String(MAX_AMOUNT + 1) }))).toBeNull();
   });
 });
 
 describe('servingToDraft', () => {
-  it('блюдо без граммовки открывается на табе «Порция»', () => {
+  it('opens a food without weight on the portion tab', () => {
     expect(servingToDraft({ kcal: 350 }))
       .toEqual({ serving: 'portion', unit: 'g', amount: '', kcal: '350', portion: '' });
   });
 
-  it('сотня открывается на своём табе', () => {
+  it('opens a per-100 basis on its tab', () => {
     expect(servingToDraft({ kcal: 270, amount: 100, basis: { amount: 100, kcal: 270 } }))
       .toEqual({ serving: 'hundred', unit: 'g', amount: '100', kcal: '270', portion: '' });
   });
 
-  it('другая база открывается на табе «Своё»', () => {
+  it('opens another basis on the custom tab', () => {
     expect(servingToDraft({ kcal: 150, amount: 30, basis: { amount: 30, kcal: 150 } }))
       .toEqual({ serving: 'custom', unit: 'g', amount: '30', kcal: '150', portion: '' });
   });
 
-  it('возвращает в форму этикетку, а не пересчитанную порцию', () => {
+  it('restores the label values, not the scaled portion', () => {
     expect(servingToDraft(cheese))
       .toEqual({ serving: 'hundred', unit: 'g', amount: '100', kcal: '270', portion: '130' });
   });
 
-  it('напиток открывается в миллилитрах', () => {
+  it('opens a drink in milliliters', () => {
     expect(servingToDraft({ kcal: 230, amount: 450, unit: 'ml', basis: { amount: 100, kcal: 51 } }))
       .toEqual({ serving: 'hundred', unit: 'ml', amount: '100', kcal: '51', portion: '450' });
   });
 
-  it('блюдо с граммовкой, но без этикетки читается как база', () => {
+  it('reads a weighed food without a label as the basis', () => {
     expect(servingToDraft({ kcal: 270, amount: 100 }))
       .toEqual({ serving: 'hundred', unit: 'g', amount: '100', kcal: '270', portion: '' });
   });
 });
 
 describe('draftFromCustomFood', () => {
-  it('раскладывает сохранённое блюдо по полям формы', () => {
+  it('maps the stored food to form fields', () => {
     expect(draftFromCustomFood(stored)).toEqual({
       name: 'Пирог у бабушки',
       serving: 'portion',
@@ -211,11 +211,11 @@ describe('draftFromCustomFood', () => {
     });
   });
 
-  it('блюдо без фото открывается с пустым полем', () => {
+  it('opens a food without a photo with an empty field', () => {
     expect(draftFromCustomFood({ ...stored, photo: undefined }).photo).toBe('');
   });
 
-  it('пережёвывает круг «прочитал — записал» без потерь', () => {
+  it('survives a read-write round trip losslessly', () => {
     expect(draftToCustomFood(draftFromCustomFood(stored))).toEqual({
       name: stored.name,
       kcal: stored.kcal,
@@ -225,13 +225,13 @@ describe('draftFromCustomFood', () => {
     });
   });
 
-  it('круг не теряет штрих-код', () => {
+  it('keeps the barcode through the round trip', () => {
     const scanned: CustomFood = { ...stored, barcode: '4607065608873' };
 
     expect(draftToCustomFood(draftFromCustomFood(scanned))?.barcode).toBe('4607065608873');
   });
 
-  it('круг не теряет состав и бейджи', () => {
+  it('keeps nutrients and grades through the round trip', () => {
     const drink: CustomFood = {
       ...stored,
       kcal: 225,
@@ -248,7 +248,7 @@ describe('draftFromCustomFood', () => {
     });
   });
 
-  it('круг не теряет ни этикетку, ни вес порции', () => {
+  it('keeps the label and portion weight through the round trip', () => {
     expect(draftToCustomFood(draftFromCustomFood(cheese))).toMatchObject({
       kcal: 351,
       amount: 130,

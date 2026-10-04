@@ -13,7 +13,7 @@ function food(overrides: Partial<Food> = {}): Food {
 }
 
 describe('toCartItem', () => {
-  it('снимает копию названия и калорийности блюда', () => {
+  it('snapshots food name and kcal', () => {
     expect(toCartItem(food(), 2)).toEqual({
       foodId: 'egg-boiled',
       name: 'Яйцо варёное',
@@ -24,7 +24,7 @@ describe('toCartItem', () => {
     });
   });
 
-  it('переносит граммовку и этикетку блюда в корзину', () => {
+  it('carries food amount and label into the cart', () => {
     const cheese = food({ kcal: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
 
     expect(toCartItem(cheese, 2)).toMatchObject({ amount: 130, basis: { amount: 100, kcal: 270 } });
@@ -32,14 +32,14 @@ describe('toCartItem', () => {
 });
 
 describe('withCartItem', () => {
-  it('добавляет новую позицию в конец', () => {
+  it('appends a new item to the end', () => {
     const coffee = toCartItem(food({ id: 'coffee-black', name: 'Кофе', kcal: 5 }), 1);
     const egg = toCartItem(food(), 1);
 
     expect(withCartItem([coffee], egg).map(item => item.foodId)).toEqual(['coffee-black', 'egg-boiled']);
   });
 
-  it('меняет количество уже выбранной позиции, не двигая её', () => {
+  it('updates qty of an existing item without moving it', () => {
     const coffee = toCartItem(food({ id: 'coffee-black', name: 'Кофе', kcal: 5 }), 1);
     const egg = toCartItem(food(), 1);
     const result = withCartItem(withCartItem([coffee], egg), toCartItem(food({ id: 'coffee-black' }), 3));
@@ -47,30 +47,30 @@ describe('withCartItem', () => {
     expect(result.map(item => [item.foodId, item.qty])).toEqual([['coffee-black', 3], ['egg-boiled', 1]]);
   });
 
-  it('сохраняет снимок первой добавленной позиции при изменении количества', () => {
+  it('keeps the first snapshot when qty changes', () => {
     const original = toCartItem(food(), 1);
     const renamed = toCartItem(food({ name: 'Яйцо', kcal: 999 }), 2);
 
     expect(withCartItem([original], renamed)[0]).toEqual({ ...original, qty: 2 });
   });
 
-  it('половину порции оставляет в корзине', () => {
+  it('keeps a half portion in the cart', () => {
     const egg = toCartItem(food(), 1);
 
     expect(withCartItem([egg], { ...egg, qty: 0.5 })[0].qty).toBe(0.5);
   });
 
-  it('убирает позицию, когда количество опускается до нуля', () => {
+  it('removes an item when qty drops to zero', () => {
     const egg = toCartItem(food(), 1);
 
     expect(withCartItem([egg], { ...egg, qty: 0 })).toEqual([]);
   });
 
-  it('не создаёт позицию с нулевым количеством', () => {
+  it('does not add an item with zero qty', () => {
     expect(withCartItem([], toCartItem(food(), 0))).toEqual([]);
   });
 
-  it('не изменяет исходный массив', () => {
+  it('does not mutate the original array', () => {
     const items = [toCartItem(food(), 1)];
     withCartItem(items, toCartItem(food({ id: 'apple' }), 1));
 
@@ -79,17 +79,17 @@ describe('withCartItem', () => {
 });
 
 describe('cartQty', () => {
-  it('возвращает количество выбранного блюда', () => {
+  it('returns qty of a selected food', () => {
     expect(cartQty([toCartItem(food(), 3)], 'egg-boiled')).toBe(3);
   });
 
-  it('возвращает ноль для невыбранного блюда', () => {
+  it('returns zero for an unselected food', () => {
     expect(cartQty([toCartItem(food(), 3)], 'apple')).toBe(0);
   });
 });
 
 describe('cartKcal', () => {
-  it('умножает калорийность порции на количество', () => {
+  it('multiplies portion kcal by qty', () => {
     const items = [
       toCartItem(food(), 2),
       toCartItem(food({ id: 'coffee-milk', kcal: 60 }), 1),
@@ -98,13 +98,13 @@ describe('cartKcal', () => {
     expect(cartKcal(items)).toBe(216);
   });
 
-  it('пустая корзина не даёт калорий', () => {
+  it('returns zero for an empty cart', () => {
     expect(cartKcal([])).toBe(0);
   });
 });
 
 describe('cartSummary', () => {
-  it('склоняет позиции по русским правилам', () => {
+  it('pluralizes items by Russian rules', () => {
     const one = [toCartItem(food(), 1)];
     const two = [...one, toCartItem(food({ id: 'apple', kcal: 80 }), 1)];
     const five = [
@@ -119,7 +119,7 @@ describe('cartSummary', () => {
     expect(cartSummary(five)).toContain('5 позиций');
   });
 
-  it('показывает сумму калорий', () => {
+  it('shows total kcal', () => {
     expect(cartSummary([toCartItem(food({ kcal: 1200 }), 1)])).toBe('1 позиция · 1 200 ккал');
   });
 });

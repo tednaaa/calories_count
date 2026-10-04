@@ -22,15 +22,15 @@ function mountForm() {
   return mount(OnboardingView);
 }
 
-describe('форма расчёта нормы', () => {
-  it('без заполнения просит ввести данные и блокирует кнопку', () => {
+describe('target calculation form', () => {
+  it('asks for data and disables the button when empty', () => {
     const wrapper = mountForm();
 
     expect(wrapper.text()).toContain('Заполни дату рождения, рост и вес');
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('показывает норму, совпадающую с расчётом', async () => {
+  it('shows the target matching the calculation', async () => {
     const wrapper = mountForm();
     await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
@@ -47,7 +47,7 @@ describe('форма расчёта нормы', () => {
     expect(wrapper.text()).toContain(formatNumber(expected));
   });
 
-  it('пересчитывает норму при смене цели', async () => {
+  it('recalculates the target on goal change', async () => {
     const wrapper = mountForm();
     await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
@@ -58,7 +58,7 @@ describe('форма расчёта нормы', () => {
     expect(wrapper.text()).toContain(formatNumber(3260));
   });
 
-  it('пересчитывает норму при смене активности', async () => {
+  it('recalculates the target on activity change', async () => {
     const wrapper = mountForm();
     await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
@@ -68,14 +68,14 @@ describe('форма расчёта нормы', () => {
     expect(wrapper.text()).not.toContain(formatNumber(2410));
   });
 
-  it('блокирует кнопку при значении вне допустимых границ', async () => {
+  it('disables the button for a value out of range', async () => {
     const wrapper = mountForm();
     await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 12), 'height': '180', 'weight': '85' });
 
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('сохраняет профиль числами и уводит на главную', async () => {
+  it('saves the profile as numbers and goes home', async () => {
     const wrapper = mountForm();
     await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
     await wrapper.find('form').trigger('submit');
@@ -91,7 +91,7 @@ describe('форма расчёта нормы', () => {
     expect(push).toHaveBeenCalledWith('/');
   });
 
-  it('не сохраняет профиль при незаполненной форме', async () => {
+  it('does not save the profile with an empty form', async () => {
     const wrapper = mountForm();
     await wrapper.find('form').trigger('submit');
 

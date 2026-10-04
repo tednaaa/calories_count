@@ -11,7 +11,7 @@ afterEach(() => {
 });
 
 describe('useToday', () => {
-  it('переходит на новый день после полуночи без перезагрузки', () => {
+  it('switches to the new day after midnight without a reload', () => {
     const scope = effectScope();
     const today = scope.run(() => useToday())!;
 

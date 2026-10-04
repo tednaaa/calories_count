@@ -5,22 +5,22 @@ function mountRing(eaten: number, target: number, compact = false) {
   return mount(DayProgress, { props: { eaten, target, compact } });
 }
 
-describe('кольцо прогресса дня', () => {
-  it('показывает съеденное и цель', () => {
+describe('day progress ring', () => {
+  it('shows eaten and target', () => {
     const wrapper = mountRing(1200, 2410);
 
     expect(wrapper.text()).toContain('1 200');
     expect(wrapper.text()).toContain('2 410');
   });
 
-  it('под целью показывает остаток', () => {
+  it('shows remaining below target', () => {
     const wrapper = mountRing(1200, 2000);
 
     expect(wrapper.text()).toContain('Осталось');
     expect(wrapper.text()).toContain('800');
   });
 
-  it('над целью показывает перебор', () => {
+  it('shows excess above target', () => {
     const wrapper = mountRing(2500, 2000);
 
     expect(wrapper.text()).toContain('Перебор');
@@ -28,31 +28,31 @@ describe('кольцо прогресса дня', () => {
     expect(wrapper.text()).toContain('500');
   });
 
-  it('дуга перебора появляется только при превышении', () => {
+  it('draws the excess arc only above target', () => {
     expect(mountRing(1200, 2000).findAll('circle')).toHaveLength(2);
     expect(mountRing(2500, 2000).findAll('circle')).toHaveLength(3);
   });
 
-  it('не заполняет кольцо больше чем на круг', () => {
+  it('does not fill the ring beyond a full circle', () => {
     const wrapper = mountRing(10_000, 2000);
     const progress = wrapper.findAll('circle')[1];
 
     expect(Number(progress.attributes('stroke-dashoffset'))).toBe(0);
   });
 
-  it('свёрнутое кольцо уступает место ленте', () => {
+  it('shrinks the compact ring to make room for the list', () => {
     const svg = mountRing(1200, 2000, true).find('svg');
 
     expect(svg.classes()).toContain('size-24');
     expect(svg.classes()).not.toContain('size-44');
   });
 
-  it('свёрнутое кольцо не повторяет цель дважды', () => {
+  it('does not repeat the target in the compact ring', () => {
     expect(mountRing(1200, 2000, true).text()).not.toContain('из 2 000 ккал');
     expect(mountRing(1200, 2000).text()).toContain('из 2 000 ккал');
   });
 
-  it('свёрнутое кольцо сохраняет все три числа', () => {
+  it('keeps all three numbers in the compact ring', () => {
     const text = mountRing(1200, 2000, true).text();
 
     expect(text).toContain('Съедено');
@@ -60,7 +60,7 @@ describe('кольцо прогресса дня', () => {
     expect(text).toContain('Цель');
   });
 
-  it('не падает при нулевой цели', () => {
+  it('does not crash on a zero target', () => {
     const wrapper = mountRing(500, 0);
 
     expect(wrapper.text()).toContain('500');

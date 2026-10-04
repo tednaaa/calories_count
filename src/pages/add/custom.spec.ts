@@ -51,14 +51,14 @@ async function attachPhoto(wrapper: ReturnType<typeof mount>) {
   await flushPromises();
 }
 
-describe('экран «Своё блюдо»', () => {
-  it('до заполнения формы сохранять нечего', () => {
+describe('custom food screen', () => {
+  it('disables save until the form is filled', () => {
     const wrapper = mount(CustomView);
 
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('по умолчанию пишет разовую запись и блюдо не заводит', async () => {
+  it('adds a one-off entry without creating a food by default', async () => {
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог у бабушки', '350');
     await wrapper.find('form').trigger('submit');
@@ -73,7 +73,7 @@ describe('экран «Своё блюдо»', () => {
     expect(push).toHaveBeenCalledWith({ path: '/', query: {} });
   });
 
-  it('с поднятым флагом заводит блюдо и пишет его в день', async () => {
+  it('creates a food and adds it to the day when the toggle is on', async () => {
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог у бабушки', '350');
     await wrapper.find('#custom-saves').trigger('click');
@@ -88,7 +88,7 @@ describe('экран «Своё блюдо»', () => {
     expect(addCustomOnceToDay).not.toHaveBeenCalled();
   });
 
-  it('флаг возвращается обратно', async () => {
+  it('toggles the flag back off', async () => {
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог', '350');
     await wrapper.find('#custom-saves').trigger('click');
@@ -100,7 +100,7 @@ describe('экран «Своё блюдо»', () => {
     expect(addCustomFoodToDay).not.toHaveBeenCalled();
   });
 
-  it('пишет запись в дату из адреса и возвращает на тот же день', async () => {
+  it('adds the entry to the url date and returns to that day', async () => {
     route.query = { date: '2026-08-17' };
 
     const wrapper = mount(CustomView);
@@ -112,7 +112,7 @@ describe('экран «Своё блюдо»', () => {
     expect(push).toHaveBeenCalledWith({ path: '/', query: { date: '2026-08-17' } });
   });
 
-  it('прикладывает выбранное фото', async () => {
+  it('attaches the picked photo', async () => {
     vi.mocked(readPhoto).mockResolvedValueOnce('data:image/jpeg;base64,zzz');
 
     const wrapper = mount(CustomView);
@@ -126,7 +126,7 @@ describe('экран «Своё блюдо»', () => {
     }));
   });
 
-  it('нечитаемое фото не роняет форму', async () => {
+  it('survives an unreadable photo', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(readPhoto).mockRejectedValueOnce(new Error('broken'));
 
@@ -144,7 +144,7 @@ describe('экран «Своё блюдо»', () => {
     }));
   });
 
-  it('при ошибке записи оставляет форму и даёт повторить', async () => {
+  it('keeps the form and allows retry on save error', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(addCustomOnceToDay).mockRejectedValueOnce(new Error('quota'));
 
@@ -162,7 +162,7 @@ describe('экран «Своё блюдо»', () => {
     expect(addCustomOnceToDay).toHaveBeenCalledTimes(2);
   });
 
-  it('не сохраняет дважды по двойной отправке', async () => {
+  it('does not save twice on double submit', async () => {
     const wrapper = mount(CustomView);
     await fill(wrapper, 'Пирог', '350');
 

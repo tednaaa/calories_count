@@ -27,21 +27,21 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('диалог взвешивания', () => {
-  it('подставляет последний вес через запятую', async () => {
+describe('weigh-in dialog', () => {
+  it('prefills the last weight with a decimal comma', async () => {
     await mountDialog(85.4);
 
     expect(document.querySelector<HTMLInputElement>('#weigh-in-kg')!.value).toBe('85,4');
   });
 
-  it('советует взвешиваться в одно время и не корит за пропуск', async () => {
+  it('advises weighing at the same time and does not scold for skipping', async () => {
     await mountDialog();
 
     expect(document.body.textContent).toContain('в одно и то же время');
     expect(document.body.textContent).toContain('взвесьтесь завтра');
   });
 
-  it('не даёт сохранить вес вне пределов', async () => {
+  it('blocks saving a weight out of range', async () => {
     await mountDialog();
     const input = document.querySelector<HTMLInputElement>('#weigh-in-kg')!;
     input.value = '12';
@@ -52,7 +52,7 @@ describe('диалог взвешивания', () => {
     expect(document.body.textContent).toContain('от 30 до 300 кг');
   });
 
-  it('записывает вес и закрывается', async () => {
+  it('records the weight and closes', async () => {
     const wrapper = await mountDialog(85.4);
     const input = document.querySelector<HTMLInputElement>('#weigh-in-kg')!;
     input.value = '84,2';
@@ -66,7 +66,7 @@ describe('диалог взвешивания', () => {
     expect(wrapper.emitted('update:open')).toEqual([[false]]);
   });
 
-  it('«Взвешусь завтра» закрывает без записи', async () => {
+  it('postpone button closes without recording', async () => {
     const wrapper = await mountDialog(85.4);
 
     [...document.querySelectorAll('button')].find(button => button.textContent?.trim() === 'Взвешусь завтра')!.click();

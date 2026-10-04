@@ -1,25 +1,25 @@
 import { formatKg, parseKg } from './kg';
 
 describe('parseKg', () => {
-  it('понимает запятую и точку', () => {
+  it('accepts comma and dot', () => {
     expect(parseKg('85,4')).toBe(85.4);
     expect(parseKg('85.4')).toBe(85.4);
   });
 
-  it('округляет до десятых', () => {
+  it('rounds to tenths', () => {
     expect(parseKg('85,46')).toBe(85.5);
   });
 
-  it('пропускает пробелы по краям', () => {
+  it('trims surrounding spaces', () => {
     expect(parseKg(' 85 ')).toBe(85);
   });
 
-  it('отвергает пустое и нечисловое', () => {
+  it('rejects empty and non-numeric input', () => {
     expect(parseKg('')).toBeNull();
     expect(parseKg('восемьдесят')).toBeNull();
   });
 
-  it('отвергает вес вне пределов', () => {
+  it('rejects weight out of range', () => {
     expect(parseKg('29,9')).toBeNull();
     expect(parseKg('300,1')).toBeNull();
     expect(parseKg('30')).toBe(30);
@@ -28,11 +28,11 @@ describe('parseKg', () => {
 });
 
 describe('formatKg', () => {
-  it('пишет десятые через запятую', () => {
+  it('writes tenths with a comma', () => {
     expect(formatKg(85.4)).toBe('85,4');
   });
 
-  it('не дописывает ноль к целому', () => {
+  it('does not append zero to whole numbers', () => {
     expect(formatKg(85)).toBe('85');
   });
 });

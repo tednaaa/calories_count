@@ -1,7 +1,7 @@
 import { blockPinchZoom } from './zoom';
 
 describe('blockPinchZoom', () => {
-  it('отменяет вебкитовский щипок', () => {
+  it('cancels the WebKit pinch gesture', () => {
     blockPinchZoom();
 
     const gesture = new Event('gesturestart', { cancelable: true });
@@ -10,7 +10,7 @@ describe('blockPinchZoom', () => {
     expect(gesture.defaultPrevented).toBe(true);
   });
 
-  it('не трогает обычный тап', () => {
+  it('leaves a regular tap alone', () => {
     blockPinchZoom();
 
     const click = new Event('click', { cancelable: true });

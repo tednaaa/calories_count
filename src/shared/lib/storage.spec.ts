@@ -1,7 +1,7 @@
 import { requestPersistentStorage } from './storage';
 
 describe('requestPersistentStorage', () => {
-  it('просит браузер не вычищать хранилище', async () => {
+  it('asks the browser not to evict storage', async () => {
     const persist = vi.fn().mockResolvedValue(true);
     vi.stubGlobal('navigator', { storage: { persist } });
 
@@ -9,13 +9,13 @@ describe('requestPersistentStorage', () => {
     expect(persist).toHaveBeenCalled();
   });
 
-  it('там, где такого API нет, тихо сдаётся', async () => {
+  it('quietly gives up where the API is missing', async () => {
     vi.stubGlobal('navigator', { storage: {} });
 
     await expect(requestPersistentStorage()).resolves.toBe(false);
   });
 
-  it('переживает браузер вообще без storage', async () => {
+  it('survives a browser without storage at all', async () => {
     vi.stubGlobal('navigator', {});
 
     await expect(requestPersistentStorage()).resolves.toBe(false);

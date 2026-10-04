@@ -24,7 +24,7 @@ function numbers(wrapper: VueWrapper, week?: number) {
   return dayButtons(wrapper, week).map(button => button.findAll('span')[1].text());
 }
 
-describe('лента недели', () => {
+describe('week strip', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 7, 19, 15, 0));
@@ -34,18 +34,18 @@ describe('лента недели', () => {
     vi.useRealTimers();
   });
 
-  it('показывает неделю с понедельника по воскресенье', () => {
+  it('shows the week from monday to sunday', () => {
     expect(numbers(mountStrip())).toEqual(['17', '18', '19', '20', '21', '22', '23']);
   });
 
-  it('называет сегодня словом, остальные дни — днём недели', () => {
+  it('labels today by word and other days by weekday', () => {
     const week = labels(mountStrip());
 
     expect(week[2]).toBe('Сегодня');
     expect(week[0]).toBe('пн');
   });
 
-  it('отдаёт выбранный день по тапу', async () => {
+  it('emits the tapped day', async () => {
     const wrapper = mountStrip();
 
     await dayButtons(wrapper)[1].trigger('click');
@@ -53,7 +53,7 @@ describe('лента недели', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([['2026-08-18']]);
   });
 
-  it('не пускает в будущее', () => {
+  it('disables future days', () => {
     const week = dayButtons(mountStrip());
 
     expect(week[2].attributes('disabled')).toBeUndefined();
@@ -61,18 +61,18 @@ describe('лента недели', () => {
     expect(week[6].attributes('disabled')).toBeDefined();
   });
 
-  it('помечает выбранный день', () => {
+  it('marks the selected day', () => {
     const marked = mountStrip('2026-08-18').findAll('[aria-current="date"]');
 
     expect(marked).toHaveLength(1);
     expect(marked[0].attributes('aria-label')).toContain('18 август');
   });
 
-  it('держит наготове полгода истории', () => {
+  it('renders half a year of history', () => {
     expect(weekBlocks(mountStrip())).toHaveLength(26);
   });
 
-  it('колесом над переданной областью двигает выбор на день назад', () => {
+  it('moves the selection a day back on wheel over the gesture area', () => {
     const area = document.createElement('div');
     const wrapper = mountStrip('2026-08-19', area);
 
@@ -81,7 +81,7 @@ describe('лента недели', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([['2026-08-18']]);
   });
 
-  it('не уводит выбор в будущее', () => {
+  it('does not move the selection into the future', () => {
     const area = document.createElement('div');
     const wrapper = mountStrip('2026-08-19', area);
 
@@ -90,7 +90,7 @@ describe('лента недели', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 
-  it('доматывает историю до выбранного дня', () => {
+  it('extends history back to the selected day', () => {
     const wrapper = mountStrip('2025-08-19');
 
     expect(numbers(wrapper, 0)).toEqual(['18', '19', '20', '21', '22', '23', '24']);

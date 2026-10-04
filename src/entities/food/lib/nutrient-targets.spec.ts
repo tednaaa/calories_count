@@ -7,42 +7,42 @@ function target(id: string) {
 }
 
 describe('nutrientTargets', () => {
-  it('считает белок от веса тела', () => {
+  it('derives protein from body weight', () => {
     expect(target('protein')).toMatchObject({ goal: 'reach', amount: 136 });
   });
 
-  it('считает сахар как десятую долю калорий', () => {
+  it('derives sugar as a tenth of calories', () => {
     expect(target('sugars')).toMatchObject({ goal: 'limit', amount: 60 });
   });
 
-  it('клетчатку и соль держит на общих нормах', () => {
+  it('keeps fiber and salt at general guidelines', () => {
     expect(target('fiber')).toMatchObject({ goal: 'reach', amount: 30 });
     expect(target('salt')).toMatchObject({ goal: 'limit', amount: 5 });
   });
 
-  it('подписывает цели по-русски', () => {
+  it('labels targets in russian', () => {
     expect(target('protein').name).toBe('Белки');
   });
 });
 
 describe('meetsTarget', () => {
-  it('цель набрать выполнена, когда добрал', () => {
+  it('meets a reach target once reached', () => {
     expect(meetsTarget(136, target('protein'))).toBe(true);
     expect(meetsTarget(135, target('protein'))).toBe(false);
   });
 
-  it('цель ограничить выполнена, пока не перебрал', () => {
+  it('meets a limit target until exceeded', () => {
     expect(meetsTarget(60, target('sugars'))).toBe(true);
     expect(meetsTarget(61, target('sugars'))).toBe(false);
   });
 });
 
 describe('targetRatio', () => {
-  it('делит съеденное на норму', () => {
+  it('divides eaten by target', () => {
     expect(targetRatio(30, target('sugars'))).toBe(0.5);
   });
 
-  it('не делит на ноль', () => {
+  it('does not divide by zero', () => {
     expect(targetRatio(30, { ...target('sugars'), amount: 0 })).toBe(0);
   });
 });

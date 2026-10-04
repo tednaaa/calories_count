@@ -51,12 +51,12 @@ beforeEach(() => {
   vi.mocked(useLiveQuery).mockImplementation(() => profile as never);
 });
 
-describe('экран «Норма»', () => {
-  it('показывает сохранённую норму', () => {
+describe('target screen', () => {
+  it('shows the saved target', () => {
     expect(mount(TargetView).text()).toContain('2 410');
   });
 
-  it('объясняет, из чего сложилась норма', () => {
+  it('explains how the target is built', () => {
     const text = mount(TargetView).text();
 
     expect(text).toContain('Обмен в покое');
@@ -64,7 +64,7 @@ describe('экран «Норма»', () => {
     expect(text).toContain('−15 %');
   });
 
-  it('поле ручной нормы открывается по кнопке', async () => {
+  it('opens the manual target field on button press', async () => {
     const wrapper = mount(TargetView);
 
     expect(wrapper.find('#target').exists()).toBe(false);
@@ -74,7 +74,7 @@ describe('экран «Норма»', () => {
     expect(wrapper.find('#target').exists()).toBe(true);
   });
 
-  it('задаёт норму вручную', async () => {
+  it('sets the target manually', async () => {
     const wrapper = mount(TargetView);
     await wrapper.findElementByText('button', 'Задать вручную').trigger('click');
     await wrapper.find('#target').setValue('2000');
@@ -83,7 +83,7 @@ describe('экран «Норма»', () => {
     expect(setManualTarget).toHaveBeenCalledWith(2000);
   });
 
-  it('не принимает норму за пределами разумного', async () => {
+  it('rejects a target out of range', async () => {
     const wrapper = mount(TargetView);
     await wrapper.findElementByText('button', 'Задать вручную').trigger('click');
     await wrapper.find('#target').setValue('120');
@@ -92,7 +92,7 @@ describe('экран «Норма»', () => {
     expect(wrapper.text()).toContain('от 800 до 6 000');
   });
 
-  it('вернуть расчётную предлагает только при ручной норме', async () => {
+  it('offers reset to calculated only for a manual target', async () => {
     const wrapper = mount(TargetView);
 
     expect(wrapper.findElementByText('button', 'Вернуть расчётную')).toBeUndefined();
@@ -104,7 +104,7 @@ describe('экран «Норма»', () => {
     expect(resetTargetToCalculated).toHaveBeenCalled();
   });
 
-  it('после уточнения по весу показывает поправку и даёт её сбросить', async () => {
+  it('shows the weight calibration and allows resetting it', async () => {
     profile.value = saved({ tdeeCorrectionKcal: -330, calibratedAt: 1_755_600_000_000 });
     const wrapper = mount(TargetView);
 

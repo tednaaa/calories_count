@@ -20,7 +20,7 @@ function profile(overrides: Partial<Profile> = {}): Profile {
 }
 
 describe('targetOrigin', () => {
-  it('различает расчётную, уточнённую и ручную норму', () => {
+  it('distinguishes calculated, calibrated and manual targets', () => {
     expect(targetOrigin(profile())).toBe('Посчитана по профилю');
     expect(targetOrigin(profile({ calibratedAt: 1 }))).toBe('Уточнена по весу');
     expect(targetOrigin(profile({ calibratedAt: 1, targetOverridden: true }))).toBe('Задана вручную');
@@ -28,7 +28,7 @@ describe('targetOrigin', () => {
 });
 
 describe('describeProfile', () => {
-  it('сводит профиль в одну строку', () => {
+  it('summarizes the profile in one line', () => {
     expect(describeProfile(profile())).toBe('Мягкое похудение · 31 год · 180 см · 85,5 кг');
   });
 });
@@ -36,7 +36,7 @@ describe('describeProfile', () => {
 describe('needsIosInstallHint', () => {
   const iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)';
 
-  it('подсказывает только на iPhone вне установленного приложения', () => {
+  it('hints only on iPhone outside the installed app', () => {
     expect(needsIosInstallHint(iphone, false)).toBe(true);
     expect(needsIosInstallHint(iphone, true)).toBe(false);
     expect(needsIosInstallHint('Mozilla/5.0 (Linux; Android 15)', false)).toBe(false);

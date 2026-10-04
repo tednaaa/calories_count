@@ -49,15 +49,15 @@ beforeEach(() => {
   vi.mocked(loadCustomFood).mockResolvedValue(stored);
 });
 
-describe('правка своего блюда', () => {
-  it('открывается на сохранённых значениях', async () => {
+describe('custom food editing', () => {
+  it('opens with the saved values', async () => {
     const wrapper = await open();
 
     expect((wrapper.find('#custom-name').element as HTMLInputElement).value).toBe('Пирог у бабушки');
     expect((wrapper.find('#custom-kcal').element as HTMLInputElement).value).toBe('350');
   });
 
-  it('сохраняет правку и возвращает к списку', async () => {
+  it('saves the edit and returns to the list', async () => {
     const wrapper = await open();
     await wrapper.find('#custom-kcal').setValue('400');
     await wrapper.find('form').trigger('submit');
@@ -71,7 +71,7 @@ describe('правка своего блюда', () => {
     expect(push).toHaveBeenCalledWith('/settings/foods');
   });
 
-  it('при ошибке записи оставляет форму и даёт повторить', async () => {
+  it('keeps the form and allows a retry when saving fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(saveCustomFood).mockRejectedValueOnce(new Error('quota'));
 
@@ -88,7 +88,7 @@ describe('правка своего блюда', () => {
     expect(saveCustomFood).toHaveBeenCalledTimes(2);
   });
 
-  it('удаляет только после подтверждения', async () => {
+  it('deletes only after confirmation', async () => {
     const wrapper = await open();
     await wrapper.findElementByText('button', 'Удалить блюдо из избранных').trigger('click');
 
@@ -104,7 +104,7 @@ describe('правка своего блюда', () => {
     expect(push).toHaveBeenCalledWith('/settings/foods');
   });
 
-  it('уводит к списку, если блюда уже нет', async () => {
+  it('redirects to the list when the food no longer exists', async () => {
     vi.mocked(loadCustomFood).mockResolvedValue(undefined);
 
     const wrapper = await open();
