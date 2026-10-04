@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.1 (2026-10-04)
+
+- fix(profile): keep the date of birth field inside the screen on iOS [`beed47ab`](https://github.com/tednaaa/calories_count/commit/beed47abfe246b6cbc4b9302d5bf35ba826a7984)
+
 ## v0.7.0 (2026-10-04)
 
 - feat(a11y): announce whether calendar days and nutrients are within target [`d800d960`](https://github.com/tednaaa/calories_count/commit/d800d960f2755213e60247bae2a6fed0d1e16fe8)
