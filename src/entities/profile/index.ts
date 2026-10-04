@@ -8,6 +8,7 @@ export {
   calcTdee,
   calibrateTarget,
   CALIBRATION_STEP_KCAL,
+  currentAge,
   GOAL_FACTOR,
   isWithinLimits,
   LIMITS,

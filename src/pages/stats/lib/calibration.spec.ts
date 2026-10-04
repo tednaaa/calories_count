@@ -1,5 +1,6 @@
 import type { Impact } from './impact';
 import type { Profile } from '@/shared/db';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { offerCalibration } from './calibration';
 
 const TODAY = '2026-10-28';
@@ -21,7 +22,7 @@ function profile(overrides: Partial<Profile> = {}): Profile {
   return {
     id: 'me',
     sex: 'male',
-    age: 30,
+    birthDate: yearsBefore(toDateKey(), 30),
     heightCm: 180,
     weightKg: 85,
     activity: 'moderate',

@@ -38,7 +38,7 @@ async function submit() {
     <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
       <ProfileFields
         v-model:sex="form.sex"
-        v-model:age="form.age"
+        v-model:birth-date="form.birthDate"
         v-model:height-cm="form.heightCm"
         v-model:weight-kg="form.weightKg"
         v-model:target-weight-kg="form.targetWeightKg"
@@ -65,7 +65,7 @@ async function submit() {
         </template>
 
         <p v-else class="text-sm text-muted-foreground">
-          Заполни возраст, рост и вес, чтобы увидеть норму.
+          Заполни дату рождения, рост и вес, чтобы увидеть норму.
         </p>
       </div>
 

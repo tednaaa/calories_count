@@ -1,11 +1,11 @@
 import type { ProfileInput } from './profile';
 import type { ActivityLevel, Goal, Profile, Sex } from '@/shared/db';
-import { formatKg, parseKg } from '@/shared/lib';
+import { formatKg, isDateKey, parseKg } from '@/shared/lib';
 import { isWithinLimits } from './calories';
 
 export interface ProfileDraft {
   sex: Sex;
-  age: string;
+  birthDate: string;
   heightCm: string;
   weightKg: string;
   targetWeightKg: string;
@@ -16,7 +16,7 @@ export interface ProfileDraft {
 export function emptyDraft(): ProfileDraft {
   return {
     sex: 'male',
-    age: '',
+    birthDate: '',
     heightCm: '',
     weightKg: '',
     targetWeightKg: '',
@@ -28,7 +28,7 @@ export function emptyDraft(): ProfileDraft {
 export function draftFromProfile(profile: Profile): ProfileDraft {
   return {
     sex: profile.sex,
-    age: String(profile.age),
+    birthDate: profile.birthDate,
     heightCm: String(profile.heightCm),
     weightKg: formatKg(profile.weightKg),
     targetWeightKg: profile.targetWeightKg ? formatKg(profile.targetWeightKg) : '',
@@ -39,7 +39,7 @@ export function draftFromProfile(profile: Profile): ProfileDraft {
 
 export function draftsEqual(a: ProfileDraft, b: ProfileDraft): boolean {
   return a.sex === b.sex
-    && a.age === b.age
+    && a.birthDate === b.birthDate
     && a.heightCm === b.heightCm
     && a.weightKg === b.weightKg
     && a.targetWeightKg.trim() === b.targetWeightKg.trim()
@@ -59,7 +59,7 @@ export function draftToInput(draft: ProfileDraft): ProfileInput | null {
   const targetWeightKg = parseTargetWeight(draft.targetWeightKg);
   const candidate: ProfileInput = {
     sex: draft.sex,
-    age: Number(draft.age),
+    birthDate: draft.birthDate,
     heightCm: Number(draft.heightCm),
     weightKg: parseKg(draft.weightKg) ?? Number.NaN,
     activity: draft.activity,
@@ -67,7 +67,7 @@ export function draftToInput(draft: ProfileDraft): ProfileInput | null {
     ...(targetWeightKg && { targetWeightKg }),
   };
 
-  const filled = [candidate.age, candidate.heightCm, candidate.weightKg].every(Number.isFinite);
+  const filled = isDateKey(candidate.birthDate) && [candidate.heightCm, candidate.weightKg].every(Number.isFinite);
 
   return filled && isWithinLimits(candidate) ? candidate : null;
 }

@@ -1,5 +1,5 @@
 import type { Profile } from '@/shared/db';
-import { goalOptions } from '@/entities/profile';
+import { currentAge, goalOptions } from '@/entities/profile';
 import { formatKg, pluralize } from '@/shared/lib';
 
 export function targetOrigin(profile: Profile): string {
@@ -12,7 +12,8 @@ export function targetOrigin(profile: Profile): string {
 
 export function describeProfile(profile: Profile): string {
   const goal = goalOptions.find(option => option.id === profile.goal)?.name;
-  const age = `${profile.age} ${pluralize(profile.age, ['год', 'года', 'лет'])}`;
+  const years = currentAge(profile.birthDate);
+  const age = `${years} ${pluralize(years, ['год', 'года', 'лет'])}`;
 
   return [goal, age, `${profile.heightCm} см`, `${formatKg(profile.weightKg)} кг`]
     .filter(Boolean)

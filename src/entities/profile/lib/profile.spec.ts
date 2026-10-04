@@ -1,11 +1,12 @@
 import type { ProfileInput } from './profile';
 import type { Profile } from '@/shared/db';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { calcTarget } from './calories';
 import { nextProfile, withCalculatedTarget, withCalibration, withManualTarget, withoutCalibration, withWeight } from './profile';
 
 const input: ProfileInput = {
   sex: 'male',
-  age: 30,
+  birthDate: yearsBefore(toDateKey(), 30),
   heightCm: 180,
   weightKg: 85,
   activity: 'moderate',

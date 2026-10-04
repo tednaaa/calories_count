@@ -1,5 +1,6 @@
 import type { ActivityLevel, Goal, Profile, Sex } from '@/shared/db';
-import { WEIGHT_LIMITS } from '@/shared/lib';
+import type { DateKey } from '@/shared/lib';
+import { fullYearsBetween, toDateKey, WEIGHT_LIMITS } from '@/shared/lib';
 
 export const ACTIVITY_FACTOR: Record<ActivityLevel, number> = {
   sedentary: 1.2,
@@ -30,7 +31,7 @@ export const LIMITS = {
   weightKg: WEIGHT_LIMITS,
 } as const;
 
-export type Measurements = Pick<Profile, 'sex' | 'age' | 'heightCm' | 'weightKg'>;
+export type Measurements = Pick<Profile, 'sex' | 'birthDate' | 'heightCm' | 'weightKg'>;
 export type CalcInput = Measurements & Pick<Profile, 'activity' | 'goal' | 'tdeeCorrectionKcal'>;
 
 export interface Calibration {
@@ -47,12 +48,16 @@ export interface TargetBreakdown {
   clampedToMinimum: boolean;
 }
 
+export function currentAge(birthDate: DateKey): number {
+  return fullYearsBetween(birthDate, toDateKey());
+}
+
 function roundToTens(kcal: number): number {
   return Math.round(kcal / 10) * 10;
 }
 
-export function calcBmr({ sex, age, heightCm, weightKg }: Measurements): number {
-  const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
+export function calcBmr({ sex, birthDate, heightCm, weightKg }: Measurements): number {
+  const base = 10 * weightKg + 6.25 * heightCm - 5 * currentAge(birthDate);
 
   return base + (sex === 'male' ? 5 : -161);
 }
@@ -77,7 +82,9 @@ export function calcTarget(input: CalcInput): TargetBreakdown {
   };
 }
 
-export function isWithinLimits({ age, heightCm, weightKg }: Measurements): boolean {
+export function isWithinLimits({ birthDate, heightCm, weightKg }: Measurements): boolean {
+  const age = currentAge(birthDate);
+
   return age >= LIMITS.age.min && age <= LIMITS.age.max
     && heightCm >= LIMITS.heightCm.min && heightCm <= LIMITS.heightCm.max
     && weightKg >= LIMITS.weightKg.min && weightKg <= LIMITS.weightKg.max;

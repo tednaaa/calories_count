@@ -2,7 +2,7 @@ import type { CustomFood, Profile } from '@/shared/db';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import { useCustomFoods } from '@/entities/food';
-import { useLiveQuery } from '@/shared/lib';
+import { toDateKey, useLiveQuery, yearsBefore } from '@/shared/lib';
 import SettingsView from './index.vue';
 
 vi.mock('vue-router', () => ({
@@ -31,7 +31,7 @@ function saved(overrides: Partial<Profile> = {}): Profile {
   return {
     id: 'me',
     sex: 'male',
-    age: 30,
+    birthDate: yearsBefore(toDateKey(), 30),
     heightCm: 180,
     weightKg: 85,
     activity: 'moderate',

@@ -1,3 +1,4 @@
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { bmiCategory, calcBmi, describeBmi, healthyWeightRange } from './bmi';
 
 describe('calcBmi', () => {
@@ -25,11 +26,11 @@ describe('healthyWeightRange', () => {
 
 describe('describeBmi', () => {
   it('называет ИМТ, категорию и нормальный вес для роста', () => {
-    expect(describeBmi({ age: 30, heightCm: 180, weightKg: 85 })).toBe('ИМТ 26,2 — избыточный вес, норма для 180 см: 60–81 кг');
+    expect(describeBmi({ birthDate: yearsBefore(toDateKey(), 30), heightCm: 180, weightKg: 85 })).toBe('ИМТ 26,2 — избыточный вес, норма для 180 см: 60–81 кг');
   });
 
   it('до 18 лет не ставит взрослую категорию', () => {
-    const text = describeBmi({ age: 16, heightCm: 170, weightKg: 60 });
+    const text = describeBmi({ birthDate: yearsBefore(toDateKey(), 16), heightCm: 170, weightKg: 60 });
 
     expect(text).toContain('ИМТ 20,8');
     expect(text).not.toContain('норма для');

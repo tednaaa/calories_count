@@ -61,7 +61,7 @@ export interface CustomFood {
 export interface Profile {
   id: 'me';
   sex: Sex;
-  age: number;
+  birthDate: DateKey;
   heightCm: number;
   weightKg: number;
   targetWeightKg?: number;

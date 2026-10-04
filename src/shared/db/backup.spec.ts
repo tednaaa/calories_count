@@ -1,4 +1,5 @@
 import type { Backup } from './backup';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { BACKUP_VERSION, backupFileName, describeBackup, readBackup } from './backup';
 
 function backup(overrides: Partial<Backup> = {}): Backup {
@@ -34,7 +35,7 @@ const customFood = {
 const profile = {
   id: 'me',
   sex: 'male',
-  age: 30,
+  birthDate: yearsBefore(toDateKey(), 30),
   heightCm: 180,
   weightKg: 85,
   activity: 'moderate',
@@ -153,7 +154,7 @@ describe('readBackup', () => {
   });
 
   it('отвергает битый профиль', () => {
-    const broken = JSON.stringify(backup({ profile: { id: 'me', age: 'тридцать' } as never }));
+    const broken = JSON.stringify(backup({ profile: { id: 'me', birthDate: 'тридцать' } as never }));
 
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Профиль в файле повреждён' });
   });

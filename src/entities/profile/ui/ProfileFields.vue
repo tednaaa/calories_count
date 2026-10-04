@@ -2,13 +2,13 @@
 import type { ActivityLevel, Goal, Sex } from '@/shared/db';
 import { Button, Input, Label, NativeSelect, NativeSelectOption } from 'shonk-ui';
 import { computed } from 'vue';
-import { parseKg } from '@/shared/lib';
+import { parseKg, toDateKey } from '@/shared/lib';
 import { parseTargetWeight } from '../lib/draft';
 import { activityOptions, goalOptions, sexOptions } from '../lib/options';
 import { targetConflict } from '../lib/weight-goal';
 
 const sex = defineModel<Sex>('sex', { required: true });
-const age = defineModel<string>('age', { required: true });
+const birthDate = defineModel<string>('birthDate', { required: true });
 const heightCm = defineModel<string>('heightCm', { required: true });
 const weightKg = defineModel<string>('weightKg', { required: true });
 const targetWeightKg = defineModel<string>('targetWeightKg', { required: true });
@@ -48,11 +48,12 @@ const targetHint = computed(() => {
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-3">
-      <div class="flex flex-col gap-2">
-        <Label for="age">Возраст</Label>
-        <Input id="age" v-model="age" inputmode="numeric" placeholder="30" />
-      </div>
+    <div class="flex flex-col gap-2">
+      <Label for="birth-date">Дата рождения</Label>
+      <Input id="birth-date" v-model="birthDate" type="date" :max="toDateKey()" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
       <div class="flex flex-col gap-2">
         <Label for="height">Рост, см</Label>
         <Input id="height" v-model="heightCm" inputmode="numeric" placeholder="180" />

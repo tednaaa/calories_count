@@ -1,9 +1,10 @@
 import type { CalcInput } from './calories';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { calcBmr, calcTarget, calcTdee, calibrateTarget, isWithinLimits, SAFE_MINIMUM_KCAL } from './calories';
 
 const man: CalcInput = {
   sex: 'male',
-  age: 30,
+  birthDate: yearsBefore(toDateKey(), 30),
   heightCm: 180,
   weightKg: 85,
   activity: 'moderate',
@@ -16,11 +17,11 @@ describe('calcBmr', () => {
   });
 
   it('считает по Mifflin-St Jeor для женщин', () => {
-    expect(calcBmr({ sex: 'female', age: 30, heightCm: 165, weightKg: 60 })).toBe(1320.25);
+    expect(calcBmr({ sex: 'female', birthDate: yearsBefore(toDateKey(), 30), heightCm: 165, weightKg: 60 })).toBe(1320.25);
   });
 
   it('разница между полами — константа формулы', () => {
-    const measurements = { age: 30, heightCm: 170, weightKg: 70 };
+    const measurements = { birthDate: yearsBefore(toDateKey(), 30), heightCm: 170, weightKg: 70 };
 
     expect(calcBmr({ ...measurements, sex: 'male' }) - calcBmr({ ...measurements, sex: 'female' })).toBe(166);
   });
@@ -64,7 +65,7 @@ describe('calcTarget', () => {
   it('не опускается ниже безопасного минимума', () => {
     const light = calcTarget({
       sex: 'female',
-      age: 30,
+      birthDate: yearsBefore(toDateKey(), 30),
       heightCm: 150,
       weightKg: 45,
       activity: 'sedentary',
@@ -87,7 +88,7 @@ describe('isWithinLimits', () => {
   });
 
   it('отсекает выход за границы', () => {
-    expect(isWithinLimits({ ...man, age: 12 })).toBe(false);
+    expect(isWithinLimits({ ...man, birthDate: yearsBefore(toDateKey(), 12) })).toBe(false);
     expect(isWithinLimits({ ...man, heightCm: 250 })).toBe(false);
     expect(isWithinLimits({ ...man, weightKg: 15 })).toBe(false);
   });

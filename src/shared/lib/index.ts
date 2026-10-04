@@ -7,6 +7,7 @@ export {
   formatTime,
   formatWeekday,
   fromDateKey,
+  fullYearsBetween,
   isDateKey,
   isFuture,
   isToday,
@@ -16,6 +17,7 @@ export {
   startOfWeek,
   toDateKey,
   weekDateKeys,
+  yearsBefore,
 } from './date';
 export { readPhoto } from './image';
 export { formatKg, parseKg, WEIGHT_LIMITS } from './kg';

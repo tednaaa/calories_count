@@ -1,11 +1,12 @@
 import type { Profile } from '@/shared/db';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { draftFromProfile, draftsEqual, draftToInput, emptyDraft, hasInvalidTargetWeight } from './draft';
 
 function profile(overrides: Partial<Profile> = {}): Profile {
   return {
     id: 'me',
     sex: 'male',
-    age: 30,
+    birthDate: yearsBefore(toDateKey(), 30),
     heightCm: 180,
     weightKg: 85,
     activity: 'moderate',
@@ -22,7 +23,7 @@ describe('draftFromProfile', () => {
   it('переводит числа профиля в строки полей ввода', () => {
     expect(draftFromProfile(profile())).toEqual({
       sex: 'male',
-      age: '30',
+      birthDate: yearsBefore(toDateKey(), 30),
       heightCm: '180',
       weightKg: '85',
       targetWeightKg: '',
@@ -40,7 +41,7 @@ describe('draftToInput', () => {
   it('собирает данные для расчёта из заполненной формы', () => {
     expect(draftToInput(draftFromProfile(profile()))).toEqual({
       sex: 'male',
-      age: 30,
+      birthDate: yearsBefore(toDateKey(), 30),
       heightCm: 180,
       weightKg: 85,
       activity: 'moderate',
@@ -55,7 +56,7 @@ describe('draftToInput', () => {
   it('отвергает значения за пределами разумного', () => {
     const draft = draftFromProfile(profile());
 
-    expect(draftToInput({ ...draft, age: '7' })).toBeNull();
+    expect(draftToInput({ ...draft, birthDate: yearsBefore(toDateKey(), 7) })).toBeNull();
     expect(draftToInput({ ...draft, heightCm: '400' })).toBeNull();
     expect(draftToInput({ ...draft, weightKg: '5' })).toBeNull();
   });

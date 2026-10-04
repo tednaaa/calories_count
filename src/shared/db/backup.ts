@@ -1,5 +1,5 @@
 import type { Basis, CustomFood, Entry, Grades, Nutrients, Profile, Unit, WeightRecord } from './types';
-import { toDateKey } from '@/shared/lib';
+import { isDateKey, toDateKey } from '@/shared/lib';
 import { db, PROFILE_ID } from './database';
 import { renameGrams } from './legacy';
 
@@ -95,7 +95,7 @@ function isProfile(value: unknown): value is Profile {
   const profile = value as Profile | null;
 
   return profile?.id === PROFILE_ID
-    && typeof profile.age === 'number'
+    && isDateKey(profile.birthDate)
     && typeof profile.heightCm === 'number'
     && typeof profile.weightKg === 'number'
     && (profile.targetWeightKg === undefined || typeof profile.targetWeightKg === 'number')

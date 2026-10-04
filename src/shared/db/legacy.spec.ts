@@ -1,4 +1,4 @@
-import { renameGrams } from './legacy';
+import { ageToBirthDate, renameGrams } from './legacy';
 
 describe('renameGrams', () => {
   it('переносит старый вес порции в новое поле', () => {
@@ -21,5 +21,15 @@ describe('renameGrams', () => {
 
   it('не выдумывает вес записям без него', () => {
     expect(renameGrams({ id: 'pie', kcal: 350 })).toEqual({ id: 'pie', kcal: 350 });
+  });
+});
+
+describe('ageToBirthDate', () => {
+  it('заменяет возраст 1 января года рождения, чтобы возраст сегодня не изменился', () => {
+    expect(ageToBirthDate({ id: 'me', age: 30 }, '2026-10-04')).toEqual({ id: 'me', birthDate: '1996-01-01' });
+  });
+
+  it('не трогает профиль с датой рождения', () => {
+    expect(ageToBirthDate({ id: 'me', birthDate: '1990-05-01' }, '2026-10-04')).toEqual({ id: 'me', birthDate: '1990-05-01' });
   });
 });

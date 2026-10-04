@@ -1,4 +1,5 @@
 import type { Measurements } from './calories';
+import { currentAge } from './calories';
 
 export type BmiCategory = 'underweight' | 'normal' | 'overweight' | 'obese';
 
@@ -42,11 +43,11 @@ export function healthyWeightRange(heightCm: number): { min: number; max: number
   };
 }
 
-export function describeBmi({ age, heightCm, weightKg }: Omit<Measurements, 'sex'>): string {
+export function describeBmi({ birthDate, heightCm, weightKg }: Omit<Measurements, 'sex'>): string {
   const bmi = calcBmi(weightKg, heightCm);
   const shown = (Math.round(bmi * 10) / 10).toFixed(1).replace('.', ',');
 
-  if (age < ADULT_AGE) {
+  if (currentAge(birthDate) < ADULT_AGE) {
     return `ИМТ ${shown} — до 18 лет его оценивают по таблицам ВОЗ с учётом возраста и пола`;
   }
 

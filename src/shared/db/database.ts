@@ -1,7 +1,7 @@
 import type { Table } from 'dexie';
 import type { CustomFood, Entry, Profile, WeightRecord } from './types';
 import Dexie from 'dexie';
-import { renameGrams } from './legacy';
+import { ageToBirthDate, renameGrams } from './legacy';
 
 export type AppDatabase = Dexie & {
   entries: Table<Entry, string>;
@@ -25,6 +25,10 @@ db.version(2).stores({
 db.version(3).upgrade(async (tx) => {
   await tx.table('entries').toCollection().modify(renameGrams);
   await tx.table('customFoods').toCollection().modify(renameGrams);
+});
+
+db.version(4).upgrade(async (tx) => {
+  await tx.table('profile').toCollection().modify(profile => ageToBirthDate(profile));
 });
 
 export const PROFILE_ID = 'me';

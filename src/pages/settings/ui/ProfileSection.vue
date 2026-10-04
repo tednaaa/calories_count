@@ -51,7 +51,7 @@ async function submit() {
   <form class="flex flex-col gap-5" @submit.prevent="submit">
     <ProfileFields
       v-model:sex="form.sex"
-      v-model:age="form.age"
+      v-model:birth-date="form.birthDate"
       v-model:height-cm="form.heightCm"
       v-model:weight-kg="form.weightKg"
       v-model:target-weight-kg="form.targetWeightKg"

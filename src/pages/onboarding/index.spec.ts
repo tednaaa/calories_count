@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { calcTarget, saveProfile } from '@/entities/profile';
-import { formatNumber } from '@/shared/lib';
+import { formatNumber, toDateKey, yearsBefore } from '@/shared/lib';
 import OnboardingView from './index.vue';
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
@@ -26,17 +26,17 @@ describe('форма расчёта нормы', () => {
   it('без заполнения просит ввести данные и блокирует кнопку', () => {
     const wrapper = mountForm();
 
-    expect(wrapper.text()).toContain('Заполни возраст, рост и вес');
+    expect(wrapper.text()).toContain('Заполни дату рождения, рост и вес');
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
   it('показывает норму, совпадающую с расчётом', async () => {
     const wrapper = mountForm();
-    await fill(wrapper, { age: '30', height: '180', weight: '85' });
+    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
     const expected = calcTarget({
       sex: 'male',
-      age: 30,
+      birthDate: yearsBefore(toDateKey(), 30),
       heightCm: 180,
       weightKg: 85,
       activity: 'moderate',
@@ -49,7 +49,7 @@ describe('форма расчёта нормы', () => {
 
   it('пересчитывает норму при смене цели', async () => {
     const wrapper = mountForm();
-    await fill(wrapper, { age: '30', height: '180', weight: '85' });
+    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
     const selects = wrapper.findAll('select');
     await selects[1].setValue('bulk');
@@ -60,7 +60,7 @@ describe('форма расчёта нормы', () => {
 
   it('пересчитывает норму при смене активности', async () => {
     const wrapper = mountForm();
-    await fill(wrapper, { age: '30', height: '180', weight: '85' });
+    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
     const selects = wrapper.findAll('select');
     await selects[0].setValue('sedentary');
@@ -70,19 +70,19 @@ describe('форма расчёта нормы', () => {
 
   it('блокирует кнопку при значении вне допустимых границ', async () => {
     const wrapper = mountForm();
-    await fill(wrapper, { age: '12', height: '180', weight: '85' });
+    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 12), 'height': '180', 'weight': '85' });
 
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
   it('сохраняет профиль числами и уводит на главную', async () => {
     const wrapper = mountForm();
-    await fill(wrapper, { age: '30', height: '180', weight: '85' });
+    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
     await wrapper.find('form').trigger('submit');
 
     expect(saveProfile).toHaveBeenCalledWith({
       sex: 'male',
-      age: 30,
+      birthDate: yearsBefore(toDateKey(), 30),
       heightCm: 180,
       weightKg: 85,
       activity: 'moderate',

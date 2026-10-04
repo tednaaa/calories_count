@@ -6,6 +6,7 @@ import {
   formatTime,
   formatWeekday,
   fromDateKey,
+  fullYearsBetween,
   isDateKey,
   isFuture,
   isToday,
@@ -14,6 +15,7 @@ import {
   startOfWeek,
   toDateKey,
   weekDateKeys,
+  yearsBefore,
 } from './date';
 
 describe('toDateKey', () => {
@@ -249,5 +251,23 @@ describe('daysBetween', () => {
 
   it('не сбивается на переходе на зимнее время', () => {
     expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
+  });
+});
+
+describe('fullYearsBetween', () => {
+  it('считает только полные годы', () => {
+    expect(fullYearsBetween('1996-10-04', '2026-10-04')).toBe(30);
+    expect(fullYearsBetween('1996-10-05', '2026-10-04')).toBe(29);
+    expect(fullYearsBetween('1996-12-31', '2026-01-01')).toBe(29);
+  });
+});
+
+describe('yearsBefore', () => {
+  it('отступает назад на целые годы', () => {
+    expect(yearsBefore('2026-10-04', 30)).toBe('1996-10-04');
+  });
+
+  it('29 февраля в невисокосный год переносит на 1 марта', () => {
+    expect(yearsBefore('2028-02-29', 1)).toBe('2027-03-01');
   });
 });

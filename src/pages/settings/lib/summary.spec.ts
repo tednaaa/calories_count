@@ -1,11 +1,12 @@
 import type { Profile } from '@/shared/db';
+import { toDateKey, yearsBefore } from '@/shared/lib';
 import { describeProfile, needsIosInstallHint, targetOrigin } from './summary';
 
 function profile(overrides: Partial<Profile> = {}): Profile {
   return {
     id: 'me',
     sex: 'male',
-    age: 31,
+    birthDate: yearsBefore(toDateKey(), 31),
     heightCm: 180,
     weightKg: 85.5,
     activity: 'moderate',

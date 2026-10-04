@@ -64,14 +64,14 @@ const GOAL: Record<Goal, number> = {
 const FLOOR: Record<Sex, number> = { male: 1500, female: 1200 };
 
 export function calcBmr(
-	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "age">,
+	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "birthDate">,
 ): number {
-	const base = 10 * p.weightKg + 6.25 * p.heightCm - 5 * p.age;
+	const base = 10 * p.weightKg + 6.25 * p.heightCm - 5 * currentAge(p.birthDate);
 	return base + (p.sex === "male" ? 5 : -161);
 }
 
 export function calcTdee(
-	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "age" | "activity">,
+	p: Pick<Profile, "sex" | "weightKg" | "heightCm" | "birthDate" | "activity">,
 ): number {
 	return calcBmr(p) * ACTIVITY[p.activity];
 }
@@ -79,7 +79,7 @@ export function calcTdee(
 export function calcTarget(
 	p: Pick<
 		Profile,
-		"sex" | "weightKg" | "heightCm" | "age" | "activity" | "goal"
+		"sex" | "weightKg" | "heightCm" | "birthDate" | "activity" | "goal"
 	>,
 ): number {
 	const raw = calcTdee(p) * GOAL[p.goal];
@@ -99,7 +99,7 @@ export function calcTarget(
 | Рост    | 120–230 см |
 | Вес     | 30–300 кг  |
 
-Все поля обязательны. Числовые поля — с `inputmode="numeric"`, чтобы на телефоне открывалась цифровая клавиатура. Вес — с `inputmode="decimal"` и точностью до десятых: колебания в полкило и есть то, что видно на графике веса. Русская клавиатура ставит запятую, поэтому разбор принимает и запятую, и точку.
+Все поля обязательны. Возраст не вводится, а считается из даты рождения: поле `type="date"` открывает системный выбор даты, и через год норму не надо править руками. Числовые поля — с `inputmode="numeric"`, чтобы на телефоне открывалась цифровая клавиатура. Вес — с `inputmode="decimal"` и точностью до десятых: колебания в полкило и есть то, что видно на графике веса. Русская клавиатура ставит запятую, поэтому разбор принимает и запятую, и точку.
 
 ## ИМТ и нормальный вес
 
