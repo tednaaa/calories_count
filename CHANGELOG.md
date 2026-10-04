@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.0 (2026-10-04)
+
+- feat(a11y): announce whether calendar days and nutrients are within target [`d800d960`](https://github.com/tednaaa/calories_count/commit/d800d960f2755213e60247bae2a6fed0d1e16fe8)
+- feat(profile): ask for date of birth instead of age [`61abe119`](https://github.com/tednaaa/calories_count/commit/61abe11963180add2bbfed06fa7b9bc71f6b647d)
+
 ## v0.6.0 (2026-10-03)
 
 - feat(stats): lead the weight tab with real energy burn and hide the details [`44b0df38`](https://github.com/tednaaa/calories_count/commit/44b0df3848684d8ca5f4919579f93359757db907)
