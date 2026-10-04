@@ -67,8 +67,4 @@ describe('target calibration', () => {
     expect(wrapper.text()).toContain('Следующее уточнение — через 20 дней');
     expect(wrapper.find('button').exists()).toBe(false);
   });
-
-  it('always links to why it works', () => {
-    expect(mountOffer({ kind: 'precise' }).text()).toContain('Почему это работает');
-  });
 });

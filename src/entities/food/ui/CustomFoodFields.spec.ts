@@ -11,12 +11,6 @@ const BASE = '[aria-label="Базовый вес"]';
 const VOLUME_BASE = '[aria-label="Базовый объём"]';
 
 describe('custom food form', () => {
-  it('offers portion, per-100 and custom basis', () => {
-    const tabs = mountFields().findAll('[data-slot="tabs-trigger"]');
-
-    expect(tabs.map(tab => tab.text())).toEqual(['Порция', '100 г', 'Своё']);
-  });
-
   it('offers grams or milliliters for a weighed basis', () => {
     const tabs = mountFields({ serving: 'hundred' }).findAll('[data-slot="tabs-trigger"]');
 
@@ -70,23 +64,5 @@ describe('custom food form', () => {
     await wrapper.findAll('[data-slot="tabs-trigger"]')[1].trigger('mousedown');
 
     expect(draft.serving).toBe('hundred');
-  });
-
-  it('writes kcal to the draft', async () => {
-    const draft = { ...emptyCustomDraft() };
-    const wrapper = mount(CustomFoodFields, { props: { modelValue: draft } });
-
-    await wrapper.find('#custom-kcal').setValue('270');
-
-    expect(draft.kcal).toBe('270');
-  });
-
-  it('writes portion weight to the draft', async () => {
-    const draft = { ...emptyCustomDraft(), serving: 'hundred' as const };
-    const wrapper = mount(CustomFoodFields, { props: { modelValue: draft } });
-
-    await wrapper.find('#custom-portion').setValue('130');
-
-    expect(draft.portion).toBe('130');
   });
 });

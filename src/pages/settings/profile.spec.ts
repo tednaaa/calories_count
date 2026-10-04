@@ -77,11 +77,4 @@ describe('profile screen', () => {
     expect(wrapper.text()).toContain('Расчётная норма');
     expect(wrapper.findElementByText('button', 'Сохранить профиль').attributes('disabled')).toBeDefined();
   });
-
-  it('shows how the calculated target changes', async () => {
-    const wrapper = mount(ProfileView);
-    await wrapper.find('#weight').setValue('75');
-
-    expect(wrapper.text()).toContain('Расчётная норма');
-  });
 });

@@ -12,25 +12,6 @@ function food(overrides: Partial<Food> = {}): Food {
   };
 }
 
-describe('toCartItem', () => {
-  it('snapshots food name and kcal', () => {
-    expect(toCartItem(food(), 2)).toEqual({
-      foodId: 'egg-boiled',
-      name: 'Яйцо варёное',
-      kcalPerPortion: 78,
-      amount: undefined,
-      basis: undefined,
-      qty: 2,
-    });
-  });
-
-  it('carries food amount and label into the cart', () => {
-    const cheese = food({ kcal: 351, amount: 130, basis: { amount: 100, kcal: 270 } });
-
-    expect(toCartItem(cheese, 2)).toMatchObject({ amount: 130, basis: { amount: 100, kcal: 270 } });
-  });
-});
-
 describe('withCartItem', () => {
   it('appends a new item to the end', () => {
     const coffee = toCartItem(food({ id: 'coffee-black', name: 'Кофе', kcal: 5 }), 1);

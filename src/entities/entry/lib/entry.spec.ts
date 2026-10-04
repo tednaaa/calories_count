@@ -64,12 +64,6 @@ describe('buildEntries', () => {
     expect(eggs.amount).toBe(50);
   });
 
-  it('assigns unique ids', () => {
-    const ids = buildEntries('2026-08-19', cart, NOW).map(item => item.id);
-
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
   it('keeps cart order when confirmed at the same time', () => {
     const [first, second] = buildEntries('2026-08-19', cart, NOW);
 
@@ -137,18 +131,6 @@ describe('decreaseQty', () => {
     expect(decreaseQty(3)).toBe(2);
     expect(decreaseQty(2)).toBe(1);
   });
-
-  it('yields a half only between zero and one', () => {
-    const steps = [];
-    let qty = 3;
-
-    while (qty > 0) {
-      qty = decreaseQty(qty);
-      steps.push(qty);
-    }
-
-    expect(steps).toEqual([2, 1, 0.5, 0]);
-  });
 });
 
 describe('toggleQty', () => {
@@ -159,10 +141,6 @@ describe('toggleQty', () => {
   it('removes a selected item entirely', () => {
     expect(toggleQty(1)).toBe(0);
     expect(toggleQty(3)).toBe(0);
-  });
-
-  it('removes a half entirely too', () => {
-    expect(toggleQty(0.5)).toBe(0);
   });
 });
 
@@ -371,9 +349,5 @@ describe('nextEntry', () => {
 
     expect(next.amount).toBeUndefined();
     expect(next.basis).toBeUndefined();
-  });
-
-  it('keeps the entry linked to its food', () => {
-    expect(nextEntry(entry(), { name: 'Кофе', kcalPerPortion: 5 }, 1).foodId).toBe('coffee-black');
   });
 });

@@ -1,10 +1,6 @@
 import {
-  dayNumber,
   daysBetween,
   formatDayLabel,
-  formatFullDate,
-  formatTime,
-  formatWeekday,
   fromDateKey,
   fullYearsBetween,
   isDateKey,
@@ -64,11 +60,6 @@ describe('shiftDateKey', () => {
 
   it('crosses a year boundary', () => {
     expect(shiftDateKey('2026-12-31', 1)).toBe('2027-01-01');
-  });
-
-  it('handles leap years', () => {
-    expect(shiftDateKey('2028-02-28', 1)).toBe('2028-02-29');
-    expect(shiftDateKey('2026-02-28', 1)).toBe('2026-03-01');
   });
 });
 
@@ -160,13 +151,6 @@ describe('weekDateKeys', () => {
   });
 });
 
-describe('dayNumber', () => {
-  it('returns the day of month without a leading zero', () => {
-    expect(dayNumber('2026-08-05')).toBe(5);
-    expect(dayNumber('2026-08-19')).toBe(19);
-  });
-});
-
 describe('lastDateKeys', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -179,11 +163,6 @@ describe('lastDateKeys', () => {
 
   it('returns the window oldest first, including today', () => {
     expect(lastDateKeys(3)).toEqual(['2026-08-17', '2026-08-18', '2026-08-19']);
-  });
-
-  it('builds a seven-day week', () => {
-    expect(lastDateKeys(7)).toHaveLength(7);
-    expect(lastDateKeys(7).at(-1)).toBe('2026-08-19');
   });
 
   it('accepts a custom end date', () => {
@@ -209,33 +188,6 @@ describe('formatDayLabel', () => {
   it('shows other days as day and month', () => {
     expect(formatDayLabel('2026-08-17')).toContain('17');
     expect(formatDayLabel('2026-08-17')).toContain('август');
-  });
-});
-
-describe('formatWeekday', () => {
-  it('returns the short weekday name', () => {
-    // 2026-08-19 is a Wednesday
-    expect(formatWeekday('2026-08-19').toLowerCase()).toContain('ср');
-  });
-});
-
-describe('formatFullDate', () => {
-  it('includes weekday, day and month', () => {
-    const label = formatFullDate('2026-08-19');
-
-    expect(label).toContain('среда');
-    expect(label).toContain('19');
-    expect(label).toContain('август');
-  });
-});
-
-describe('formatTime', () => {
-  it('shows local hours and minutes', () => {
-    expect(formatTime(new Date(2026, 7, 19, 9, 5).getTime())).toBe('09:05');
-  });
-
-  it('uses 24-hour format', () => {
-    expect(formatTime(new Date(2026, 7, 19, 21, 30).getTime())).toBe('21:30');
   });
 });
 

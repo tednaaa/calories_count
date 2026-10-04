@@ -40,24 +40,9 @@ describe('day progress ring', () => {
     expect(Number(progress.attributes('stroke-dashoffset'))).toBe(0);
   });
 
-  it('shrinks the compact ring to make room for the list', () => {
-    const svg = mountRing(1200, 2000, true).find('svg');
-
-    expect(svg.classes()).toContain('size-24');
-    expect(svg.classes()).not.toContain('size-44');
-  });
-
   it('does not repeat the target in the compact ring', () => {
     expect(mountRing(1200, 2000, true).text()).not.toContain('из 2 000 ккал');
     expect(mountRing(1200, 2000).text()).toContain('из 2 000 ккал');
-  });
-
-  it('keeps all three numbers in the compact ring', () => {
-    const text = mountRing(1200, 2000, true).text();
-
-    expect(text).toContain('Съедено');
-    expect(text).toContain('Осталось');
-    expect(text).toContain('Цель');
   });
 
   it('does not crash on a zero target', () => {

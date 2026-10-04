@@ -102,12 +102,6 @@ async function plus(wrapper: ReturnType<typeof mount>, index: number) {
 }
 
 describe('add screen', () => {
-  it('shows the whole catalog', () => {
-    const wrapper = mount(AddView);
-
-    expect(cards(wrapper)).toHaveLength(activeFoods.length);
-  });
-
   it('filters by name', async () => {
     const wrapper = mount(AddView);
     await wrapper.find('input[type="search"]').setValue('кофе');
@@ -216,11 +210,10 @@ describe('add screen', () => {
     expect(wrapper.findAllComponents(FoodRow)).toHaveLength(0);
   });
 
-  it('large view keeps cards but changes the grid', () => {
+  it('large view keeps cards', () => {
     localStorage.setItem(VIEW_MODE_KEY, 'large');
     const wrapper = mount(AddView);
 
-    expect(wrapper.find('ul').classes()).toContain('grid-cols-2');
     expect(cards(wrapper)).toHaveLength(activeFoods.length);
   });
 

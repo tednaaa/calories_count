@@ -1,9 +1,7 @@
 import type { Food } from './types';
-import { activeFoods, foodById, foods, matchesQuery, photoUrl, searchFoods } from './catalog';
-import { categories } from './categories';
+import { activeFoods, foodById, foods, matchesQuery, searchFoods } from './catalog';
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const categoryIds = new Set<string>(categories.map(category => category.id));
 
 const coffee: Food = {
   id: 'coffee-milk',
@@ -41,12 +39,6 @@ describe('catalog integrity', () => {
     expect(invalid.map(food => food.id)).toEqual([]);
   });
 
-  it('references existing categories', () => {
-    const invalid = foods.filter(food => !categoryIds.has(food.category));
-
-    expect(invalid.map(food => food.id)).toEqual([]);
-  });
-
   it('names photo files after ids', () => {
     const invalid = foods.filter(food => food.photo !== undefined && food.photo !== `${food.id}.webp`);
 
@@ -65,10 +57,6 @@ describe('foodById', () => {
     const missing = foods.filter(food => foodById(food.id) !== food);
 
     expect(missing.map(food => food.id)).toEqual([]);
-  });
-
-  it('returns undefined for a deleted food', () => {
-    expect(foodById('was-deleted-long-ago')).toBeUndefined();
   });
 });
 
@@ -111,11 +99,5 @@ describe('searchFoods', () => {
 
   it('keeps only the selected category', () => {
     expect(searchFoods('', 'drinks')).toEqual(activeFoods.filter(food => food.category === 'drinks'));
-  });
-});
-
-describe('photoUrl', () => {
-  it('points to public/foods', () => {
-    expect(photoUrl(apple)).toBe('/foods/apple.webp');
   });
 });

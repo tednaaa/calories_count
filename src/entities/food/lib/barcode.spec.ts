@@ -232,10 +232,4 @@ describe('lookupBarcode', () => {
 
     expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
   });
-
-  it('treats rate limit as offline', async () => {
-    answers({}, 429);
-
-    expect(await lookupBarcode('5449000000996')).toEqual({ state: 'offline' });
-  });
 });

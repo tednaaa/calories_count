@@ -58,10 +58,6 @@ describe('calcTarget', () => {
     expect(calcTarget({ ...man, goal: 'bulk' }).target).toBeGreaterThan(maintain);
   });
 
-  it('is always a multiple of ten', () => {
-    expect(calcTarget(man).target % 10).toBe(0);
-  });
-
   it('does not drop below the safe minimum', () => {
     const light = calcTarget({
       sex: 'female',

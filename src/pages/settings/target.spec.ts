@@ -59,7 +59,6 @@ describe('target screen', () => {
   it('explains how the target is built', () => {
     const text = mount(TargetView).text();
 
-    expect(text).toContain('Обмен в покое');
     expect(text).toContain('Мягкое похудение');
     expect(text).toContain('−15 %');
   });

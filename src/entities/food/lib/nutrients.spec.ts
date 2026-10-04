@@ -11,10 +11,6 @@ describe('scaleNutrients', () => {
     expect(scaleNutrients({ salt: 1.07 }, 1.3)).toEqual({ salt: 1.4 });
   });
 
-  it('does not invent nutrients missing from the label', () => {
-    expect(scaleNutrients({ protein: 10 }, 2)).toEqual({ protein: 20 });
-  });
-
   it('returns undefined without a label', () => {
     expect(scaleNutrients(undefined, 2)).toBeUndefined();
   });

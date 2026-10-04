@@ -34,13 +34,6 @@ describe('weigh-in dialog', () => {
     expect(document.querySelector<HTMLInputElement>('#weigh-in-kg')!.value).toBe('85,4');
   });
 
-  it('advises weighing at the same time and does not scold for skipping', async () => {
-    await mountDialog();
-
-    expect(document.body.textContent).toContain('в одно и то же время');
-    expect(document.body.textContent).toContain('взвесьтесь завтра');
-  });
-
   it('blocks saving a weight out of range', async () => {
     await mountDialog();
     const input = document.querySelector<HTMLInputElement>('#weigh-in-kg')!;

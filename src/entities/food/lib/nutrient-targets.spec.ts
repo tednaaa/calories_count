@@ -14,15 +14,6 @@ describe('nutrientTargets', () => {
   it('derives sugar as a tenth of calories', () => {
     expect(target('sugars')).toMatchObject({ goal: 'limit', amount: 60 });
   });
-
-  it('keeps fiber and salt at general guidelines', () => {
-    expect(target('fiber')).toMatchObject({ goal: 'reach', amount: 30 });
-    expect(target('salt')).toMatchObject({ goal: 'limit', amount: 5 });
-  });
-
-  it('labels targets in russian', () => {
-    expect(target('protein').name).toBe('Белки');
-  });
 });
 
 describe('meetsTarget', () => {

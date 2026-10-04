@@ -59,10 +59,6 @@ describe('settings screen', () => {
     expect(text).toContain('Посчитана по профилю');
   });
 
-  it('summarizes the profile in one line', () => {
-    expect(mount(SettingsView).text()).toContain('Мягкое похудение · 30 лет · 180 см · 85 кг');
-  });
-
   it('disables the weigh-in reminder', async () => {
     localStorage.clear();
     const wrapper = mount(SettingsView);

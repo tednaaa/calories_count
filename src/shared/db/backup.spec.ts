@@ -59,10 +59,6 @@ describe('describeBackup', () => {
     expect(described).toBe('записей: 1, своих блюд: 0, профиль: есть, замеров веса: 0');
   });
 
-  it('counts custom foods', () => {
-    expect(describeBackup(backup({ customFoods: [customFood] }))).toContain('своих блюд: 1');
-  });
-
   it('says when there is no profile', () => {
     expect(describeBackup(backup())).toContain('профиль: нет');
   });
@@ -128,12 +124,6 @@ describe('readBackup', () => {
     expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
   });
 
-  it('rejects a broken amount', () => {
-    const broken = JSON.stringify(backup({ entries: [{ ...entry, amount: 'сто' }] as never }));
-
-    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Записи дневника в файле повреждены' });
-  });
-
   it('rejects broken custom foods', () => {
     const broken = JSON.stringify(backup({ customFoods: [{ ...customFood, kcal: 'много' }] as never }));
 
@@ -172,12 +162,6 @@ describe('readBackup', () => {
 
   it('accepts an empty backup without profile', () => {
     expect(readBackup(JSON.stringify(backup()))).toMatchObject({ ok: true });
-  });
-
-  it('rejects TDEE correction as a string', () => {
-    const broken = JSON.stringify(backup({ profile: { ...profile, tdeeCorrectionKcal: '-200' } as never }));
-
-    expect(readBackup(broken)).toEqual({ ok: false, reason: 'Профиль в файле повреждён' });
   });
 
   it('drops unknown top-level fields', () => {

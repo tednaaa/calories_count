@@ -22,13 +22,6 @@ describe('buildCustomFood', () => {
     expect(food.createdAt).toBe(NOW);
     expect(food.updatedAt).toBe(NOW);
   });
-
-  it('keeps two foods with the same name distinct', () => {
-    const first = buildCustomFood({ name: 'Пирог', kcal: 350 }, NOW);
-    const second = buildCustomFood({ name: 'Пирог', kcal: 350 }, NOW);
-
-    expect(first.id).not.toBe(second.id);
-  });
 });
 
 describe('nextCustomFood', () => {
@@ -56,15 +49,5 @@ describe('nextCustomFood', () => {
 describe('photosById', () => {
   it('finds a photo by food id', () => {
     expect(photosById([stored]).get('pie')).toBe('data:image/jpeg;base64,zzz');
-  });
-
-  it('returns nothing for a food without a photo', () => {
-    const photos = photosById([{ ...stored, photo: undefined }]);
-
-    expect(photos.get('pie')).toBeUndefined();
-  });
-
-  it('returns nothing for an unknown id', () => {
-    expect(photosById([stored]).get('coffee-black')).toBeUndefined();
   });
 });

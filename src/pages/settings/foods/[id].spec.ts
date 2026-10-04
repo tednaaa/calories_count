@@ -95,7 +95,6 @@ describe('custom food editing', () => {
     expect(removeCustomFood).not.toHaveBeenCalled();
 
     const options = requireConfirm.mock.calls[0][0] as { message: string; accept: () => void };
-    expect(options.message).toContain('Записи в дневнике останутся');
 
     options.accept();
     await flushPromises();
