@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.0 (2026-10-05)
+
+- feat(profile): show healthy weight range for teenagers by WHO growth tables [`5d7b0ca5`](https://github.com/tednaaa/calories_count/commit/5d7b0ca5d47ae78b8c61bbb4417e57ffda79c82b)
+- fix(settings): pin header and save button so only the content scrolls [`b1949054`](https://github.com/tednaaa/calories_count/commit/b194905405d65e6787870471fe2765c328dd39b8)
+
 ## v0.7.1 (2026-10-04)
 
 - fix(profile): keep the date of birth field inside the screen on iOS [`beed47ab`](https://github.com/tednaaa/calories_count/commit/beed47abfe246b6cbc4b9302d5bf35ba826a7984)
