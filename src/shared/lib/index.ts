@@ -7,6 +7,7 @@ export {
   formatTime,
   formatWeekday,
   fromDateKey,
+  fullMonthsBetween,
   fullYearsBetween,
   isDateKey,
   isFuture,

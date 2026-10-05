@@ -63,10 +63,14 @@ export function daysBetween(from: DateKey, to: DateKey): number {
   return Math.round((fromDateKey(to).getTime() - fromDateKey(from).getTime()) / DAY_MS);
 }
 
-export function fullYearsBetween(from: DateKey, to: DateKey): number {
-  const years = Number(to.slice(0, 4)) - Number(from.slice(0, 4));
+export function fullMonthsBetween(from: DateKey, to: DateKey): number {
+  const months = (Number(to.slice(0, 4)) - Number(from.slice(0, 4))) * 12 + Number(to.slice(5, 7)) - Number(from.slice(5, 7));
 
-  return to.slice(5) < from.slice(5) ? years - 1 : years;
+  return to.slice(8) < from.slice(8) ? months - 1 : months;
+}
+
+export function fullYearsBetween(from: DateKey, to: DateKey): number {
+  return Math.floor(fullMonthsBetween(from, to) / 12);
 }
 
 export function yearsBefore(key: DateKey, years: number): DateKey {

@@ -2,6 +2,7 @@ import {
   daysBetween,
   formatDayLabel,
   fromDateKey,
+  fullMonthsBetween,
   fullYearsBetween,
   isDateKey,
   isFuture,
@@ -203,6 +204,14 @@ describe('daysBetween', () => {
 
   it('stays correct across the DST change', () => {
     expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
+  });
+});
+
+describe('fullMonthsBetween', () => {
+  it('counts only full months', () => {
+    expect(fullMonthsBetween('2010-03-15', '2026-10-15')).toBe(199);
+    expect(fullMonthsBetween('2010-03-16', '2026-10-15')).toBe(198);
+    expect(fullMonthsBetween('2010-12-31', '2026-01-01')).toBe(180);
   });
 });
 
