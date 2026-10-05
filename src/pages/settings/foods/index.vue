@@ -3,16 +3,14 @@ import { ChevronRightIcon, PlusIcon } from '@lucide/vue';
 import { Button } from 'shonk-ui';
 import { RouterLink } from 'vue-router';
 import { FoodThumb, formatServing, useCustomFoods } from '@/entities/food';
-import SettingsHeader from '../ui/SettingsHeader.vue';
+import SettingsLayout from '../ui/SettingsLayout.vue';
 
 const customFoods = useCustomFoods();
 </script>
 
 <template>
-  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
-    <SettingsHeader title="Свои блюда" />
-
-    <p class="mt-1 text-sm text-muted-foreground">
+  <SettingsLayout title="Свои блюда">
+    <p class="text-sm text-muted-foreground">
       Заводятся прямо с телефона и живут только на нём. В сетке «Добавить» лежат отдельным блоком «Своё».
     </p>
 
@@ -43,5 +41,5 @@ const customFoods = useCustomFoods();
       <PlusIcon class="size-4" />
       Добавить блюдо
     </Button>
-  </main>
+  </SettingsLayout>
 </template>

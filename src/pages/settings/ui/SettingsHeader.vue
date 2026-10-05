@@ -2,15 +2,19 @@
 import { ChevronLeftIcon } from '@lucide/vue';
 import { RouterLink } from 'vue-router';
 
-defineProps<{ title: string }>();
+const { back = '/settings', backLabel = 'Назад к настройкам' } = defineProps<{
+  title: string;
+  back?: string;
+  backLabel?: string;
+}>();
 </script>
 
 <template>
   <header class="flex items-center gap-1">
     <RouterLink
-      to="/settings"
+      :to="back"
       class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
-      aria-label="Назад к настройкам"
+      :aria-label="backLabel"
     >
       <ChevronLeftIcon class="size-5" />
     </RouterLink>

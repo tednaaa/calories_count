@@ -109,6 +109,6 @@ describe('custom food editing', () => {
     const wrapper = await open();
 
     expect(replace).toHaveBeenCalledWith('/settings/foods');
-    expect(wrapper.find('form').exists()).toBe(false);
+    expect(wrapper.find('#custom-name').exists()).toBe(false);
   });
 });

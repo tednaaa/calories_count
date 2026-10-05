@@ -12,6 +12,7 @@ import {
   saveProfile,
 } from '@/entities/profile';
 import { formatNumber } from '@/shared/lib';
+import SettingsLayout from './SettingsLayout.vue';
 
 const props = defineProps<{ profile: Profile }>();
 
@@ -48,28 +49,34 @@ async function submit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-5" @submit.prevent="submit">
-    <ProfileFields
-      v-model:sex="form.sex"
-      v-model:birth-date="form.birthDate"
-      v-model:height-cm="form.heightCm"
-      v-model:weight-kg="form.weightKg"
-      v-model:target-weight-kg="form.targetWeightKg"
-      v-model:activity="form.activity"
-      v-model:goal="form.goal"
-    />
+  <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="submit">
+    <SettingsLayout title="Профиль">
+      <div class="flex flex-col gap-5">
+        <ProfileFields
+          v-model:sex="form.sex"
+          v-model:birth-date="form.birthDate"
+          v-model:height-cm="form.heightCm"
+          v-model:weight-kg="form.weightKg"
+          v-model:target-weight-kg="form.targetWeightKg"
+          v-model:activity="form.activity"
+          v-model:goal="form.goal"
+        />
 
-    <p v-if="breakdown" class="text-sm text-muted-foreground">
-      Расчётная норма: <span class="tabular-nums text-foreground">{{ formatNumber(breakdown.target) }} ккал</span>
-      <span v-if="props.profile.targetOverridden"> — сейчас не применяется, норма задана вручную</span>
-    </p>
+        <p v-if="breakdown" class="text-sm text-muted-foreground">
+          Расчётная норма: <span class="tabular-nums text-foreground">{{ formatNumber(breakdown.target) }} ккал</span>
+          <span v-if="props.profile.targetOverridden"> — сейчас не применяется, норма задана вручную</span>
+        </p>
 
-    <p v-if="!measurements" class="text-sm text-warning">
-      Возраст, рост или вес выходят за разумные границы.
-    </p>
+        <p v-if="!measurements" class="text-sm text-warning">
+          Возраст, рост или вес выходят за разумные границы.
+        </p>
+      </div>
 
-    <Button type="submit" :disabled="!canSave" :loading="saving">
-      Сохранить профиль
-    </Button>
+      <template #footer>
+        <Button type="submit" :disabled="!canSave" :loading="saving">
+          Сохранить профиль
+        </Button>
+      </template>
+    </SettingsLayout>
   </form>
 </template>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { CustomFood } from '@/shared/db';
-import { ChevronLeftIcon } from '@lucide/vue';
 import { Button, toast, useConfirm } from 'shonk-ui';
 import { computed, onMounted, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   CustomFoodFields,
   draftFromCustomFood,
@@ -13,6 +12,7 @@ import {
   removeCustomFood,
   saveCustomFood,
 } from '@/entities/food';
+import SettingsLayout from '../ui/SettingsLayout.vue';
 
 const route = useRoute('/settings/foods/[id]');
 const router = useRouter();
@@ -85,35 +85,25 @@ function askToRemove() {
 </script>
 
 <template>
-  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
-    <header class="flex items-center gap-1">
-      <RouterLink
-        to="/settings/foods"
-        class="-ml-2 flex size-10 items-center justify-center rounded-full text-muted-foreground"
-        aria-label="Назад к своим блюдам"
-      >
-        <ChevronLeftIcon class="size-5" />
-      </RouterLink>
+  <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="submit">
+    <SettingsLayout title="Своё блюдо" back="/settings/foods" back-label="Назад к своим блюдам">
+      <p class="text-sm text-muted-foreground">
+        Правка меняет только будущие записи — прошлые хранят своё название и свою калорийность.
+      </p>
 
-      <h1 class="text-xl font-semibold text-foreground">
-        Своё блюдо
-      </h1>
-    </header>
+      <div v-if="food" class="mt-6 flex flex-col gap-5">
+        <CustomFoodFields v-model="draft" />
 
-    <p class="mt-1 text-sm text-muted-foreground">
-      Правка меняет только будущие записи — прошлые хранят своё название и свою калорийность.
-    </p>
+        <Button type="button" variant="destructive" @click="askToRemove">
+          Удалить блюдо из избранных
+        </Button>
+      </div>
 
-    <form v-if="food" class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <CustomFoodFields v-model="draft" />
-
-      <Button type="submit" size="lg" :disabled="!input" :loading="saving">
-        Сохранить
-      </Button>
-
-      <Button type="button" variant="destructive" @click="askToRemove">
-        Удалить блюдо из избранных
-      </Button>
-    </form>
-  </main>
+      <template #footer>
+        <Button type="submit" size="lg" :disabled="!input" :loading="saving">
+          Сохранить
+        </Button>
+      </template>
+    </SettingsLayout>
+  </form>
 </template>
