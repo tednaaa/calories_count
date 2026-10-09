@@ -9,6 +9,6 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
 </script>
 
 <template>
-  <ProfileSection v-if="profile" :profile="profile" />
-  <SettingsLayout v-else title="Профиль" />
+	<ProfileSection v-if="profile" :profile="profile" />
+	<SettingsLayout v-else title="Профиль" />
 </template>

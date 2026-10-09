@@ -4,12 +4,12 @@ import { loadProfile } from '@/entities/profile';
 import { redirectFor } from './guard';
 
 export const router = createRouter({
-  history: createWebHistory(),
-  routes,
+	history: createWebHistory(),
+	routes,
 });
 
 router.beforeEach(async (to) => {
-  const profile = await loadProfile();
+	const profile = await loadProfile();
 
-  return redirectFor(Boolean(profile), to.path) ?? true;
+	return redirectFor(Boolean(profile), to.path) ?? true;
 });

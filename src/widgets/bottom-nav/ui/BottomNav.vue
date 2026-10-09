@@ -5,48 +5,48 @@ import { cn } from 'shonk-ui';
 import { RouterLink, useRoute } from 'vue-router';
 
 interface NavItem {
-  to: string;
-  label: string;
-  icon: Component;
-  accent?: boolean;
+	to: string;
+	label: string;
+	icon: Component;
+	accent?: boolean;
 }
 
 const items: NavItem[] = [
-  { to: '/', label: 'Сегодня', icon: HouseIcon },
-  { to: '/add', label: 'Добавить', icon: PlusIcon, accent: true },
-  { to: '/stats', label: 'Статистика', icon: ChartColumnIcon },
-  { to: '/settings', label: 'Настройки', icon: SettingsIcon },
+	{ to: '/', label: 'Сегодня', icon: HouseIcon },
+	{ to: '/add', label: 'Добавить', icon: PlusIcon, accent: true },
+	{ to: '/stats', label: 'Статистика', icon: ChartColumnIcon },
+	{ to: '/settings', label: 'Настройки', icon: SettingsIcon },
 ];
 
 const route = useRoute();
 
 function isCurrent(item: NavItem): boolean {
-  return route.path === item.to || (item.to !== '/' && route.path.startsWith(`${item.to}/`));
+	return route.path === item.to || (item.to !== '/' && route.path.startsWith(`${item.to}/`));
 }
 </script>
 
 <template>
-  <nav class="border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
-    <ul class="grid grid-cols-4">
-      <li v-for="item in items" :key="item.to">
-        <RouterLink #default="{ href, navigate }" :to="item.to" custom>
-          <a
-            :href="href"
-            :aria-current="isCurrent(item) ? 'page' : undefined"
-            :class="cn(
-              'flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] transition-colors',
-              isCurrent(item) ? 'text-primary' : 'text-muted-foreground',
-            )"
-            @click="navigate"
-          >
-            <component
-              :is="item.icon"
-              :class="cn('size-5', item.accent && 'size-7 rounded-full bg-primary p-1 text-primary-foreground')"
-            />
-            {{ item.label }}
-          </a>
-        </RouterLink>
-      </li>
-    </ul>
-  </nav>
+	<nav class="border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
+		<ul class="grid grid-cols-4">
+			<li v-for="item in items" :key="item.to">
+				<RouterLink #default="{ href, navigate }" :to="item.to" custom>
+					<a
+						:href="href"
+						:aria-current="isCurrent(item) ? 'page' : undefined"
+						:class="cn(
+							'flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] transition-colors',
+							isCurrent(item) ? 'text-primary' : 'text-muted-foreground',
+						)"
+						@click="navigate"
+					>
+						<component
+							:is="item.icon"
+							:class="cn('size-5', item.accent && 'size-7 rounded-full bg-primary p-1 text-primary-foreground')"
+						/>
+						{{ item.label }}
+					</a>
+				</RouterLink>
+			</li>
+		</ul>
+	</nav>
 </template>

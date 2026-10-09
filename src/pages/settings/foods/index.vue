@@ -9,37 +9,37 @@ const customFoods = useCustomFoods();
 </script>
 
 <template>
-  <SettingsLayout title="Свои блюда">
-    <p class="text-sm text-muted-foreground">
-      Заводятся прямо с телефона и живут только на нём. В сетке «Добавить» лежат отдельным блоком «Своё».
-    </p>
+	<SettingsLayout title="Свои блюда">
+		<p class="text-sm text-muted-foreground">
+			Заводятся прямо с телефона и живут только на нём. В сетке «Добавить» лежат отдельным блоком «Своё».
+		</p>
 
-    <ul v-if="customFoods.length" class="mt-6 border-t border-border">
-      <li v-for="food in customFoods" :key="food.id" class="border-b border-border">
-        <RouterLink :to="`/settings/foods/${food.id}`" class="flex items-center gap-3 py-3">
-          <FoodThumb :photo="food.photo" :name="food.name" class="size-11" />
+		<ul v-if="customFoods.length" class="mt-6 border-t border-border">
+			<li v-for="food in customFoods" :key="food.id" class="border-b border-border">
+				<RouterLink :to="`/settings/foods/${food.id}`" class="flex items-center gap-3 py-3">
+					<FoodThumb :photo="food.photo" :name="food.name" class="size-11" />
 
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm text-foreground">
-              {{ food.name }}
-            </p>
-            <p class="text-xs tabular-nums text-muted-foreground">
-              {{ formatServing(food.kcal, food.amount, food.unit) }}
-            </p>
-          </div>
+					<div class="min-w-0 flex-1">
+						<p class="truncate text-sm text-foreground">
+							{{ food.name }}
+						</p>
+						<p class="text-xs tabular-nums text-muted-foreground">
+							{{ formatServing(food.kcal, food.amount, food.unit) }}
+						</p>
+					</div>
 
-          <ChevronRightIcon class="size-4 shrink-0 text-muted-foreground" />
-        </RouterLink>
-      </li>
-    </ul>
+					<ChevronRightIcon class="size-4 shrink-0 text-muted-foreground" />
+				</RouterLink>
+			</li>
+		</ul>
 
-    <p v-else class="mt-6 text-sm text-muted-foreground">
-      Пока пусто. Первое блюдо проще всего завести прямо во время еды — кнопкой «Новое» на экране «Добавить».
-    </p>
+		<p v-else class="mt-6 text-sm text-muted-foreground">
+			Пока пусто. Первое блюдо проще всего завести прямо во время еды — кнопкой «Новое» на экране «Добавить».
+		</p>
 
-    <Button :as="RouterLink" to="/settings/foods/new" variant="secondary" class="mt-6 w-full">
-      <PlusIcon class="size-4" />
-      Добавить блюдо
-    </Button>
-  </SettingsLayout>
+		<Button :as="RouterLink" to="/settings/foods/new" variant="secondary" class="mt-6 w-full">
+			<PlusIcon class="size-4" />
+			Добавить блюдо
+		</Button>
+	</SettingsLayout>
 </template>

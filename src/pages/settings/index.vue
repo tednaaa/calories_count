@@ -19,51 +19,51 @@ const version = __APP_VERSION__;
 </script>
 
 <template>
-  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
-    <h1 class="text-xl font-semibold text-foreground">
-      Настройки
-    </h1>
+	<main class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-8">
+		<h1 class="text-xl font-semibold text-foreground">
+			Настройки
+		</h1>
 
-    <ul v-if="profile" class="mt-6 divide-y divide-border rounded-lg border border-border">
-      <li>
-        <SettingsRow
-          to="/settings/target"
-          title="Норма"
-          :hint="targetOrigin(profile)"
-          :value="`${formatNumber(profile.targetKcal)} ккал`"
-        />
-      </li>
-      <li>
-        <SettingsRow to="/settings/profile" title="Профиль" :hint="describeProfile(profile)" />
-      </li>
-    </ul>
+		<ul v-if="profile" class="mt-6 divide-y divide-border rounded-lg border border-border">
+			<li>
+				<SettingsRow
+					to="/settings/target"
+					title="Норма"
+					:hint="targetOrigin(profile)"
+					:value="`${formatNumber(profile.targetKcal)} ккал`"
+				/>
+			</li>
+			<li>
+				<SettingsRow to="/settings/profile" title="Профиль" :hint="describeProfile(profile)" />
+			</li>
+		</ul>
 
-    <ReminderSection class="mt-4 rounded-lg border border-border px-4 py-3" />
+		<ReminderSection class="mt-4 rounded-lg border border-border px-4 py-3" />
 
-    <ul class="mt-4 divide-y divide-border rounded-lg border border-border">
-      <li>
-        <SettingsRow
-          to="/settings/foods"
-          title="Свои блюда"
-          hint="Добавить, поправить, удалить"
-          :value="String(customFoods.length)"
-        />
-      </li>
-      <li>
-        <SettingsRow to="/settings/data" title="Данные" hint="Резервная копия и удаление" />
-      </li>
-      <li>
-        <SettingsRow to="/settings/about" title="О приложении" :value="version" />
-      </li>
-    </ul>
+		<ul class="mt-4 divide-y divide-border rounded-lg border border-border">
+			<li>
+				<SettingsRow
+					to="/settings/foods"
+					title="Свои блюда"
+					hint="Добавить, поправить, удалить"
+					:value="String(customFoods.length)"
+				/>
+			</li>
+			<li>
+				<SettingsRow to="/settings/data" title="Данные" hint="Резервная копия и удаление" />
+			</li>
+			<li>
+				<SettingsRow to="/settings/about" title="О приложении" :value="version" />
+			</li>
+		</ul>
 
-    <div v-if="showsInstallHint" class="mt-6 rounded-lg border border-border bg-secondary p-4">
-      <p class="text-sm font-medium text-foreground">
-        Установка на iPhone
-      </p>
-      <p class="mt-1 text-xs text-muted-foreground">
-        Safari не предлагает установку сам: открой сайт в Safari, нажми «Поделиться» и выбери «На экран „Домой“».
-      </p>
-    </div>
-  </main>
+		<div v-if="showsInstallHint" class="mt-6 rounded-lg border border-border bg-secondary p-4">
+			<p class="text-sm font-medium text-foreground">
+				Установка на iPhone
+			</p>
+			<p class="mt-1 text-xs text-muted-foreground">
+				Safari не предлагает установку сам: открой сайт в Safari, нажми «Поделиться» и выбери «На экран „Домой“».
+			</p>
+		</div>
+	</main>
 </template>

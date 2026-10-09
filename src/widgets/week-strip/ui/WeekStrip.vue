@@ -4,15 +4,15 @@ import { useEventListener, useSwipe } from '@vueuse/core';
 import { cn } from 'shonk-ui';
 import { computed, onMounted, useTemplateRef, watch } from 'vue';
 import {
-  dayNumber,
-  formatFullDate,
-  formatWeekday,
-  isFuture,
-  isToday,
-  shiftDateKey,
-  startOfWeek,
-  toDateKey,
-  weekDateKeys,
+	dayNumber,
+	formatFullDate,
+	formatWeekday,
+	isFuture,
+	isToday,
+	shiftDateKey,
+	startOfWeek,
+	toDateKey,
+	weekDateKeys,
 } from '@/shared/lib';
 
 const props = defineProps<{ gestureArea?: HTMLElement | null }>();
@@ -23,18 +23,18 @@ const HISTORY_WEEKS = 26;
 const WHEEL_STEP_DELAY = 400;
 
 const weeks = computed(() => {
-  const selectedWeek = startOfWeek(selected.value);
-  const result: DateKey[][] = [];
+	const selectedWeek = startOfWeek(selected.value);
+	const result: DateKey[][] = [];
 
-  for (
-    let week = startOfWeek(toDateKey());
-    week >= selectedWeek || result.length < HISTORY_WEEKS;
-    week = shiftDateKey(week, -7)
-  ) {
-    result.unshift(weekDateKeys(week));
-  }
+	for (
+		let week = startOfWeek(toDateKey());
+		week >= selectedWeek || result.length < HISTORY_WEEKS;
+		week = shiftDateKey(week, -7)
+	) {
+		result.unshift(weekDateKeys(week));
+	}
 
-  return result;
+	return result;
 });
 
 const selectedWeekIndex = computed(() => weeks.value.findIndex(week => week.includes(selected.value)));
@@ -42,92 +42,92 @@ const selectedWeekIndex = computed(() => weeks.value.findIndex(week => week.incl
 const strip = useTemplateRef<HTMLElement>('strip');
 
 function showSelectedWeek(behavior: ScrollBehavior) {
-  const element = strip.value;
+	const element = strip.value;
 
-  if (element) {
-    element.scrollTo({ left: selectedWeekIndex.value * element.clientWidth, behavior });
-  }
+	if (element) {
+		element.scrollTo({ left: selectedWeekIndex.value * element.clientWidth, behavior });
+	}
 }
 
 function shiftSelectedDay(step: number) {
-  const shifted = shiftDateKey(selected.value, step);
+	const shifted = shiftDateKey(selected.value, step);
 
-  selected.value = isFuture(shifted) ? toDateKey() : shifted;
+	selected.value = isFuture(shifted) ? toDateKey() : shifted;
 }
 
 let lastWheelStep = Number.NEGATIVE_INFINITY;
 
 function stepByWheel(event: WheelEvent) {
-  const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-  const settled = event.timeStamp - lastWheelStep >= WHEEL_STEP_DELAY;
+	const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+	const settled = event.timeStamp - lastWheelStep >= WHEEL_STEP_DELAY;
 
-  if (delta !== 0 && settled) {
-    lastWheelStep = event.timeStamp;
-    shiftSelectedDay(Math.sign(delta));
-  }
+	if (delta !== 0 && settled) {
+		lastWheelStep = event.timeStamp;
+		shiftSelectedDay(Math.sign(delta));
+	}
 }
 
 useEventListener(() => props.gestureArea, 'wheel', stepByWheel);
 
 useSwipe(() => props.gestureArea, {
-  onSwipeEnd(_, direction) {
-    if (direction === 'left' || direction === 'right') {
-      shiftSelectedDay(direction === 'left' ? 1 : -1);
-    }
-  },
+	onSwipeEnd(_, direction) {
+		if (direction === 'left' || direction === 'right') {
+			shiftSelectedDay(direction === 'left' ? 1 : -1);
+		}
+	},
 });
 
 onMounted(() => {
-  showSelectedWeek('instant');
+	showSelectedWeek('instant');
 });
 
 watch(selected, () => {
-  showSelectedWeek('smooth');
+	showSelectedWeek('smooth');
 }, { flush: 'post' });
 
 function dayStyle(day: DateKey) {
-  if (day === selected.value) {
-    return 'border-primary bg-primary/10 font-semibold text-primary';
-  }
-  if (isToday(day)) {
-    return 'border-input text-foreground';
-  }
+	if (day === selected.value) {
+		return 'border-primary bg-primary/10 font-semibold text-primary';
+	}
+	if (isToday(day)) {
+		return 'border-input text-foreground';
+	}
 
-  return 'border-border text-muted-foreground';
+	return 'border-border text-muted-foreground';
 }
 </script>
 
 <template>
-  <div
-    ref="strip"
-    role="group"
-    aria-label="Выбор дня"
-    class="scrollbar-none flex touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-contain"
-  >
-    <div v-for="week in weeks" :key="week[0]" class="grid w-full shrink-0 snap-center grid-cols-7 px-2">
-      <button
-        v-for="day in week"
-        :key="day"
-        type="button"
-        :disabled="isFuture(day)"
-        :aria-label="formatFullDate(day)"
-        :aria-current="day === selected ? 'date' : undefined"
-        class="flex flex-col items-center gap-1 py-1 disabled:opacity-30"
-        @click="selected = day"
-      >
-        <span
-          :class="cn(
-            'text-[11px] whitespace-nowrap capitalize',
-            day === selected ? 'text-foreground' : 'text-muted-foreground',
-          )"
-        >
-          {{ isToday(day) ? 'Сегодня' : formatWeekday(day) }}
-        </span>
+	<div
+		ref="strip"
+		role="group"
+		aria-label="Выбор дня"
+		class="scrollbar-none flex touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-contain"
+	>
+		<div v-for="week in weeks" :key="week[0]" class="grid w-full shrink-0 snap-center grid-cols-7 px-2">
+			<button
+				v-for="day in week"
+				:key="day"
+				type="button"
+				:disabled="isFuture(day)"
+				:aria-label="formatFullDate(day)"
+				:aria-current="day === selected ? 'date' : undefined"
+				class="flex flex-col items-center gap-1 py-1 disabled:opacity-30"
+				@click="selected = day"
+			>
+				<span
+					:class="cn(
+						'text-[11px] whitespace-nowrap capitalize',
+						day === selected ? 'text-foreground' : 'text-muted-foreground',
+					)"
+				>
+					{{ isToday(day) ? 'Сегодня' : formatWeekday(day) }}
+				</span>
 
-        <span :class="cn('flex size-9 items-center justify-center rounded-full border text-sm', dayStyle(day))">
-          {{ dayNumber(day) }}
-        </span>
-      </button>
-    </div>
-  </div>
+				<span :class="cn('flex size-9 items-center justify-center rounded-full border text-sm', dayStyle(day))">
+					{{ dayNumber(day) }}
+				</span>
+			</button>
+		</div>
+	</div>
 </template>

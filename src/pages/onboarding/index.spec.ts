@@ -8,93 +8,93 @@ const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }));
 
 vi.mock('@/entities/profile', async importOriginal => ({
-  ...await importOriginal<typeof import('@/entities/profile')>(),
-  saveProfile: vi.fn(),
+	...await importOriginal<typeof import('@/entities/profile')>(),
+	saveProfile: vi.fn(),
 }));
 
 async function fill(wrapper: ReturnType<typeof mount>, values: Record<string, string>) {
-  for (const [id, value] of Object.entries(values)) {
-    await wrapper.find(`#${id}`).setValue(value);
-  }
+	for (const [id, value] of Object.entries(values)) {
+		await wrapper.find(`#${id}`).setValue(value);
+	}
 }
 
 function mountForm() {
-  return mount(OnboardingView);
+	return mount(OnboardingView);
 }
 
 describe('target calculation form', () => {
-  it('asks for data and disables the button when empty', () => {
-    const wrapper = mountForm();
+	it('asks for data and disables the button when empty', () => {
+		const wrapper = mountForm();
 
-    expect(wrapper.text()).toContain('Заполни дату рождения, рост и вес');
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
-  });
+		expect(wrapper.text()).toContain('Заполни дату рождения, рост и вес');
+		expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+	});
 
-  it('shows the target matching the calculation', async () => {
-    const wrapper = mountForm();
-    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
+	it('shows the target matching the calculation', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
-    const expected = calcTarget({
-      sex: 'male',
-      birthDate: yearsBefore(toDateKey(), 30),
-      heightCm: 180,
-      weightKg: 85,
-      activity: 'moderate',
-      goal: 'cutMild',
-    }).target;
+		const expected = calcTarget({
+			sex: 'male',
+			birthDate: yearsBefore(toDateKey(), 30),
+			heightCm: 180,
+			weightKg: 85,
+			activity: 'moderate',
+			goal: 'cutMild',
+		}).target;
 
-    expect(expected).toBe(2410);
-    expect(wrapper.text()).toContain(formatNumber(expected));
-  });
+		expect(expected).toBe(2410);
+		expect(wrapper.text()).toContain(formatNumber(expected));
+	});
 
-  it('recalculates the target on goal change', async () => {
-    const wrapper = mountForm();
-    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
+	it('recalculates the target on goal change', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
-    const selects = wrapper.findAll('select');
-    await selects[1].setValue('bulk');
+		const selects = wrapper.findAll('select');
+		await selects[1].setValue('bulk');
 
-    expect(wrapper.text()).not.toContain(formatNumber(2410));
-    expect(wrapper.text()).toContain(formatNumber(3260));
-  });
+		expect(wrapper.text()).not.toContain(formatNumber(2410));
+		expect(wrapper.text()).toContain(formatNumber(3260));
+	});
 
-  it('recalculates the target on activity change', async () => {
-    const wrapper = mountForm();
-    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
+	it('recalculates the target on activity change', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
 
-    const selects = wrapper.findAll('select');
-    await selects[0].setValue('sedentary');
+		const selects = wrapper.findAll('select');
+		await selects[0].setValue('sedentary');
 
-    expect(wrapper.text()).not.toContain(formatNumber(2410));
-  });
+		expect(wrapper.text()).not.toContain(formatNumber(2410));
+	});
 
-  it('disables the button for a value out of range', async () => {
-    const wrapper = mountForm();
-    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 12), 'height': '180', 'weight': '85' });
+	it('disables the button for a value out of range', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 12), 'height': '180', 'weight': '85' });
 
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
-  });
+		expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+	});
 
-  it('saves the profile as numbers and goes home', async () => {
-    const wrapper = mountForm();
-    await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
-    await wrapper.find('form').trigger('submit');
+	it('saves the profile as numbers and goes home', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, { 'birth-date': yearsBefore(toDateKey(), 30), 'height': '180', 'weight': '85' });
+		await wrapper.find('form').trigger('submit');
 
-    expect(saveProfile).toHaveBeenCalledWith({
-      sex: 'male',
-      birthDate: yearsBefore(toDateKey(), 30),
-      heightCm: 180,
-      weightKg: 85,
-      activity: 'moderate',
-      goal: 'cutMild',
-    });
-    expect(push).toHaveBeenCalledWith('/');
-  });
+		expect(saveProfile).toHaveBeenCalledWith({
+			sex: 'male',
+			birthDate: yearsBefore(toDateKey(), 30),
+			heightCm: 180,
+			weightKg: 85,
+			activity: 'moderate',
+			goal: 'cutMild',
+		});
+		expect(push).toHaveBeenCalledWith('/');
+	});
 
-  it('does not save the profile with an empty form', async () => {
-    const wrapper = mountForm();
-    await wrapper.find('form').trigger('submit');
+	it('does not save the profile with an empty form', async () => {
+		const wrapper = mountForm();
+		await wrapper.find('form').trigger('submit');
 
-    expect(saveProfile).not.toHaveBeenCalled();
-  });
+		expect(saveProfile).not.toHaveBeenCalled();
+	});
 });

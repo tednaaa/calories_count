@@ -13,32 +13,32 @@ const today = useToday();
 const weighing = ref(false);
 
 const visible = computed(() => latest.value !== undefined && shouldRemindWeighIn({
-  lastDate: latest.value?.date,
-  today: today.value,
-  postponedOn: postponedOn.value,
-  enabled: enabled.value,
+	lastDate: latest.value?.date,
+	today: today.value,
+	postponedOn: postponedOn.value,
+	enabled: enabled.value,
 }));
 </script>
 
 <template>
-  <div v-if="visible" class="flex items-center gap-2 px-4 pt-3">
-    <button
-      type="button"
-      class="flex flex-1 items-center gap-2 text-left text-sm text-muted-foreground"
-      @click="weighing = true"
-    >
-      <ScaleIcon class="size-4 shrink-0" />
-      Запишите вес
-    </button>
-    <button
-      type="button"
-      class="flex size-8 items-center justify-center text-muted-foreground"
-      aria-label="Не напоминать сегодня"
-      @click="postpone"
-    >
-      <XIcon class="size-4" />
-    </button>
-  </div>
+	<div v-if="visible" class="flex items-center gap-2 px-4 pt-3">
+		<button
+			type="button"
+			class="flex flex-1 items-center gap-2 text-left text-sm text-muted-foreground"
+			@click="weighing = true"
+		>
+			<ScaleIcon class="size-4 shrink-0" />
+			Запишите вес
+		</button>
+		<button
+			type="button"
+			class="flex size-8 items-center justify-center text-muted-foreground"
+			aria-label="Не напоминать сегодня"
+			@click="postpone"
+		>
+			<XIcon class="size-4" />
+		</button>
+	</div>
 
-  <WeighInDialog v-model:open="weighing" :last-kg="latest?.kg" />
+	<WeighInDialog v-model:open="weighing" :last-kg="latest?.kg" />
 </template>

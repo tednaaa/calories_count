@@ -4,31 +4,31 @@ import Dexie from 'dexie';
 import { ageToBirthDate, renameGrams } from './legacy';
 
 export type AppDatabase = Dexie & {
-  entries: Table<Entry, string>;
-  customFoods: Table<CustomFood, string>;
-  profile: Table<Profile, string>;
-  weightLog: Table<WeightRecord, number>;
+	entries: Table<Entry, string>;
+	customFoods: Table<CustomFood, string>;
+	profile: Table<Profile, string>;
+	weightLog: Table<WeightRecord, number>;
 };
 
 export const db = new Dexie('calories-count') as AppDatabase;
 
 db.version(1).stores({
-  entries: 'id, date, foodId',
-  profile: 'id',
-  weightLog: '++id, &date',
+	entries: 'id, date, foodId',
+	profile: 'id',
+	weightLog: '++id, &date',
 });
 
 db.version(2).stores({
-  customFoods: 'id, createdAt',
+	customFoods: 'id, createdAt',
 });
 
 db.version(3).upgrade(async (tx) => {
-  await tx.table('entries').toCollection().modify(renameGrams);
-  await tx.table('customFoods').toCollection().modify(renameGrams);
+	await tx.table('entries').toCollection().modify(renameGrams);
+	await tx.table('customFoods').toCollection().modify(renameGrams);
 });
 
 db.version(4).upgrade(async (tx) => {
-  await tx.table('profile').toCollection().modify(profile => ageToBirthDate(profile));
+	await tx.table('profile').toCollection().modify(profile => ageToBirthDate(profile));
 });
 
 export const PROFILE_ID = 'me';

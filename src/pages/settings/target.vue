@@ -9,7 +9,7 @@ const profile = useLiveQuery<Profile | undefined>(() => loadProfile(), undefined
 </script>
 
 <template>
-  <SettingsLayout title="Норма">
-    <TargetSection v-if="profile" :profile="profile" />
-  </SettingsLayout>
+	<SettingsLayout title="Норма">
+		<TargetSection v-if="profile" :profile="profile" />
+	</SettingsLayout>
 </template>

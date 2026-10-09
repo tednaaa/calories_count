@@ -16,62 +16,62 @@ const canStart = computed(() => breakdown.value !== null && !hasInvalidTargetWei
 const saving = ref(false);
 
 async function submit() {
-  if (!measurements.value || !canStart.value) {
-    return;
-  }
+	if (!measurements.value || !canStart.value) {
+		return;
+	}
 
-  saving.value = true;
-  await saveProfile(measurements.value);
-  await router.push('/');
+	saving.value = true;
+	await saveProfile(measurements.value);
+	await router.push('/');
 }
 </script>
 
 <template>
-  <main class="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-8">
-    <h1 class="text-2xl font-semibold text-foreground">
-      Норма калорий
-    </h1>
-    <p class="mt-1 text-sm text-muted-foreground">
-      Считаем один раз. Потом можно поменять в настройках.
-    </p>
+	<main class="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-8">
+		<h1 class="text-2xl font-semibold text-foreground">
+			Норма калорий
+		</h1>
+		<p class="mt-1 text-sm text-muted-foreground">
+			Считаем один раз. Потом можно поменять в настройках.
+		</p>
 
-    <form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
-      <ProfileFields
-        v-model:sex="form.sex"
-        v-model:birth-date="form.birthDate"
-        v-model:height-cm="form.heightCm"
-        v-model:weight-kg="form.weightKg"
-        v-model:target-weight-kg="form.targetWeightKg"
-        v-model:activity="form.activity"
-        v-model:goal="form.goal"
-      />
+		<form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
+			<ProfileFields
+				v-model:sex="form.sex"
+				v-model:birth-date="form.birthDate"
+				v-model:height-cm="form.heightCm"
+				v-model:weight-kg="form.weightKg"
+				v-model:target-weight-kg="form.targetWeightKg"
+				v-model:activity="form.activity"
+				v-model:goal="form.goal"
+			/>
 
-      <div class="rounded-lg border border-border bg-secondary p-4">
-        <template v-if="breakdown">
-          <p class="text-3xl font-semibold tabular-nums text-foreground">
-            {{ formatNumber(breakdown.target) }}
-            <span class="text-base font-normal text-muted-foreground">ккал в день</span>
-          </p>
-          <p class="mt-2 text-xs text-muted-foreground">
-            Базовый обмен {{ formatNumber(Math.round(breakdown.bmr)) }},
-            полный расход {{ formatNumber(Math.round(breakdown.tdee)) }} ккал
-          </p>
-          <p v-if="measurements" class="mt-2 text-xs text-muted-foreground">
-            {{ describeBmi(measurements) }}
-          </p>
-          <p v-if="breakdown.clampedToMinimum" class="mt-2 text-xs text-warning">
-            Расчёт дал меньше безопасного минимума, норма поднята до {{ formatNumber(breakdown.target) }} ккал.
-          </p>
-        </template>
+			<div class="rounded-lg border border-border bg-secondary p-4">
+				<template v-if="breakdown">
+					<p class="text-3xl font-semibold tabular-nums text-foreground">
+						{{ formatNumber(breakdown.target) }}
+						<span class="text-base font-normal text-muted-foreground">ккал в день</span>
+					</p>
+					<p class="mt-2 text-xs text-muted-foreground">
+						Базовый обмен {{ formatNumber(Math.round(breakdown.bmr)) }},
+						полный расход {{ formatNumber(Math.round(breakdown.tdee)) }} ккал
+					</p>
+					<p v-if="measurements" class="mt-2 text-xs text-muted-foreground">
+						{{ describeBmi(measurements) }}
+					</p>
+					<p v-if="breakdown.clampedToMinimum" class="mt-2 text-xs text-warning">
+						Расчёт дал меньше безопасного минимума, норма поднята до {{ formatNumber(breakdown.target) }} ккал.
+					</p>
+				</template>
 
-        <p v-else class="text-sm text-muted-foreground">
-          Заполни дату рождения, рост и вес, чтобы увидеть норму.
-        </p>
-      </div>
+				<p v-else class="text-sm text-muted-foreground">
+					Заполни дату рождения, рост и вес, чтобы увидеть норму.
+				</p>
+			</div>
 
-      <Button type="submit" size="lg" :disabled="!canStart" :loading="saving">
-        Начать
-      </Button>
-    </form>
-  </main>
+			<Button type="submit" size="lg" :disabled="!canStart" :loading="saving">
+				Начать
+			</Button>
+		</form>
+	</main>
 </template>

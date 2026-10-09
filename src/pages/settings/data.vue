@@ -4,7 +4,7 @@ import SettingsLayout from './ui/SettingsLayout.vue';
 </script>
 
 <template>
-  <SettingsLayout title="Данные">
-    <DataSection />
-  </SettingsLayout>
+	<SettingsLayout title="Данные">
+		<DataSection />
+	</SettingsLayout>
 </template>

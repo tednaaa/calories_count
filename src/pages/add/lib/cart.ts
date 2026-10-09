@@ -4,43 +4,43 @@ import { HALF_PORTION } from '@/entities/entry';
 import { formatNumber, pluralize } from '@/shared/lib';
 
 export function toCartItem(food: Portion, qty: number): CartItem {
-  return {
-    foodId: food.id,
-    name: food.name,
-    kcalPerPortion: food.kcal,
-    amount: food.amount,
-    unit: food.unit,
-    basis: food.basis,
-    nutrients: food.nutrients,
-    grades: food.grades,
-    qty,
-  };
+	return {
+		foodId: food.id,
+		name: food.name,
+		kcalPerPortion: food.kcal,
+		amount: food.amount,
+		unit: food.unit,
+		basis: food.basis,
+		nutrients: food.nutrients,
+		grades: food.grades,
+		qty,
+	};
 }
 
 export function cartQty(items: CartItem[], foodId: string): number {
-  return items.find(item => item.foodId === foodId)?.qty ?? 0;
+	return items.find(item => item.foodId === foodId)?.qty ?? 0;
 }
 
 export function withCartItem(items: CartItem[], item: CartItem): CartItem[] {
-  if (item.qty < HALF_PORTION) {
-    return items.filter(existing => existing.foodId !== item.foodId);
-  }
+	if (item.qty < HALF_PORTION) {
+		return items.filter(existing => existing.foodId !== item.foodId);
+	}
 
-  if (items.some(existing => existing.foodId === item.foodId)) {
-    return items.map(existing => (
-      existing.foodId === item.foodId ? { ...existing, qty: item.qty } : existing
-    ));
-  }
+	if (items.some(existing => existing.foodId === item.foodId)) {
+		return items.map(existing => (
+			existing.foodId === item.foodId ? { ...existing, qty: item.qty } : existing
+		));
+	}
 
-  return [...items, item];
+	return [...items, item];
 }
 
 export function cartKcal(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.qty * item.kcalPerPortion, 0);
+	return items.reduce((sum, item) => sum + item.qty * item.kcalPerPortion, 0);
 }
 
 export function cartSummary(items: CartItem[]): string {
-  const positions = pluralize(items.length, ['позиция', 'позиции', 'позиций']);
+	const positions = pluralize(items.length, ['позиция', 'позиции', 'позиций']);
 
-  return `${items.length} ${positions} · ${formatNumber(cartKcal(items))} ккал`;
+	return `${items.length} ${positions} · ${formatNumber(cartKcal(items))} ккал`;
 }

@@ -5,13 +5,13 @@ import { Button, cn, toast, useConfirm } from 'shonk-ui';
 import { computed, ref, useTemplateRef } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
-  countMeasured,
-  entriesOfDay,
-  EntryRow,
-  removeEntry,
-  restoreEntry,
-  totalKcal,
-  totalNutrients,
+	countMeasured,
+	entriesOfDay,
+	EntryRow,
+	removeEntry,
+	restoreEntry,
+	totalKcal,
+	totalNutrients,
 } from '@/entities/entry';
 import { photosById, useCustomFoods } from '@/entities/food';
 import { loadProfile } from '@/entities/profile';
@@ -27,10 +27,10 @@ const router = useRouter();
 const confirmation = useConfirm();
 
 const dateKey = computed({
-  get: () => requestedDateKey(route.query.date),
-  set: (date: DateKey) => {
-    void router.replace({ query: { date } });
-  },
+	get: () => requestedDateKey(route.query.date),
+	set: (date: DateKey) => {
+		void router.replace({ query: { date } });
+	},
 });
 
 const entries = useLiveQuery<Entry[]>(() => entriesOfDay(dateKey.value), [], [dateKey]);
@@ -51,88 +51,88 @@ const summary = useTemplateRef<HTMLElement>('summary');
 const compact = ref(false);
 
 function trackScroll(event: Event) {
-  const list = event.target as HTMLElement;
+	const list = event.target as HTMLElement;
 
-  compact.value = nextCompact(compact.value, {
-    scrollTop: list.scrollTop,
-    scrollable: list.scrollHeight - list.clientHeight,
-    headerHeight: summary.value?.offsetHeight ?? 0,
-  });
+	compact.value = nextCompact(compact.value, {
+		scrollTop: list.scrollTop,
+		scrollable: list.scrollHeight - list.clientHeight,
+		headerHeight: summary.value?.offsetHeight ?? 0,
+	});
 }
 
 async function remove(entry: Entry) {
-  await removeEntry(entry.id);
+	await removeEntry(entry.id);
 
-  toast('Запись удалена', {
-    action: {
-      label: 'Вернуть',
-      onClick: () => {
-        void restoreEntry(entry);
-      },
-    },
-  });
+	toast('Запись удалена', {
+		action: {
+			label: 'Вернуть',
+			onClick: () => {
+				void restoreEntry(entry);
+			},
+		},
+	});
 }
 
 function askToRemove(entry: Entry) {
-  confirmation.require({
-    message: `«${entry.name}» пропадёт из дневника за этот день.`,
-    acceptButtonText: 'Удалить',
-    acceptButtonVariant: 'destructive',
-    accept: () => {
-      void remove(entry);
-    },
-  });
+	confirmation.require({
+		message: `«${entry.name}» пропадёт из дневника за этот день.`,
+		acceptButtonText: 'Удалить',
+		acceptButtonVariant: 'destructive',
+		accept: () => {
+			void remove(entry);
+		},
+	});
 }
 
 function editEntry(entry: Entry) {
-  void router.push(`/entry/${entry.id}`);
+	void router.push(`/entry/${entry.id}`);
 }
 </script>
 
 <template>
-  <main class="flex min-h-0 flex-1 flex-col">
-    <WeekStrip v-model="dateKey" :gesture-area="summary" class="shrink-0 pt-6 pb-2" />
+	<main class="flex min-h-0 flex-1 flex-col">
+		<WeekStrip v-model="dateKey" :gesture-area="summary" class="shrink-0 pt-6 pb-2" />
 
-    <div
-      ref="summary"
-      :class="cn('shrink-0 border-b border-border px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
-    >
-      <DayProgress :eaten="eaten" :target="target" :compact="compact" />
+		<div
+			ref="summary"
+			:class="cn('shrink-0 border-b border-border px-4 transition-all duration-300', compact ? 'py-3' : 'py-6')"
+		>
+			<DayProgress :eaten="eaten" :target="target" :compact="compact" />
 
-      <DayQuality
-        v-if="!compact && entries.length"
-        :nutrients="nutrients"
-        :measured="measured"
-        :entries="entries.length"
-        :weight-kg="weight"
-        :target-kcal="target"
-        class="mt-5"
-      />
-    </div>
+			<DayQuality
+				v-if="!compact && entries.length"
+				:nutrients="nutrients"
+				:measured="measured"
+				:entries="entries.length"
+				:weight-kg="weight"
+				:target-kcal="target"
+				class="mt-5"
+			/>
+		</div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto pb-6" @scroll="trackScroll">
-      <WeighInReminder v-if="showsToday" />
+		<div class="min-h-0 flex-1 overflow-y-auto pb-6" @scroll="trackScroll">
+			<WeighInReminder v-if="showsToday" />
 
-      <ul v-if="entries.length">
-        <EntryRow
-          v-for="entry in entries"
-          :key="entry.id"
-          :entry="entry"
-          :photo="customPhotos.get(entry.foodId ?? '')"
-          @remove="askToRemove"
-          @edit="editEntry"
-        />
-      </ul>
+			<ul v-if="entries.length">
+				<EntryRow
+					v-for="entry in entries"
+					:key="entry.id"
+					:entry="entry"
+					:photo="customPhotos.get(entry.foodId ?? '')"
+					@remove="askToRemove"
+					@edit="editEntry"
+				/>
+			</ul>
 
-      <p v-else class="px-4 py-8 text-center text-sm text-muted-foreground">
-        {{ showsToday ? 'Сегодня пока пусто' : 'В этот день записей нет' }}
-      </p>
+			<p v-else class="px-4 py-8 text-center text-sm text-muted-foreground">
+				{{ showsToday ? 'Сегодня пока пусто' : 'В этот день записей нет' }}
+			</p>
 
-      <div v-if="!showsToday || !entries.length" class="px-4 pt-4">
-        <Button :as="RouterLink" :to="addLink" class="w-full">
-          Добавить
-        </Button>
-      </div>
-    </div>
-  </main>
+			<div v-if="!showsToday || !entries.length" class="px-4 pt-4">
+				<Button :as="RouterLink" :to="addLink" class="w-full">
+					Добавить
+				</Button>
+			</div>
+		</div>
+	</main>
 </template>

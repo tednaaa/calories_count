@@ -9,167 +9,167 @@ import { keepEntryAsFood } from './lib/keep';
 const { push, replace } = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
 
 vi.mock('vue-router', () => ({
-  RouterLink: { template: '<a><slot /></a>' },
-  useRoute: () => ({ params: { id: 'entry-1' } }),
-  useRouter: () => ({ push, replace }),
+	RouterLink: { template: '<a><slot /></a>' },
+	useRoute: () => ({ params: { id: 'entry-1' } }),
+	useRouter: () => ({ push, replace }),
 }));
 
 vi.mock('shonk-ui', async importOriginal => ({
-  ...await importOriginal<typeof import('shonk-ui')>(),
-  toast: vi.fn(),
+	...await importOriginal<typeof import('shonk-ui')>(),
+	toast: vi.fn(),
 }));
 
 vi.mock('@/entities/entry', async importOriginal => ({
-  ...await importOriginal<typeof import('@/entities/entry')>(),
-  loadEntry: vi.fn(),
-  saveEntry: vi.fn(),
+	...await importOriginal<typeof import('@/entities/entry')>(),
+	loadEntry: vi.fn(),
+	saveEntry: vi.fn(),
 }));
 
 vi.mock('@/entities/food', async importOriginal => ({
-  ...await importOriginal<typeof import('@/entities/food')>(),
-  loadCustomFood: vi.fn(),
+	...await importOriginal<typeof import('@/entities/food')>(),
+	loadCustomFood: vi.fn(),
 }));
 
 vi.mock('./lib/keep', () => ({ keepEntryAsFood: vi.fn() }));
 
 const stored: Entry = {
-  id: 'entry-1',
-  date: '2026-08-19',
-  createdAt: Date.parse('2026-08-19T09:15:00'),
-  foodId: 'coffee-black',
-  qty: 1,
-  kcalPerPortion: 5,
-  name: 'Кофе чёрный',
+	id: 'entry-1',
+	date: '2026-08-19',
+	createdAt: Date.parse('2026-08-19T09:15:00'),
+	foodId: 'coffee-black',
+	qty: 1,
+	kcalPerPortion: 5,
+	name: 'Кофе чёрный',
 };
 
 const once: Entry = {
-  ...stored,
-  id: 'entry-2',
-  foodId: undefined,
-  photo: 'data:image/jpeg;base64,zzz',
-  name: 'Пирог у бабушки',
-  kcalPerPortion: 350,
+	...stored,
+	id: 'entry-2',
+	foodId: undefined,
+	photo: 'data:image/jpeg;base64,zzz',
+	name: 'Пирог у бабушки',
+	kcalPerPortion: 350,
 };
 
 const day = { path: '/', query: { date: '2026-08-19' } };
 
 async function open() {
-  const wrapper = mount(EntryView);
+	const wrapper = mount(EntryView);
 
-  await flushPromises();
+	await flushPromises();
 
-  return wrapper;
+	return wrapper;
 }
 
 beforeEach(() => {
-  vi.mocked(loadEntry).mockResolvedValue(stored);
-  vi.mocked(loadCustomFood).mockResolvedValue(undefined);
+	vi.mocked(loadEntry).mockResolvedValue(stored);
+	vi.mocked(loadCustomFood).mockResolvedValue(undefined);
 });
 
 describe('entry editing', () => {
-  it('opens with the entry values', async () => {
-    const wrapper = await open();
+	it('opens with the entry values', async () => {
+		const wrapper = await open();
 
-    expect((wrapper.find('#custom-name').element as HTMLInputElement).value).toBe('Кофе чёрный');
-    expect((wrapper.find('#custom-kcal').element as HTMLInputElement).value).toBe('5');
-    expect(wrapper.text()).toContain('Итого 5 ккал');
-  });
+		expect((wrapper.find('#custom-name').element as HTMLInputElement).value).toBe('Кофе чёрный');
+		expect((wrapper.find('#custom-kcal').element as HTMLInputElement).value).toBe('5');
+		expect(wrapper.text()).toContain('Итого 5 ккал');
+	});
 
-  it('saves the edit and returns to the entry day', async () => {
-    const wrapper = await open();
+	it('saves the edit and returns to the entry day', async () => {
+		const wrapper = await open();
 
-    await wrapper.find('#custom-name').setValue('Кофе с молоком');
-    await wrapper.find('#custom-kcal').setValue('40');
-    await wrapper.find('[aria-label="Больше"]').trigger('click');
-    await wrapper.find('form').trigger('submit');
-    await flushPromises();
+		await wrapper.find('#custom-name').setValue('Кофе с молоком');
+		await wrapper.find('#custom-kcal').setValue('40');
+		await wrapper.find('[aria-label="Больше"]').trigger('click');
+		await wrapper.find('form').trigger('submit');
+		await flushPromises();
 
-    expect(saveEntry).toHaveBeenCalledWith(stored, { name: 'Кофе с молоком', kcalPerPortion: 40, photo: undefined }, 2);
-    expect(toast).toHaveBeenCalledWith('Запись сохранена');
-    expect(push).toHaveBeenCalledWith(day);
-  });
+		expect(saveEntry).toHaveBeenCalledWith(stored, { name: 'Кофе с молоком', kcalPerPortion: 40, photo: undefined }, 2);
+		expect(toast).toHaveBeenCalledWith('Запись сохранена');
+		expect(push).toHaveBeenCalledWith(day);
+	});
 
-  it('does not save an entry without a name', async () => {
-    const wrapper = await open();
+	it('does not save an entry without a name', async () => {
+		const wrapper = await open();
 
-    await wrapper.find('#custom-name').setValue('   ');
-    await wrapper.find('form').trigger('submit');
-    await flushPromises();
+		await wrapper.find('#custom-name').setValue('   ');
+		await wrapper.find('form').trigger('submit');
+		await flushPromises();
 
-    expect(saveEntry).not.toHaveBeenCalled();
-  });
+		expect(saveEntry).not.toHaveBeenCalled();
+	});
 
-  it('keeps quantity at half a portion or more', async () => {
-    const wrapper = await open();
-    const less = wrapper.find('[aria-label="Меньше"]');
+	it('keeps quantity at half a portion or more', async () => {
+		const wrapper = await open();
+		const less = wrapper.find('[aria-label="Меньше"]');
 
-    await less.trigger('click');
-    expect(wrapper.text()).toContain('0.5');
+		await less.trigger('click');
+		expect(wrapper.text()).toContain('0.5');
 
-    expect(less.attributes('disabled')).toBeDefined();
-  });
+		expect(less.attributes('disabled')).toBeDefined();
+	});
 
-  it('has no delete button, removal is by swipe in the list', async () => {
-    const wrapper = await open();
+	it('has no delete button, removal is by swipe in the list', async () => {
+		const wrapper = await open();
 
-    expect(wrapper.findAll('button').some(button => button.text().includes('Удалить'))).toBe(false);
-  });
+		expect(wrapper.findAll('button').some(button => button.text().includes('Удалить'))).toBe(false);
+	});
 
-  it('hides the save to favorites toggle for a catalog entry', async () => {
-    const wrapper = await open();
+	it('hides the save to favorites toggle for a catalog entry', async () => {
+		const wrapper = await open();
 
-    expect(wrapper.find('#entry-keeps').exists()).toBe(false);
-    expect(wrapper.text()).not.toContain('Блюдо уже в избранном');
-  });
+		expect(wrapper.find('#entry-keeps').exists()).toBe(false);
+		expect(wrapper.text()).not.toContain('Блюдо уже в избранном');
+	});
 
-  it('shows a favorites note instead of the toggle for a custom food entry', async () => {
-    vi.mocked(loadEntry).mockResolvedValue({ ...stored, foodId: 'pie' });
-    vi.mocked(loadCustomFood).mockResolvedValue({
-      id: 'pie',
-      name: 'Пирог у бабушки',
-      kcal: 350,
-      createdAt: 0,
-      updatedAt: 0,
-    });
+	it('shows a favorites note instead of the toggle for a custom food entry', async () => {
+		vi.mocked(loadEntry).mockResolvedValue({ ...stored, foodId: 'pie' });
+		vi.mocked(loadCustomFood).mockResolvedValue({
+			id: 'pie',
+			name: 'Пирог у бабушки',
+			kcal: 350,
+			createdAt: 0,
+			updatedAt: 0,
+		});
 
-    const wrapper = await open();
+		const wrapper = await open();
 
-    expect(wrapper.find('#entry-keeps').exists()).toBe(false);
-    expect(wrapper.text()).toContain('Блюдо уже в избранном');
-  });
+		expect(wrapper.find('#entry-keeps').exists()).toBe(false);
+		expect(wrapper.text()).toContain('Блюдо уже в избранном');
+	});
 
-  it('creates a food from a one-off entry when the toggle is on', async () => {
-    vi.mocked(loadEntry).mockResolvedValue(once);
-    const wrapper = await open();
+	it('creates a food from a one-off entry when the toggle is on', async () => {
+		vi.mocked(loadEntry).mockResolvedValue(once);
+		const wrapper = await open();
 
-    await wrapper.find('#entry-keeps').trigger('click');
-    await wrapper.find('form').trigger('submit');
-    await flushPromises();
+		await wrapper.find('#entry-keeps').trigger('click');
+		await wrapper.find('form').trigger('submit');
+		await flushPromises();
 
-    expect(keepEntryAsFood).toHaveBeenCalledWith(once, {
-      name: 'Пирог у бабушки',
-      kcalPerPortion: 350,
-      photo: 'data:image/jpeg;base64,zzz',
-    }, 1);
-    expect(saveEntry).not.toHaveBeenCalled();
-    expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь в избранном');
-  });
+		expect(keepEntryAsFood).toHaveBeenCalledWith(once, {
+			name: 'Пирог у бабушки',
+			kcalPerPortion: 350,
+			photo: 'data:image/jpeg;base64,zzz',
+		}, 1);
+		expect(saveEntry).not.toHaveBeenCalled();
+		expect(toast).toHaveBeenCalledWith('«Пирог у бабушки» теперь в избранном');
+	});
 
-  it('keeps a one-off entry one-off when the toggle is off', async () => {
-    vi.mocked(loadEntry).mockResolvedValue(once);
-    const wrapper = await open();
+	it('keeps a one-off entry one-off when the toggle is off', async () => {
+		vi.mocked(loadEntry).mockResolvedValue(once);
+		const wrapper = await open();
 
-    await wrapper.find('form').trigger('submit');
-    await flushPromises();
+		await wrapper.find('form').trigger('submit');
+		await flushPromises();
 
-    expect(saveEntry).toHaveBeenCalled();
-    expect(keepEntryAsFood).not.toHaveBeenCalled();
-  });
+		expect(saveEntry).toHaveBeenCalled();
+		expect(keepEntryAsFood).not.toHaveBeenCalled();
+	});
 
-  it('redirects to today when the entry is missing', async () => {
-    vi.mocked(loadEntry).mockResolvedValue(undefined);
-    await open();
+	it('redirects to today when the entry is missing', async () => {
+		vi.mocked(loadEntry).mockResolvedValue(undefined);
+		await open();
 
-    expect(replace).toHaveBeenCalledWith('/');
-  });
+		expect(replace).toHaveBeenCalledWith('/');
+	});
 });

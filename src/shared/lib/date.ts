@@ -1,115 +1,115 @@
 export type DateKey = string;
 
 export function toDateKey(date: Date = new Date()): DateKey {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
 
-  return `${year}-${month}-${day}`;
+	return `${year}-${month}-${day}`;
 }
 
 export function fromDateKey(key: DateKey): Date {
-  const [year, month, day] = key.split('-').map(Number);
+	const [year, month, day] = key.split('-').map(Number);
 
-  return new Date(year, month - 1, day);
+	return new Date(year, month - 1, day);
 }
 
 export function shiftDateKey(key: DateKey, days: number): DateKey {
-  const date = fromDateKey(key);
-  date.setDate(date.getDate() + days);
+	const date = fromDateKey(key);
+	date.setDate(date.getDate() + days);
 
-  return toDateKey(date);
+	return toDateKey(date);
 }
 
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export function isDateKey(value: unknown): value is DateKey {
-  return typeof value === 'string'
-    && DATE_KEY_PATTERN.test(value)
-    && toDateKey(fromDateKey(value)) === value;
+	return typeof value === 'string'
+		&& DATE_KEY_PATTERN.test(value)
+		&& toDateKey(fromDateKey(value)) === value;
 }
 
 export function isToday(key: DateKey): boolean {
-  return key === toDateKey();
+	return key === toDateKey();
 }
 
 export function isFuture(key: DateKey): boolean {
-  return key > toDateKey();
+	return key > toDateKey();
 }
 
 export function requestedDateKey(value: unknown): DateKey {
-  return isDateKey(value) && !isFuture(value) ? value : toDateKey();
+	return isDateKey(value) && !isFuture(value) ? value : toDateKey();
 }
 
 export function startOfWeek(key: DateKey): DateKey {
-  const weekday = (fromDateKey(key).getDay() + 6) % 7;
+	const weekday = (fromDateKey(key).getDay() + 6) % 7;
 
-  return shiftDateKey(key, -weekday);
+	return shiftDateKey(key, -weekday);
 }
 
 export function weekDateKeys(key: DateKey): DateKey[] {
-  const monday = startOfWeek(key);
+	const monday = startOfWeek(key);
 
-  return Array.from({ length: 7 }, (_, index) => shiftDateKey(monday, index));
+	return Array.from({ length: 7 }, (_, index) => shiftDateKey(monday, index));
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function dayNumber(key: DateKey): number {
-  return fromDateKey(key).getDate();
+	return fromDateKey(key).getDate();
 }
 
 export function daysBetween(from: DateKey, to: DateKey): number {
-  return Math.round((fromDateKey(to).getTime() - fromDateKey(from).getTime()) / DAY_MS);
+	return Math.round((fromDateKey(to).getTime() - fromDateKey(from).getTime()) / DAY_MS);
 }
 
 export function fullMonthsBetween(from: DateKey, to: DateKey): number {
-  const months = (Number(to.slice(0, 4)) - Number(from.slice(0, 4))) * 12 + Number(to.slice(5, 7)) - Number(from.slice(5, 7));
+	const months = (Number(to.slice(0, 4)) - Number(from.slice(0, 4))) * 12 + Number(to.slice(5, 7)) - Number(from.slice(5, 7));
 
-  return to.slice(8) < from.slice(8) ? months - 1 : months;
+	return to.slice(8) < from.slice(8) ? months - 1 : months;
 }
 
 export function fullYearsBetween(from: DateKey, to: DateKey): number {
-  return Math.floor(fullMonthsBetween(from, to) / 12);
+	return Math.floor(fullMonthsBetween(from, to) / 12);
 }
 
 export function yearsBefore(key: DateKey, years: number): DateKey {
-  const date = fromDateKey(key);
-  date.setFullYear(date.getFullYear() - years);
+	const date = fromDateKey(key);
+	date.setFullYear(date.getFullYear() - years);
 
-  return toDateKey(date);
+	return toDateKey(date);
 }
 
 export function lastDateKeys(count: number, until: DateKey = toDateKey()): DateKey[] {
-  return Array.from({ length: count }, (_, index) => shiftDateKey(until, index - count + 1));
+	return Array.from({ length: count }, (_, index) => shiftDateKey(until, index - count + 1));
 }
 
 const dayMonthFormatter = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
 const weekdayFormatter = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' });
 
 export function formatDayLabel(key: DateKey): string {
-  if (isToday(key)) {
-    return 'Сегодня';
-  }
-  if (key === shiftDateKey(toDateKey(), -1)) {
-    return 'Вчера';
-  }
+	if (isToday(key)) {
+		return 'Сегодня';
+	}
+	if (key === shiftDateKey(toDateKey(), -1)) {
+		return 'Вчера';
+	}
 
-  return dayMonthFormatter.format(fromDateKey(key));
+	return dayMonthFormatter.format(fromDateKey(key));
 }
 
 export function formatWeekday(key: DateKey): string {
-  return weekdayFormatter.format(fromDateKey(key));
+	return weekdayFormatter.format(fromDateKey(key));
 }
 
 const fullDateFormatter = new Intl.DateTimeFormat('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
 
 export function formatFullDate(key: DateKey): string {
-  return fullDateFormatter.format(fromDateKey(key));
+	return fullDateFormatter.format(fromDateKey(key));
 }
 
 const timeFormatter = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
 export function formatTime(epochMs: number): string {
-  return timeFormatter.format(new Date(epochMs));
+	return timeFormatter.format(new Date(epochMs));
 }

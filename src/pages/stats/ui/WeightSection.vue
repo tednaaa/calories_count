@@ -26,39 +26,39 @@ const trend = computed(() => fitTrend(points.value));
 const estimatedTdee = computed(() => (profile.value ? calcTarget(profile.value).tdee : 0));
 
 const impact = computed(() => analyzeImpact({
-  days: days.value,
-  totals: totalsByDate(entries.value),
-  weights: weights.value,
-  estimatedTdee: estimatedTdee.value,
+	days: days.value,
+	totals: totalsByDate(entries.value),
+	weights: weights.value,
+	estimatedTdee: estimatedTdee.value,
 }));
 
 const calibration = computed(() => {
-  const result = impact.value;
+	const result = impact.value;
 
-  return result.ready && profile.value
-    ? { impact: result.impact, offer: offerCalibration(result.impact, profile.value, today.value) }
-    : null;
+	return result.ready && profile.value
+		? { impact: result.impact, offer: offerCalibration(result.impact, profile.value, today.value) }
+		: null;
 });
 
 const goalProgress = computed(() => {
-  const target = profile.value?.targetWeightKg;
-  const current = latest.value?.kg ?? profile.value?.weightKg;
+	const target = profile.value?.targetWeightKg;
+	const current = latest.value?.kg ?? profile.value?.weightKg;
 
-  if (!profile.value || !target || !current) {
-    return null;
-  }
+	if (!profile.value || !target || !current) {
+		return null;
+	}
 
-  const toGo = weightToGo(profile.value.goal, current, target);
+	const toGo = weightToGo(profile.value.goal, current, target);
 
-  return toGo.reached
-    ? `Целевой вес ${formatKg(target)} кг достигнут`
-    : `До целевого веса ${formatKg(target)} кг осталось ${formatKg(toGo.kg)} кг`;
+	return toGo.reached
+		? `Целевой вес ${formatKg(target)} кг достигнут`
+		: `До целевого веса ${formatKg(target)} кг осталось ${formatKg(toGo.kg)} кг`;
 });
 
 const bmiNote = computed(() => {
-  const current = profile.value;
+	const current = profile.value;
 
-  return current ? describeBmi({ ...current, weightKg: latest.value?.kg ?? current.weightKg }) : null;
+	return current ? describeBmi({ ...current, weightKg: latest.value?.kg ?? current.weightKg }) : null;
 });
 
 const { enabled: reminds } = useWeighInReminder();
@@ -67,61 +67,61 @@ const weighing = ref(false);
 </script>
 
 <template>
-  <section>
-    <div class="flex items-end justify-between gap-4">
-      <div v-if="latest">
-        <p class="text-3xl font-semibold tabular-nums text-foreground">
-          {{ formatKg(latest.kg) }}
-          <span class="text-base font-normal text-muted-foreground">кг</span>
-        </p>
-        <p class="text-xs text-muted-foreground">
-          {{ formatDayLabel(latest.date) }}<template v-if="impact.ready">
-            · тренд {{ formatRate(impact.impact.actualPerWeek) }}
-          </template>
-        </p>
-      </div>
-      <p v-else class="text-sm text-muted-foreground">
-        Взвешиваний пока нет
-      </p>
+	<section>
+		<div class="flex items-end justify-between gap-4">
+			<div v-if="latest">
+				<p class="text-3xl font-semibold tabular-nums text-foreground">
+					{{ formatKg(latest.kg) }}
+					<span class="text-base font-normal text-muted-foreground">кг</span>
+				</p>
+				<p class="text-xs text-muted-foreground">
+					{{ formatDayLabel(latest.date) }}<template v-if="impact.ready">
+						· тренд {{ formatRate(impact.impact.actualPerWeek) }}
+					</template>
+				</p>
+			</div>
+			<p v-else class="text-sm text-muted-foreground">
+				Взвешиваний пока нет
+			</p>
 
-      <Button type="button" @click="weighing = true">
-        Записать вес
-      </Button>
-    </div>
+			<Button type="button" @click="weighing = true">
+				Записать вес
+			</Button>
+		</div>
 
-    <p v-if="goalProgress" class="pt-2 text-sm text-muted-foreground">
-      {{ goalProgress }}
-    </p>
-    <p v-if="bmiNote" class="pt-2 text-xs text-muted-foreground">
-      {{ bmiNote }}
-    </p>
+		<p v-if="goalProgress" class="pt-2 text-sm text-muted-foreground">
+			{{ goalProgress }}
+		</p>
+		<p v-if="bmiNote" class="pt-2 text-xs text-muted-foreground">
+			{{ bmiNote }}
+		</p>
 
-    <WeightChart
-      v-if="points.length"
-      :points="points"
-      :trend="trend"
-      :days="days"
-      class="mt-6"
-    />
+		<WeightChart
+			v-if="points.length"
+			:points="points"
+			:trend="trend"
+			:days="days"
+			class="mt-6"
+		/>
 
-    <h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-      Расход по весу
-    </h3>
-    <DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" :reminds="reminds" />
+		<h3 class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+			Расход по весу
+		</h3>
+		<DietImpact v-if="profile" :result="impact" :estimated-tdee="estimatedTdee" :reminds="reminds" />
 
-    <template v-if="calibration && profile">
-      <h3 v-if="calibration.offer.kind === 'offer'" class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-        Уточнить норму
-      </h3>
-      <NormCalibration
-        :class="{ 'pt-6': calibration.offer.kind !== 'offer' }"
-        :offer="calibration.offer"
-        :impact="calibration.impact"
-        :estimated-tdee="estimatedTdee"
-        :goal="profile.goal"
-      />
-    </template>
+		<template v-if="calibration && profile">
+			<h3 v-if="calibration.offer.kind === 'offer'" class="pt-8 pb-4 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+				Уточнить норму
+			</h3>
+			<NormCalibration
+				:class="{ 'pt-6': calibration.offer.kind !== 'offer' }"
+				:offer="calibration.offer"
+				:impact="calibration.impact"
+				:estimated-tdee="estimatedTdee"
+				:goal="profile.goal"
+			/>
+		</template>
 
-    <WeighInDialog v-model:open="weighing" :last-kg="latest?.kg" />
-  </section>
+		<WeighInDialog v-model:open="weighing" :last-kg="latest?.kg" />
+	</section>
 </template>

@@ -8,71 +8,71 @@ const unsubscribe = vi.fn();
 let emit: ((value: unknown) => void) | undefined;
 
 beforeEach(() => {
-  vi.mocked(liveQuery).mockImplementation(() => ({
-    subscribe: (observer: { next: (value: unknown) => void }) => {
-      emit = observer.next;
-      return { unsubscribe };
-    },
-  }) as unknown as ReturnType<typeof liveQuery>);
+	vi.mocked(liveQuery).mockImplementation(() => ({
+		subscribe: (observer: { next: (value: unknown) => void }) => {
+			emit = observer.next;
+			return { unsubscribe };
+		},
+	}) as unknown as ReturnType<typeof liveQuery>);
 });
 
 describe('useLiveQuery', () => {
-  it('subscribes immediately and returns the initial value', () => {
-    const scope = effectScope();
-    const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
+	it('subscribes immediately and returns the initial value', () => {
+		const scope = effectScope();
+		const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
 
-    expect(result?.value).toBe('начальное');
-    expect(liveQuery).toHaveBeenCalledTimes(1);
+		expect(result?.value).toBe('начальное');
+		expect(liveQuery).toHaveBeenCalledTimes(1);
 
-    scope.stop();
-  });
+		scope.stop();
+	});
 
-  it('updates the value on a new result', () => {
-    const scope = effectScope();
-    const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
+	it('updates the value on a new result', () => {
+		const scope = effectScope();
+		const result = scope.run(() => useLiveQuery(() => 'значение', 'начальное'));
 
-    emit?.('обновлённое');
+		emit?.('обновлённое');
 
-    expect(result?.value).toBe('обновлённое');
+		expect(result?.value).toBe('обновлённое');
 
-    scope.stop();
-  });
+		scope.stop();
+	});
 
-  it('resubscribes when a dependency changes', async () => {
-    const scope = effectScope();
-    const date = ref('2026-08-19');
+	it('resubscribes when a dependency changes', async () => {
+		const scope = effectScope();
+		const date = ref('2026-08-19');
 
-    scope.run(() => useLiveQuery(() => date.value, '', [date]));
-    expect(liveQuery).toHaveBeenCalledTimes(1);
+		scope.run(() => useLiveQuery(() => date.value, '', [date]));
+		expect(liveQuery).toHaveBeenCalledTimes(1);
 
-    date.value = '2026-08-18';
-    await nextTick();
+		date.value = '2026-08-18';
+		await nextTick();
 
-    expect(unsubscribe).toHaveBeenCalledTimes(1);
-    expect(liveQuery).toHaveBeenCalledTimes(2);
+		expect(unsubscribe).toHaveBeenCalledTimes(1);
+		expect(liveQuery).toHaveBeenCalledTimes(2);
 
-    scope.stop();
-  });
+		scope.stop();
+	});
 
-  it('does not resubscribe without dependencies', async () => {
-    const scope = effectScope();
-    const unrelated = ref(1);
+	it('does not resubscribe without dependencies', async () => {
+		const scope = effectScope();
+		const unrelated = ref(1);
 
-    scope.run(() => useLiveQuery(() => 'значение', ''));
-    unrelated.value = 2;
-    await nextTick();
+		scope.run(() => useLiveQuery(() => 'значение', ''));
+		unrelated.value = 2;
+		await nextTick();
 
-    expect(liveQuery).toHaveBeenCalledTimes(1);
+		expect(liveQuery).toHaveBeenCalledTimes(1);
 
-    scope.stop();
-  });
+		scope.stop();
+	});
 
-  it('unsubscribes when the effect scope stops', () => {
-    const scope = effectScope();
-    scope.run(() => useLiveQuery(() => 'значение', ''));
+	it('unsubscribes when the effect scope stops', () => {
+		const scope = effectScope();
+		scope.run(() => useLiveQuery(() => 'значение', ''));
 
-    scope.stop();
+		scope.stop();
 
-    expect(unsubscribe).toHaveBeenCalledTimes(1);
-  });
+		expect(unsubscribe).toHaveBeenCalledTimes(1);
+	});
 });
